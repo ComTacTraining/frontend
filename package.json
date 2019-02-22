@@ -3,9 +3,24 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "axios": "^0.18.0",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
-    "react-scripts": "2.1.3"
+    "react-router": "^4.3.1",
+    "react-router-dom": "^4.3.1",
+    "react-scripts": "2.1.3",
+    "recordrtc": "^5.5.2",
+    "video.js": "^7.4.1",
+    "videojs-brand": "0.0.4",
+    "videojs-contextmenu-ui": "^5.1.0",
+    "videojs-overlay": "^2.1.4",
+    "videojs-playlist": "^4.3.0",
+    "videojs-playlist-ui": "^3.5.2",
+    "videojs-record": "^3.3.0",
+    "videojs-watermark": "^2.0.0",
+    "videojs-wavesurfer": "^2.6.3",
+    "wavesurfer.js": "^2.1.2",
+    "webrtc-adapter": "^7.1.1"
   },
   "scripts": {
     "start": "react-scripts start",

@@ -1,0 +1,30 @@
+.Header {
+  background-color: #282c34;
+  min-height: 10vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.Header ul {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.Header li {
+  list-style-type: none;
+  display: inline-block;
+  margin: 20px;
+}
+
+.Header a {
+  color: #61dafb;
+}
+.Header a:hover,
+.Header a.active {
+  color: #fff;
+}
