@@ -1,0 +1,7 @@
+.container-fluid {
+    padding-top: 40px;
+}
+
+.container-fluid form .col {
+    margin-bottom: 10px;
+}
