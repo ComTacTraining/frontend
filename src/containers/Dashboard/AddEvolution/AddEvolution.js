@@ -39,7 +39,7 @@ class AddEvolution extends Component {
     handleSubmit = event => {
         event.preventDefault();
         console.log(this.state);
-        axios.post( '/evolution', this.state )
+        axios.post( '/evolutions', this.state )
           .then( response => {
             console.log('Saved...');
           })
