@@ -149,15 +149,16 @@ class VideoPlayer extends Component {
   getPlaylist = () => {
     const { evolution } = this.state;
 
-    const dispatcherIntro =
-      "https://s3-us-west-2.amazonaws.com/ctt-video/CTT+Dispatch+with+Label.mp4";
-    const dispatcherLoop =
-      "https://s3-us-west-2.amazonaws.com/ctt-video/CTT+Dispatch+no+Tag.mp4";
-    const credits = "https://s3-us-west-2.amazonaws.com/ctt-video/Credits.mp4";
+    const bucketDomain = 'https://s3-us-west-2.amazonaws.com/ctt-video/';
+    const fileType = '.mp4';
+
+    const dispatcherIntro = bucketDomain + "CTT+Dispatch+with+Label.mp4";
+    const dispatcherLoop = bucketDomain + "CTT+Dispatch+no+Tag.mp4";
+    const credits = bucketDomain + "Credits.mp4";
     const playlist = [
       {
         name: "Intro",
-        sources: [{ src: evolution.intro, type: "video/mp4" }]
+        sources: [{ src: bucketDomain + evolution.intro + fileType, type: "video/mp4" }]
       },
       {
         name: "Dispatcher Intro",
@@ -169,27 +170,27 @@ class VideoPlayer extends Component {
       },
       {
         name: "Approach",
-        sources: [{ src: evolution.approach, type: "video/mp4" }]
+        sources: [{ src: bucketDomain + evolution.approach + fileType, type: "video/mp4" }]
       },
       {
         name: "Alpha",
-        sources: [{ src: evolution.alpha, type: "video/mp4" }]
+        sources: [{ src: bucketDomain + evolution.alpha + fileType, type: "video/mp4" }]
       },
       {
         name: "Bravo",
-        sources: [{ src: evolution.bravo, type: "video/mp4" }]
+        sources: [{ src: bucketDomain + evolution.bravo + fileType, type: "video/mp4" }]
       },
       {
         name: "Charlie",
-        sources: [{ src: evolution.charlie, type: "video/mp4" }]
+        sources: [{ src: bucketDomain + evolution.charlie + fileType, type: "video/mp4" }]
       },
       {
         name: "Delta",
-        sources: [{ src: evolution.delta, type: "video/mp4" }]
+        sources: [{ src: bucketDomain + evolution.delta + fileType, type: "video/mp4" }]
       },
       {
         name: "Loop",
-        sources: [{ src: evolution.alpha, type: "video/mp4" }]
+        sources: [{ src: bucketDomain + evolution.alpha + fileType, type: "video/mp4" }]
       },
       { name: "Credits", sources: [{ src: credits, type: "video/mp4" }] }
     ];

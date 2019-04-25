@@ -1,52 +1,9 @@
 import React, { Component } from "react";
 import axios from "../../../axios";
 
-//import "./AddEvolution.css";
+import "./EvolutionForm.css";
 
-class AddEvolution extends Component {
-    state = {
-      category: '',
-      construction: '',
-      street: '',
-      size: '',
-      height: '',
-      occupancyType: '',
-      witnessedConditions: '',
-      entryEgress: '',
-      survivabilityProfile: '',
-      placement: '',
-      side: '',
-      flowpath: '',
-      exhaustPath: '',
-      smokeConditions: '',
-      smokeColor: '',
-      intro: '',
-      approach: '',
-      alpha: '',
-      bravo: '',
-      charlie: '',
-      delta: '',
-    };
-
-    handleChange = (event) => {
-      const target = event.target;
-      const value = target.type === 'checkbox' ? target.checked : target.value;
-      const name = target.name;
-      console.log('Updating ' + name + ' with ' + value);
-      this.setState({ [name]: value });
-    }
-
-    handleSubmit = event => {
-        event.preventDefault();
-        console.log(this.state);
-        axios.post( '/evolutions', this.state )
-          .then( response => {
-            console.log('Saved...');
-          })
-          .catch( error => {
-            console.error(error);
-          });
-    }
+class EvolutionForm extends Component {
 
   render() {
     return(
@@ -62,18 +19,27 @@ class AddEvolution extends Component {
                   <label className="sr-only">Type</label>
                   <select className="form-control" name="category" value={this.state.category} onChange={this.handleChange}>
                     <option>Evolution Type...</option>
-                    <option value="Commercial">Commercial</option>
-                    <option value="Industrial">Industrial</option>
-                    <option value="Multi Family">Multi Family</option>
-                    <option value="Single Family">Single Family</option>
+                    <option value="Commercial Modern">Commercial Modern</option>
+                    <option value="Commercial Legacy">Commercial Legacy</option>
+                    <option value="Industrial Modern">Industrial Modern</option>
+                    <option value="Industrial Legacy">Industrial Legacy</option>
+                    <option value="Multi Family Modern">Multi Family Modern</option>
+                    <option value="Multi Family Legacy">Multi Family Legacy</option>
+                    <option value="Single Family Modern">Single Family Modern</option>
+                    <option value="Single Family Legacy">Single Family Legacy</option>
                   </select>
                 </div>
                 <div className="col">
                   <label className="sr-only">Construction</label>
                   <select className="form-control" name="construction" value={this.state.construction} onChange={this.handleChange}>
                     <option>Construction...</option>
-                    <option value="Modern">Modern</option>
-                    <option value="Legacy">Legacy</option>
+                    <option value="Conventional">Conventional</option>
+                    <option value="Concrete Tilt Up">Concrete Tilt Up</option>
+                    <option value="Metal Clad">Metal Clad</option>
+                    <option value="Block Building">Block Building</option>
+                    <option value="Metal Clad &amp; Block">Metal Clad &amp; Block</option>
+                    <option value="Ordinary">Ordinary</option>
+                    <option value="Lightweight">Lightweight</option>
                   </select>
                 </div>
                 <div className="col">
@@ -99,6 +65,7 @@ class AddEvolution extends Component {
                     <option value="Single Story">Single Story</option>
                     <option value="Two Story">Two Story</option>
                     <option value="Three Story">Three Story</option>
+                    <option value="Four Story">Four Story</option>
                     <option value="Mid Rise">Mid Rise</option>
                     <option value="High Rise">High Rise</option>
                   </select>
@@ -111,54 +78,84 @@ class AddEvolution extends Component {
               <div className="row">
                 <div className="col">
                   <label className="sr-only">Witnessed Conditions</label>
-                  <input type="text" className="form-control" placeholder="Witnessed Conditions" name="witnessedConditions" value={this.state.witnessedConditions} onChange={this.handleChange} />
+                  <select className="form-control" name="witnessedConditions" value={this.state.witnessedConditions} onChange={this.handleChange}>
+                    <option>Witnessed Conditions</option>
+                    <option value="Alpha">Alpha</option>
+                    <option value="Bravo">Bravo</option>
+                    <option value="Charlie">Charlie</option>
+                    <option value="Delta">Delta</option>
+                  </select>
                 </div>
                 <div className="col">
+                    {/* Should be a multi selection */}
                   <label className="sr-only">Entry / Egress</label>
                   <input type="text" className="form-control" placeholder="Entry / Egress" name="entryEgress" value={this.state.entryEgress} onChange={this.handleChange} />
                 </div>
                 <div className="col">
                   <label className="sr-only">Survivability Profile</label>
-                  <input type="text" className="form-control" placeholder="Survivability Profile" name="survivabilityProfile" value={this.state.survivabilityProfile} onChange={this.handleChange} />
-                </div>
-              </div>
-              <div className="row">
-                <div className="col">
-                  <label className="sr-only">Location</label>
-                  <input type="text" className="form-control" placeholder="Location" name="placement" value={this.state.placement} onChange={this.handleChange} />
-                </div>
-                <div className="col">
-                  <label className="sr-only">Side</label>
-                  <input type="text" className="form-control" placeholder="Side" name="side" value={this.state.side} onChange={this.handleChange} />
-                </div>
-                <div className="col">
-                  <label className="sr-only">Flowpath</label>
-                  <select className="form-control" name="flowpath" value={this.state.flowpath} onChange={this.handleChange}>
-                    <option>Flowpath...</option>
-                    <option value="Unidirectional">Unidirectional</option>
-                    <option value="Bidirectional">Bidirectional</option>
+                  <select className="form-control" name="survivabilityProfile" value={this.state.survivabilityProfile} onChange={this.handleChange}>
+                    <option>Survivability Profile</option>
+                    <option value="Marginal">Marginal</option>
+                    <option value="Positive">Positive</option>
+                    <option value="Negative">Negative</option>
                   </select>
                 </div>
               </div>
               <div className="row">
                 <div className="col">
-                  <label className="sr-only">Exhaust Path</label>
-                  <input type="text" className="form-control" placeholder="Exhaust Path" name="exhaustPath" value={this.state.exhaustPath} onChange={this.handleChange} />
+                  <label className="sr-only">Location</label>
+                  <select className="form-control" name="placement" value={this.state.placement} onChange={this.handleChange}>
+                    <option>Location</option>
+                    <option value="Alpha">Alpha</option>
+                    <option value="Bravo">Bravo</option>
+                    <option value="Charlie">Charlie</option>
+                    <option value="Delta">Delta</option>
+                  </select>
                 </div>
                 <div className="col">
-                  <label className="sr-only">Smoke Color</label>
-                  <input type="text" className="form-control" placeholder="Smoke Color" name="smokeColor" value={this.state.smokeColor} onChange={this.handleChange} />
+                  <label className="sr-only">Side</label>
+                  <select className="form-control" name="side" value={this.state.side} onChange={this.handleChange}>
+                    <option>Side</option>
+                    <option value="Alpha">Alpha</option>
+                    <option value="Bravo">Bravo</option>
+                    <option value="Charlie">Charlie</option>
+                    <option value="Delta">Delta</option>
+                  </select>
                 </div>
                 <div className="col">
-                  <label className="sr-only">Smoke Conditions</label>
-                  <input type="text" className="form-control" placeholder="Smoke Conditions" name="smokeConditions" value={this.state.smokeConditions} onChange={this.handleChange} />
+                  <label className="sr-only">Flowpath</label>
+                  <select className="form-control" name="flowpath" value={this.state.flowpath} onChange={this.handleChange}>
+                    <option>Flowpath...</option>
+                    <option value="Uni-Directional">Uni-Directional</option>
+                    <option value="Bi-Directional">Bi-Directional</option>
+                  </select>
                 </div>
               </div>
               <div className="row">
                 <div className="col">
-                  <label className="sr-only">Intro</label>
-                  <input type="text" className="form-control" placeholder="Intro" name="intro" value={this.state.intro} onChange={this.handleChange} />
+                  <label className="sr-only">Type of Fire</label>
+                  <select className="form-control" name="fireType" value={this.state.firetype} onChange={this.handleChange}>
+                    <option>Type of Fire...</option>
+                    <option value="Room &amp; Contents">Room &amp; Contents</option>
+                    <option value="Structure">Structure</option>
+                  </select>
                 </div>
+                <div className="col">
+                  <label className="sr-only">Exhaust Path</label>
+                  <input type="text" className="form-control" placeholder="Exhaust Path" name="exhaustPath" value={this.state.exhaustPath} onChange={this.handleChange} />
+                </div>
+                <div className="col">
+                  <label className="sr-only">Smoke</label>
+                  <select className="form-control" name="smoke" value={this.state.smoke} onChange={this.handleChange}>
+                    <option>Smoke...</option>
+                    <option value="Gray Laminar">Gray Laminar</option>
+                    <option value="Gray Turbulent">Gray Turbulent</option>
+                    <option value="Black Laminar">Black Laminar</option>
+                    <option value="Black Turbulent">Black Turbulent</option>
+                  </select>
+                </div>
+              </div>
+              <div className="row">
                 <div className="col">
                   <label className="sr-only">Approach</label>
                   <select className="form-control" name="approach" value={this.state.approach} onChange={this.handleChange}>
@@ -170,6 +167,10 @@ class AddEvolution extends Component {
                     <option value="Approaches/Approach 5">Approaches/Approach 5</option>
                     <option value="Approaches/Approach 6">Approaches/Approach 6</option>
                   </select>
+                </div>
+                <div className="col">
+                  <label className="sr-only">Intro</label>
+                  <input type="text" className="form-control" placeholder="Intro" name="intro" value={this.state.intro} onChange={this.handleChange} />
                 </div>
                 <div className="col">
                   <label className="sr-only">Alpha</label>

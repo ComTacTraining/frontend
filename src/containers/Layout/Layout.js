@@ -24,15 +24,6 @@ class Layout extends Component {
                   Add Evolution
                 </NavLink>
               </li>
-              <li>
-                <NavLink
-                  to={{
-                    pathname: "/evolutions/cm4"
-                  }}
-                >
-                  Sample
-                </NavLink>
-              </li>
             </ul>
           </nav>
         </header>
