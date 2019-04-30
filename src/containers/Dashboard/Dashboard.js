@@ -36,7 +36,7 @@ class Dashboard extends Component {
                 const createdAt = new Date(evolution.createdAt);
                 const createdAtFormat = createdAt.getMonth()+1 + '/' + createdAt.getDate() + '/' + createdAt.getFullYear();
                 const viewLink = "/evolutions/" + evolution.id;
-                const editLink = "/dashboard/" + evolution.id;
+                //const editLink = "/dashboard/" + evolution.id;
                 return (
                   <div className="card" key={index}>
                     <div className="card-body">
