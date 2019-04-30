@@ -134,7 +134,7 @@ class EvolutionForm extends Component {
               <div className="row">
                 <div className="col">
                   <label className="sr-only">Type of Fire</label>
-                  <select className="form-control" name="fireType" value={this.state.firetype} onChange={this.handleChange}>
+                  <select className="form-control" name="fireType" value={this.state.fireType} onChange={this.handleChange}>
                     <option>Type of Fire...</option>
                     <option value="Room &amp; Contents">Room &amp; Contents</option>
                     <option value="Structure">Structure</option>

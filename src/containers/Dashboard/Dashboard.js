@@ -16,7 +16,6 @@ class Dashboard extends Component {
 
       axios.get("/evolutions").then(response => {
         console.log(response.data);
-      //axios.get("http://localhost:3000/evolutions").then(response => {
         this.setState({ evolutions: response.data });
       });
     }
@@ -44,7 +43,7 @@ class Dashboard extends Component {
                       <h5 className="card-title">{evolution.street}</h5>
                       <p className="card-text">{evolution.category} {evolution.construction}</p>
                       <Link to={viewLink} className="card-link">View</Link>
-                      <Link to={editLink} className="card-link">Edit</Link>
+                      {/*<Link to={editLink} className="card-link">Edit</Link>*/}
                       <p className="card-text"><small className="text-muted">Added: {createdAtFormat}</small></p>
                     </div>
                   </div>

@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import axios from "../../../axios";
 
-//import "./AddEvolution.css";
+import "./AddEvolution.css";
 
 class AddEvolution extends Component {
     state = {
