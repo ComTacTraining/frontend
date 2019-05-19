@@ -2,8 +2,9 @@ import React, { Component } from 'react';
 
 class Evolution extends Component {
     state = {
-      id: '',
-      nickname: '',
+      pk: '',
+      sk: '',
+      data: '',
       category: '',
       construction: '',
       street: '',
@@ -29,7 +30,7 @@ class Evolution extends Component {
       updatedAt: ''
     };
 
-    constructor(id) 
+    constructor(id) {}
 }
 
 export default Evolution;

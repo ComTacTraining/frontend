@@ -33,7 +33,7 @@ class Dashboard extends Component {
           <div className="card-columns">
             {
               this.state.evolutions.map((evolution, index) => {
-                const createdAt = new Date(evolution.createdAt);
+                //const createdAt = new Date(evolution.createdAt);
                 //const createdAtFormat = createdAt.getMonth()+1 + '/' + createdAt.getDate() + '/' + createdAt.getFullYear();
                 const viewLink = "/evolutions/" + evolution.pk;
                 //const editLink = "/dashboard/" + evolution.id;
