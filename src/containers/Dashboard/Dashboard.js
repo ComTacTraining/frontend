@@ -34,17 +34,17 @@ class Dashboard extends Component {
             {
               this.state.evolutions.map((evolution, index) => {
                 const createdAt = new Date(evolution.createdAt);
-                const createdAtFormat = createdAt.getMonth()+1 + '/' + createdAt.getDate() + '/' + createdAt.getFullYear();
-                const viewLink = "/evolutions/" + evolution.id;
+                //const createdAtFormat = createdAt.getMonth()+1 + '/' + createdAt.getDate() + '/' + createdAt.getFullYear();
+                const viewLink = "/evolutions/" + evolution.pk;
                 //const editLink = "/dashboard/" + evolution.id;
                 return (
                   <div className="card" key={index}>
                     <div className="card-body">
                       <h5 className="card-title">{evolution.street}</h5>
-                      <p className="card-text">{evolution.category} {evolution.construction}</p>
+                      <p className="card-text">{evolution.category}</p>
                       <Link to={viewLink} className="card-link">View</Link>
                       {/*<Link to={editLink} className="card-link">Edit</Link>*/}
-                      <p className="card-text"><small className="text-muted">Added: {createdAtFormat}</small></p>
+                      {/*<p className="card-text"><small className="text-muted">Added: {createdAtFormat}</small></p>*/}
                     </div>
                   </div>
                 );
