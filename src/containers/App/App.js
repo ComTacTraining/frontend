@@ -6,7 +6,7 @@ import Layout from "../Layout/Layout";
 class App extends Component {
   render() {
     return (
-      <BrowserRouter basename="/frontend">
+      <BrowserRouter>
         <div className="App">
           <Layout />
         </div>
