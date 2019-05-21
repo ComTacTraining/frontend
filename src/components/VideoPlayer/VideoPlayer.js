@@ -60,7 +60,9 @@ class VideoPlayer extends Component {
     this.addPlayerContextMenu();
     this.addPlayerRecordButton();
     //this.addPlayerClosedCaptions();
-    this.player.playlist(this.getPlaylist());
+    const playlist = this.getPlaylist();
+    console.log(playlist);
+    this.player.playlist(playlist);
     this.player.playlist.autoadvance(0);
   };
 
@@ -190,7 +192,7 @@ class VideoPlayer extends Component {
       },
       {
         name: "Loop",
-        sources: [{ src: bucketDomain + evolution.alpha + fileType, type: "video/mp4" }]
+        sources: [{ src: bucketDomain + evolution.loop + fileType, type: "video/mp4" }]
       },
       { name: "Credits", sources: [{ src: credits, type: "video/mp4" }] }
     ];
