@@ -175,8 +175,8 @@ class VideoPlayer extends Component {
         sources: [{ src: bucketDomain + evolution.approach + fileType, type: "video/mp4" }]
       },
       {
-        name: "Alpha",
-        sources: [{ src: bucketDomain + evolution.alpha + fileType, type: "video/mp4" }]
+        name: "Alpha (No Title)",
+        sources: [{ src: bucketDomain + evolution.loop + fileType, type: "video/mp4" }]
       },
       {
         name: "Bravo",
@@ -189,6 +189,10 @@ class VideoPlayer extends Component {
       {
         name: "Delta",
         sources: [{ src: bucketDomain + evolution.delta + fileType, type: "video/mp4" }]
+      },
+      {
+        name: "Alpha (Title)",
+        sources: [{ src: bucketDomain + evolution.alpha + fileType, type: "video/mp4" }]
       },
       {
         name: "Loop",
