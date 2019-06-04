@@ -1,5 +1,9 @@
 import React, { Component } from "react";
 import axios from "../../axios";
+import createPonyfill from 'web-speech-cognitive-services/lib/SpeechServices';
+//import { createSpeechRecognitionPonyfill } from 'web-speech-cognitive-services/lib/SpeechServices/SpeechToText';
+//import SayButton from 'react-say';
+//import DictateButton from 'react-dictate-button';
 
 import videojs from "video.js";
 import "videojs-playlist";
@@ -21,7 +25,9 @@ import "./VideoPlayer.css";
 class VideoPlayer extends Component {
   state = {
     evolution: null,
-    playlist: []
+    playlist: [],
+    authorizationToken: '',
+    dictate: '',
   };
 
   componentDidMount() {
@@ -36,10 +42,43 @@ class VideoPlayer extends Component {
           .get("/evolutions/" + this.props.match.params.id)
           .then(response => {
             this.setState({ evolution: response.data });
-            this.initPlayer();
+            
           });
       }
     }
+    const authToken = this.authorizationToken;
+    const tokenPromise = new Promise(function(resolve, reject) {
+        if (!authToken) {
+            axios.post("/speech")
+                .then(response => {
+                    resolve(response.data);
+                });
+        } else {
+            resolve(this.authorizationToken);
+        }
+    });
+
+    tokenPromise.then(token => {
+        this.setState({ authorizationToken: token });
+        /*const speechRecognitionPromise = createSpeechRecognitionPonyfill({
+          authorizationToken: token,
+          region: 'westus',
+        });
+        speechRecognitionPromise.then(SpeechRecognition => {
+          const recognition = new SpeechRecognition();
+          this.setState({ recognition: recognition});
+        });*/
+        const ponyfillPromise = createPonyfill({
+            authorizationToken: token,
+            region: 'westus',
+        });
+        ponyfillPromise.then(ponyfill => {
+            //console.log(ponyfill);
+            this.setState({ ponyfill: ponyfill });
+            this.initPlayer();
+            //this.setState(() => ({ ponyfill }));
+        });
+    });
   }
 
   componentWillUnmount() {
@@ -52,34 +91,33 @@ class VideoPlayer extends Component {
     // const options = this.props;
     const options = {
       autoplay: false,
-      controls: true
+      controls: true,
+      textTrackSettings: false
     };
+    
     this.player = videojs(this.videoNode, options, () => {});
     this.player.playlistUi();
-    this.addPlayerOverlay();
-    this.addPlayerContextMenu();
+    //this.addPlayerContextMenu();
     this.addPlayerRecordButton();
     //this.addPlayerClosedCaptions();
     const playlist = this.getPlaylist();
     console.log(playlist);
     this.player.playlist(playlist);
     this.player.playlist.autoadvance(0);
-  };
+    this.player.on("deviceReady", () => {
+      console.log("device is ready!");
+    });
 
-  addPlayerOverlay = () => {
-    this.player.overlay({
-      overlays: [
-        {
-          start: "playing",
-          end: "pause",
-          content: "Microphone recording..."
-        },
-        {
-          start: "pause",
-          end: "play",
-          content: "Microphone paused..."
-        }
-      ]
+    this.player.on("startRecord", () => {
+      console.log("started recording!");
+    });
+
+    this.player.on("finishRecord", () => {
+      console.log("finished recording: ", this.player.recordedData);
+    });
+
+    this.player.on("error", error => {
+      console.warn(error);
     });
   };
 
@@ -107,15 +145,31 @@ class VideoPlayer extends Component {
   };
 
   addPlayerRecordButton = () => {
+    //const { recognition } = this.state;
+    const { ponyfill } = this.state;
+    const recognition = new ponyfill.SpeechRecognition();
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+    recognition.onresult = ({ dictate }) => {
+      console.log(dictate);
+      this.setState({ dictate: dictate });
+    };
     const btnClass = videojs.getComponent("Button");
     const recordBtn = videojs.extend(btnClass, {
       constructor: function() {
         //btnClass.call(this, this.player);
         btnClass.apply(this, arguments);
         this.addClass("vjs-icon-circle");
+        this.on(['mousedown', 'touchstart'], this.handleMouseDown);
+        this.on(['mouseup', 'touchend'], this.handleMouseUp);
       },
-      handleClick: function() {
-        alert("Recording start...");
+      handleMouseDown: function() {
+        console.log("Recording start...");
+        recognition.start();
+      },
+      handleMouseUp: function() {
+        console.log("Recording stopped...");
+        recognition.stop();
       }
     });
 
@@ -123,29 +177,17 @@ class VideoPlayer extends Component {
 
     const recordBtnInstance = this.player.controlBar.addChild(new recordBtn());
     recordBtnInstance.addClass("vjs-record-control");
-
-    this.player.on("deviceReady", () => {
-      console.log("device is ready!");
-    });
-
-    this.player.on("startRecord", () => {
-      console.log("started recording!");
-    });
-
-    this.player.on("finishRecord", () => {
-      console.log("finished recording: ", this.player.recordedData);
-    });
-
-    this.player.on("error", error => {
-      console.warn(error);
-    });
   };
 
   addPlayerClosedCaptions = () => {
-    this.player.addTextTrack(
+    /*this.player.addTextTrack(
       "subtitles",
-      "WEBVTT\n001\n00:00:00.010 --> 00:00:08.150\n( <i>Mozart's Marriage of Figaro</i>\n<i>orchestral arrangement</i> )\n\n2\n00:00:08.150 --> 00:00:11.200\nINSTRUCTOR:\nPut the B-line right there\nover your shoulder."
-    );
+      "WEBVTT\n00:00:00.000 --> 00:00:00.500\n\n00:00:02.000 --> 00:00:05.900\nThis is example of video captions.\n\n00:00:07.045 --> 00:00:12.900\nCaptions (subtitles) can be supplied with XML file in Web Video Text Track (VTT) format."
+    );*/
+    const track = this.player.addRemoteTextTrack({src: 'subtitle.vtt'}, false);
+    track.addEventListener('load', function() {
+      //textTrackSettings: false
+    });
   };
 
   getPlaylist = () => {
@@ -204,13 +246,15 @@ class VideoPlayer extends Component {
   };
 
   render() {
+    const {dictate} = this.state;
     return (
       <div className="video-js-container">
+        <div>{dictate}</div>
         <div data-vjs-player>
           <video
             ref={node => (this.videoNode = node)}
-            className="video-js vjs-default-skin vjs-16-9"
-          />
+            className="video-js vjs-default-skin vjs-16-9" />
+          {/* <track kind="captions" src="subtitle.vtt" srcLang="en" label="English" default/> */}
         </div>
         <div className="vjs-playlist" />
       </div>

@@ -34,12 +34,14 @@ class Dashboard extends Component {
             {
               this.state.evolutions.map((evolution, index) => {
                 const viewLink = "/evolutions/" + evolution.pk;
+                const educationLink = "/education/" + evolution.pk;
                 return (
                   <div className="card" key={index}>
                     <div className="card-body">
                       <h5 className="card-title">{evolution.street}</h5>
                       <p className="card-text">{evolution.category}</p>
                       <Link to={viewLink} className="card-link">View</Link>
+                      <Link to={educationLink} className="card-link">Education</Link>
                     </div>
                   </div>
                 );

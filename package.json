@@ -5,14 +5,18 @@
   "dependencies": {
     "axios": "^0.18.0",
     "gh-pages": "^2.0.1",
+    "jquery": "^3.4.1",
     "react": "^16.7.0",
+    "react-dictate-button": "^1.1.3",
     "react-dom": "^16.7.0",
     "react-router": "^4.3.1",
     "react-router-dom": "^4.3.1",
+    "react-say": "^1.2.0",
     "react-scripts": "2.1.3",
     "recordrtc": "^5.5.2",
     "video.js": "^7.4.1",
     "videojs-brand": "0.0.4",
+    "videojs-caption": "^0.4.0",
     "videojs-contextmenu-ui": "^5.1.0",
     "videojs-overlay": "^2.1.4",
     "videojs-playlist": "^4.3.0",
@@ -21,6 +25,7 @@
     "videojs-watermark": "^2.0.0",
     "videojs-wavesurfer": "^2.6.3",
     "wavesurfer.js": "^2.1.2",
+    "web-speech-cognitive-services": "^4.0.1-master.d7c5764",
     "webrtc-adapter": "^7.1.1"
   },
   "scripts": {

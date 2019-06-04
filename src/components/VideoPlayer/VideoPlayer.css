@@ -16,3 +16,7 @@
   cursor: pointer;
   flex: none;
 }
+
+.vjs-texttrack-settings {
+  display: none;
+}
