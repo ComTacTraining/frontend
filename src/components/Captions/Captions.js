@@ -122,7 +122,11 @@ export default class captions {
           "Modern construction materials burn faster than older construction materials. Older buildings were built using solid wood.  Solid wood structural members will burn slower taking longer to degrade. Newer buildings are built with engineered lumber which are wood fibers glued together. This makes the wood lightweight and strong under normal conditions but allows it to burn quickly and collapse almost instantaneously. Not only does the engineered wood burn more rapidly but modern furniture and coverings which are made out of synthetic materials also are adding to the rate of spread."
         ];
       case 'Single Family Modern':
-        return [];
+          return [
+            "Engine company operations are built upon 8 decades of time-tested and experience-proven strategies and tactics. But such tactics are no longer sufficient for today’s fires.",
+            'Today, engine companies must also understand modern fire behavior, rate of heat release and the growth stages of fire. They must constantly evaluate how a structure will "perform" during fire suppression operations.',
+            "Our buildings have changed; differences include the structural components, the degree of compartmentation, the characteristics of materials and the magnitude of fire loading. Engineered structural systems have created large compartment areas, and modern furnishings made from synthetics create extreme fire behavior, compromising structural stability in shorter time periods. This fire behavior and the ever-changing construction scheme decrease the time that safe offensive operations can take place."
+          ];
       default:
         return [];
     }
@@ -172,7 +176,10 @@ export default class captions {
           "Modern construction materials make assembling buildings quicker and less costly, but that also means it will take less time for a building to become completely involved in flames. Fire protection systems help limit the spread of fire allowing occupants time to safely evacuate the involved structure."
         ];
       case 'Single Family Modern':
-        return [];
+        return [
+          "Modern construction materials burn faster than dimensional lumber. Older buildings were built using solid wood, while newer buildings are built with engineered lumber beams, which wood fibers are joined together. This makes the wood lighter and stronger, this is a trade off of allowing it to burn more rapidly and increase the likelihood of collapse, whereas, solid wood would burn slower retaining its strength and form longer but is more expensive. Furniture and coverings which are made out of synthetic materials increase rate of spread. Because modern construction and furnishings increase flammability it is essential that the buildings fire protection system is properly installed and up-to-date with all building codes and standards.",
+          "The rules for structural fire fighting are changing. The new rules must align traditional tactics with the new science. They must address several areas, including flow rates, extreme fire behavior, and tactical deployment."
+        ];
       default:
         return [];
     }
