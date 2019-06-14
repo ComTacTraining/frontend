@@ -19,7 +19,7 @@ export default class captions {
   evolution = {};
   json = [];
   currentTime = 1000;
-  interval = 2000;
+  interval = 1500;
   charsPerLine = 43;
   constructor(_evolution) {
     this.evolution = _evolution;
@@ -28,14 +28,14 @@ export default class captions {
   }
 
   buildCaptions() {
-    let statements = [];/*
+    let statements = [
       "You have now completed the performance phase of this training evolution.",
       "We will now proceed to the education phase.",
       "Here are some tactical considerations to contemplate based on fire behavior, building construction, fire prevention codes and fire ground operations.",
       "This is not meant to be a complete list.",
       "These topics are designed to be thought provoking and create discussion.",
       "Initial Radio Report/Primary Size-Up:"
-    ];*/
+    ];
     statements.push(
       "{Engine 1} on scene of a " + 
       this.lowerCaseFirstLetter(this.evolution.size) + 
@@ -44,7 +44,7 @@ export default class captions {
       " " +
       this.lowerCaseFirstLetter(this.evolution.occupancyType) + 
       " with smoke and fire showing from the " +
-      this.lowerCaseFirstLetter(this.evolution.side) + 
+      this.lowerCaseFirstLetter(this.evolution.witnessedConditions) + 
       " side."
     );
     statements.push("Include in this section: Initial actions, needs, establishing command and a command post location. These are agency specific and these decisions should be based on standard operating procedures, staffing models and response matrices for your organization.");
@@ -180,7 +180,7 @@ export default class captions {
 
   getFlowpath() {
     switch(this.evolution.flowpath) {
-      case 'Uni-directional':
+      case 'Uni-Directional':
         return 'The flow path is Uni-directional with the exhaust on the ' + this.lowerCaseFirstLetter(this.evolution.exhaustPath) + ' side. Uni-Directional is when the intake is from one opening and the exhaust is from a separate opening. If you control the airflow, you control the fire intensity.  By using smoke indicators and fire conditions, control the flow path by managing vertical openings, doors and windows. These actions will limit fire growth, thus allowing longer offensive fire operations.';
       case 'Bi-Directional':
         return 'The flow path is Bi-Directional with the exhaust path on the ' + this.lowerCaseFirstLetter(this.evolution.exhaustPath) + ' side. Bi-Directional is where the intake and exhaust is from the same opening. Control the airflow controls the fires intensity. If you control the airflow, you control the fire intensity.  By using smoke indicators and fire conditions, control the flow path by managing vertical openings, doors and windows. These actions will limit fire growth, thus allowing longer offensive fire operations.';

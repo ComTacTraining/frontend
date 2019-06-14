@@ -2,16 +2,18 @@ import videojs from 'video.js';
 import $ from 'jquery';
 var POPON = 'pop-on';
 var ROLLUP = 'roll-up';
-var ROLLUP_LENGTH = 11;
+var ROLLUP_LENGTH = 9;
 var ct;
 
 // default setting
 var defaults = {
-    captionSize: 4,
+    captionSize: 6,
     captionStyle: {
       'background-color': "rgba(255,0,0,0.8)",
       'color':  'white',
-      'padding': "3px"
+      'padding': "3px",
+      'font-family': "'Anton', sans-serif",
+      'text-transform': 'uppercase'
     },
     onCaptionChange: function(index) {},
     captionType: POPON //pop-on or roll-on
