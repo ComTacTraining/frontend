@@ -90,14 +90,6 @@ class Education extends Component {
     this.player.caption({
       data: captions.getCaptions(),
       setting: {
-        captionSize: 6,
-        captionStyle: {
-          'background-color': "rgba(255,255,255,0.8)",
-          'color': "rgba(134,53,44,1)",
-          'padding': "3px",
-          'font-family': "'Anton', sans-serif",
-          'text-transform': 'uppercase'
-        },
         captionType: 'roll-up'
       }
     });

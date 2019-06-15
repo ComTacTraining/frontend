@@ -9,8 +9,9 @@ var ct;
 var defaults = {
     captionSize: 6,
     captionStyle: {
-      'background-color': "rgba(255,0,0,0.8)",
-      'color':  'white',
+      'background-color': "transparent",
+      '-webkit-text-stroke': '1px white',
+      'color':  'rgba(134,53,44,1)',
       'padding': "3px",
       'font-family': "'Anton', sans-serif",
       'text-transform': 'uppercase'
