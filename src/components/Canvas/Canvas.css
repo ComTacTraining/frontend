@@ -1,0 +1,21 @@
+.canvas {
+  position: relative;
+  margin: 10px auto 0 auto;
+  text-align: center;
+  width: 800px;
+  height: 450px;
+  background-color: black;
+}
+.video {
+  width: 800px;
+  height: 450px;
+  display: none;
+}
+.playButton {
+  position: absolute;
+  top: 175px;
+  left: 375px;
+  z-index: 3;
+  max-width: 100px;
+  height: auto;
+}

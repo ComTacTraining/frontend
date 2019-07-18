@@ -28,6 +28,7 @@ class VideoPlayer extends Component {
     playlist: [],
     authorizationToken: '',
     dictate: '',
+    currentVideo: "intro",
   };
 
   componentDidMount() {
@@ -74,7 +75,9 @@ class VideoPlayer extends Component {
         });
         ponyfillPromise.then(ponyfill => {
             //console.log(ponyfill);
-            this.setState({ ponyfill: ponyfill });
+            //this.setState({ ponyfill: ponyfill });
+            const recognition = new ponyfill.SpeechRecognition();
+            this.setState({'recognition': recognition});
             this.initPlayer();
             //this.setState(() => ({ ponyfill }));
         });
@@ -94,7 +97,6 @@ class VideoPlayer extends Component {
       controls: true,
       textTrackSettings: false
     };
-    
     this.player = videojs(this.videoNode, options, () => {});
     this.player.playlistUi();
     //this.addPlayerContextMenu();
@@ -145,9 +147,9 @@ class VideoPlayer extends Component {
   };
 
   addPlayerRecordButton = () => {
-    //const { recognition } = this.state;
-    const { ponyfill } = this.state;
-    const recognition = new ponyfill.SpeechRecognition();
+    const { recognition } = this.state;
+    //const { ponyfill } = this.state;
+    //const recognition = new ponyfill.SpeechRecognition();
     recognition.interimResults = true;
     recognition.lang = 'en-US';
     recognition.onresult = ({ dictate }) => {
@@ -246,15 +248,14 @@ class VideoPlayer extends Component {
   };
 
   render() {
-    const {dictate} = this.state;
+    //const {dictate} = this.state;
+    //const { currentVideo } = this.state;
     return (
       <div className="video-js-container">
-        <div>{dictate}</div>
         <div data-vjs-player>
           <video
             ref={node => (this.videoNode = node)}
-            className="video-js vjs-default-skin vjs-16-9" />
-          {/* <track kind="captions" src="subtitle.vtt" srcLang="en" label="English" default/> */}
+          className="video-js vjs-default-skin vjs-16-9" />
         </div>
         <div className="vjs-playlist" />
       </div>

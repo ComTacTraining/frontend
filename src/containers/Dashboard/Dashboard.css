@@ -1,0 +1,13 @@
+.Evolutions {
+  margin-top: 10px;
+}
+
+.card-link {
+}
+a.card-link {
+  color: #5c0115;
+}
+a.card-link:hover,
+a.card-link:active {
+  color: #870e1c;
+}
