@@ -22,8 +22,8 @@ class Layout extends Component {
           </nav>
           <span className='logo' />
         </header>
+        <Route path='/evolutions/:id' component={Canvas} />
         <Route path='/' exact component={Dashboard} />
-        <Route path='/evolutions/:id' exact component={Canvas} />
       </div>
     );
   }
