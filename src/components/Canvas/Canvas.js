@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import axios from '../../axios';
 //import Videos from './Videos/Videos';
 //import VideoCanvas from './VideoCanvas/VideoCanvas';
-//import TextCanvas from './TextCanvas/TextCanvas';
+import TextCanvas from './TextCanvas/TextCanvas';
 import './Canvas.css';
 import playButton from './play.svg';
 
@@ -13,7 +13,9 @@ class Canvas extends Component {
     timerId: null,
     isPlaying: false,
     isReady: false,
-    preloadedVideoCount: 0
+    preloadedVideoCount: 0,
+    currentVideo: null,
+    scrollText: []
   };
 
   constructor(props) {
@@ -71,8 +73,8 @@ class Canvas extends Component {
       },
       {
         id: 'dispatchLoop',
-        src: bucket + 'CTT Dispatch no Label' + fileType,
-        next: 'approach'
+        src: bucket + 'CTT Dispatch no label' + fileType,
+        next: 'dispatchLoop'
       },
       {
         id: 'approach',
@@ -133,9 +135,14 @@ class Canvas extends Component {
   };
 
   handleEnded = next => event => {
+    const { scrollText } = this.state;
+    if (scrollText.length === 0 && next === 'dispatchLoop') {
+      this.setDispatchText();
+    }
     const video = this[next].current;
     this.stopTimer();
     video.play();
+    this.setState({ currentVideo: next });
   };
 
   handleLoadedData = id => event => {
@@ -164,9 +171,40 @@ class Canvas extends Component {
     }
   };
 
-  render() {
-    const { videos, isPlaying, isReady } = this.state;
+  setDispatchText() {
+    const scrollText = [
+      'Dispatcher calling first alarms will be spoken at this point while text is scrolling.',
+      'It will then be repeated and the video will switch to the approach.'
+    ];
+    this.setState({ scrollText: scrollText });
+  }
 
+  handleDispatchLoopComplete = () => {
+    const dispatchLoop = this.dispatchLoop.current;
+    const approach = this.approach.current;
+    this.setState({ currentVideo: 'approach', scrollText: [] }, () => {
+      this.stopTimer();
+      dispatchLoop.pause();
+      approach.play();
+    });
+  };
+
+  handleAlphaLoopComplete = () => {
+    const alphaLoop = this.alphaLoop.current;
+    const credits = this.credits.current;
+    this.setState({ currentVideo: 'credits', scrollText: [] }, () => {
+      this.stopTimer();
+      alphaLoop.pause();
+      credits.play();
+    });
+  };
+
+  render() {
+    const { videos, isPlaying, isReady, currentVideo, scrollText } = this.state;
+    let handleCallback = this.handleDispatchLoopComplete;
+    if (currentVideo === 'alphaLoop') {
+      handleCallback = this.handleAlphaLoopComplete;
+    }
     return (
       <div>
         {videos.map(video => (
@@ -190,13 +228,15 @@ class Canvas extends Component {
               alt='Play Video'
             />
           )}
-          {/*<TextCanvas />*/}
+          {scrollText.length > 0 && (
+            <TextCanvas text={scrollText} handleCallback={handleCallback} />
+          )}
           <canvas
-            id='videoCanvas'
             ref={this.videoCanvas}
             width='800'
             height='450'
             onClick={this.handlePlayClicked}
+            className='videoCanvas'
           />
         </div>
       </div>
