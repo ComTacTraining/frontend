@@ -32,7 +32,6 @@ class Dashboard extends Component {
           <div className='card-columns'>
             {this.state.evolutions.map((evolution, index) => {
               const viewLink = '/evolutions/' + evolution.pk;
-              const educationLink = '/education/' + evolution.pk;
               return (
                 <div className='card' key={index}>
                   <div className='card-body'>
@@ -40,9 +39,6 @@ class Dashboard extends Component {
                     <p className='card-text'>{evolution.category}</p>
                     <Link to={viewLink} className='card-link'>
                       View
-                    </Link>
-                    <Link to={educationLink} className='card-link'>
-                      Education
                     </Link>
                   </div>
                 </div>
