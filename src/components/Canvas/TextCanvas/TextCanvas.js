@@ -19,7 +19,7 @@ class TextCanvas extends Component {
     this.font = `${this.fontSize}px Anton`;
     this.textColor = '#86352C';
     this.outlineColor = '#FFF';
-    this.rate = 0.4;
+    this.rate = 0.7;
   }
 
   componentDidMount() {

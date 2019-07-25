@@ -5,6 +5,7 @@ import axios from '../../axios';
 import TextCanvas from './TextCanvas/TextCanvas';
 import './Canvas.css';
 import playButton from './play.svg';
+import Speak from './Speak/Speak';
 
 class Canvas extends Component {
   state = {
@@ -15,7 +16,10 @@ class Canvas extends Component {
     isReady: false,
     preloadedVideoCount: 0,
     currentVideo: null,
-    scrollText: []
+    scrollText: [],
+    speakPhrases: [],
+    speakVoice: 'enUS_Male',
+    speakTimeout: 0
   };
 
   constructor(props) {
@@ -176,17 +180,20 @@ class Canvas extends Component {
       'Dispatcher calling first alarms will be spoken at this point while text is scrolling.',
       'It will then be repeated and the video will switch to the approach.'
     ];
-    this.setState({ scrollText: scrollText });
+    this.setState({ scrollText: scrollText, speakPhrases: scrollText });
   }
 
   handleDispatchLoopComplete = () => {
     const dispatchLoop = this.dispatchLoop.current;
     const approach = this.approach.current;
-    this.setState({ currentVideo: 'approach', scrollText: [] }, () => {
-      this.stopTimer();
-      dispatchLoop.pause();
-      approach.play();
-    });
+    this.setState(
+      { currentVideo: 'approach', scrollText: [], speakPhrases: [] },
+      () => {
+        this.stopTimer();
+        dispatchLoop.pause();
+        approach.play();
+      }
+    );
   };
 
   handleAlphaLoopComplete = () => {
@@ -200,13 +207,29 @@ class Canvas extends Component {
   };
 
   render() {
-    const { videos, isPlaying, isReady, currentVideo, scrollText } = this.state;
+    const {
+      videos,
+      isPlaying,
+      isReady,
+      currentVideo,
+      scrollText,
+      speakPhrases,
+      speakVoice,
+      speakTimeout
+    } = this.state;
     let handleCallback = this.handleDispatchLoopComplete;
     if (currentVideo === 'alphaLoop') {
       handleCallback = this.handleAlphaLoopComplete;
     }
     return (
       <div>
+        {speakPhrases.length > 0 && (
+          <Speak
+            phrases={speakPhrases}
+            voice={speakVoice}
+            timeout={speakTimeout}
+          />
+        )}
         {videos.map(video => (
           <video
             ref={this[video.id]}
