@@ -1,12 +1,15 @@
 {
-  "name": "videojs",
+  "name": "ctt",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "aws-amplify": "^1.1.32",
     "axios": "^0.19.0",
+    "bootstrap": "^4.3.1",
     "gh-pages": "^2.0.1",
     "jquery": "^3.4.1",
     "react": "^16.7.0",
+    "react-bootstrap": "^1.0.0-beta.10",
     "react-dom": "^16.7.0",
     "react-router": "^4.3.1",
     "react-router-dom": "^4.3.1",
