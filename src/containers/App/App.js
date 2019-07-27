@@ -3,6 +3,7 @@ import { withRouter } from 'react-router-dom';
 import Routes from '../../Routes';
 import { Auth } from 'aws-amplify';
 import Navigation from './Navigation/Navigation';
+import Container from 'react-bootstrap/Container';
 import './App.css';
 
 class App extends Component {
@@ -45,7 +46,9 @@ class App extends Component {
       !isAuthenticating && (
         <div className='App'>
           <Navigation childProps={childProps} />
-          <Routes childProps={childProps} />
+          <Container className='body'>
+            <Routes childProps={childProps} />
+          </Container>
         </div>
       )
     );

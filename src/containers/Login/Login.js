@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import LoaderButton from '../../components/LoaderButton/LoaderButton';
 import { Auth } from 'aws-amplify';
@@ -35,38 +37,42 @@ export default class Login extends Component {
     const { isLoading, email, password } = this.state;
     return (
       <div className='Login'>
-        <Form onSubmit={this.handleSubmit}>
-          <Form.Group controlId='email'>
-            <Form.Label>Email</Form.Label>
-            <Form.Control
-              autoFocus
-              type='email'
-              size='lg'
-              autoComplete='username'
-              value={email}
-              onChange={this.handleChange}
-            />
-          </Form.Group>
-          <Form.Group controlId='password'>
-            <Form.Label>Password</Form.Label>
-            <Form.Control
-              type='password'
-              size='lg'
-              autoComplete='current-password'
-              value={password}
-              onChange={this.handleChange}
-            />
-          </Form.Group>
-          <LoaderButton
-            variant='primary'
-            size='lg'
-            disabled={!this.validateForm()}
-            type='submit'
-            isLoading={isLoading}
-            text='Login'
-            loadingText='Loggin in...'
-          />
-        </Form>
+        <Row>
+          <Col md={{ span: 4, offset: 4 }}>
+            <Form onSubmit={this.handleSubmit}>
+              <Form.Group controlId='email'>
+                <Form.Label>Email</Form.Label>
+                <Form.Control
+                  autoFocus
+                  type='email'
+                  size='lg'
+                  autoComplete='username'
+                  value={email}
+                  onChange={this.handleChange}
+                />
+              </Form.Group>
+              <Form.Group controlId='password'>
+                <Form.Label>Password</Form.Label>
+                <Form.Control
+                  type='password'
+                  size='lg'
+                  autoComplete='current-password'
+                  value={password}
+                  onChange={this.handleChange}
+                />
+              </Form.Group>
+              <LoaderButton
+                variant='primary'
+                size='lg'
+                disabled={!this.validateForm()}
+                type='submit'
+                isLoading={isLoading}
+                text='Login'
+                loadingText='Loggin in...'
+              />
+            </Form>
+          </Col>
+        </Row>
       </div>
     );
   }

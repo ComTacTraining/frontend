@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { Auth } from 'aws-amplify';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import LoaderButton from '../../components/LoaderButton/LoaderButton';
 import './Register.css';
@@ -143,7 +145,13 @@ export default class Register extends Component {
     const { newUser } = this.state;
     return (
       <div className='Register'>
-        {newUser === null ? this.renderForm() : this.renderConfirmationForm()}
+        <Row>
+          <Col md={{ span: 4, offset: 4 }}>
+            {newUser === null
+              ? this.renderForm()
+              : this.renderConfirmationForm()}
+          </Col>
+        </Row>
       </div>
     );
   }
