@@ -1,4 +1,8 @@
 export default {
+  apiGateway: {
+    REGION: 'us-west-2',
+    URL: 'https://u2z0rz9asj.execute-api.us-west-2.amazonaws.com/prod'
+  },
   cognito: {
     REGION: 'us-west-2',
     USER_POOL_ID: 'us-west-2_0QOvAuKl9',

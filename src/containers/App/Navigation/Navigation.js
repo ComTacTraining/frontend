@@ -55,6 +55,11 @@ export default class Navigation extends Component {
             {this.props.childProps.isAuthenticated ? (
               <Fragment>
                 <Nav.Item>
+                  <LinkContainer to='/profile'>
+                    <Nav.Link>Profile</Nav.Link>
+                  </LinkContainer>
+                </Nav.Item>
+                <Nav.Item>
                   <Nav.Link onClick={this.props.childProps.handleLogout}>
                     Logout
                   </Nav.Link>

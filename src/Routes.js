@@ -8,6 +8,7 @@ import About from './containers/About/About';
 import Contact from './containers/Contact/Contact';
 import Register from './containers/Register/Register';
 import Login from './containers/Login/Login';
+import Profile from './containers/Profile/Profile';
 import Dashboard from './containers/Dashboard/Dashboard';
 import Evolution from './components/Evolution/Evolution';
 import NotFound from './containers/NotFound/NotFound';
@@ -43,6 +44,12 @@ export default ({ childProps }) => (
       path='/dashboard'
       exact
       component={Dashboard}
+      props={childProps}
+    />
+    <AuthenticatedRoute
+      path='/profile'
+      exact
+      component={Profile}
       props={childProps}
     />
     <AuthenticatedRoute
