@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import axios from '../../axios';
+import { API } from 'aws-amplify';
 //import Videos from './Videos/Videos';
 //import VideoCanvas from './VideoCanvas/VideoCanvas';
 import TextCanvas from './TextCanvas/TextCanvas';
@@ -9,6 +9,8 @@ import Speak from './Speak/Speak';
 
 export default class Evolution extends Component {
   state = {
+    isLoadingEvolution: true,
+    alarms: null,
     evolution: null,
     videos: [],
     timerId: null,
@@ -39,21 +41,39 @@ export default class Evolution extends Component {
     this.fps = 30;
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     if (this.props.match.params.id) {
-      if (
-        !this.state.evolution ||
-        (this.state.evolution &&
-          this.state.evolution.evolutionId !== this.props.match.params.id)
-      ) {
-        axios
-          .get('/evolutions/' + this.props.match.params.id)
-          .then(response => {
-            this.setState({ evolution: response.data });
+      try {
+        const evolution = await this.getEvolution(this.props.match.params.id);
+        this.setState(
+          { evolution: evolution, isLoadingEvolution: false },
+          () => {
             this.getVideos();
-          });
+            this.setupAlarms();
+          }
+        );
+      } catch (e) {
+        alert(e.message);
+        this.setState({ isLoadingEvolution: false });
       }
     }
+  }
+
+  async setupAlarms() {
+    try {
+      const alarms = await this.getAlarms();
+      this.setState({ alarms: alarms });
+    } catch (e) {
+      alert(e.message);
+    }
+  }
+
+  getEvolution(id) {
+    return API.get('comtac', `/evolutions/${id}`);
+  }
+
+  getAlarms() {
+    return API.get('comtac', '/alarms');
   }
 
   componentWillUnmount() {
@@ -176,10 +196,9 @@ export default class Evolution extends Component {
   };
 
   setDispatchText() {
-    const scrollText = [
-      'Dispatcher calling first alarms will be spoken at this point while text is scrolling.',
-      'It will then be repeated and the video will switch to the approach.'
-    ];
+    const { alarms, evolution } = this.state;
+    const phrase = `Structure fire, ${alarms.alarm1} at ${evolution.street}.`;
+    const scrollText = [phrase, `Repeating. ${phrase}`];
     this.setState({ scrollText: scrollText, speakPhrases: scrollText });
   }
 
@@ -208,6 +227,7 @@ export default class Evolution extends Component {
 
   render() {
     const {
+      isLoadingEvolution,
       videos,
       isPlaying,
       isReady,
@@ -222,47 +242,49 @@ export default class Evolution extends Component {
       handleCallback = this.handleAlphaLoopComplete;
     }
     return (
-      <div>
-        {speakPhrases.length > 0 && (
-          <Speak
-            phrases={speakPhrases}
-            voice={speakVoice}
-            timeout={speakTimeout}
-          />
-        )}
-        {videos.map(video => (
-          <video
-            ref={this[video.id]}
-            key={video.id}
-            src={video.src}
-            onPlay={this.handlePlay}
-            onEnded={this.handleEnded(video.next)}
-            onLoadedData={this.handleLoadedData(video.id)}
-            onCanPlayThrough={this.handleCanPlayThrough}
-            hidden
-          />
-        ))}
-        <div className='canvas'>
-          {!isPlaying && isReady && (
-            <img
-              src={playButton}
-              onClick={this.handlePlayClicked}
-              className='playButton'
-              alt='Play Video'
+      !isLoadingEvolution && (
+        <div>
+          {speakPhrases.length > 0 && (
+            <Speak
+              phrases={speakPhrases}
+              voice={speakVoice}
+              timeout={speakTimeout}
             />
           )}
-          {scrollText.length > 0 && (
-            <TextCanvas text={scrollText} handleCallback={handleCallback} />
-          )}
-          <canvas
-            ref={this.videoCanvas}
-            width='800'
-            height='450'
-            onClick={this.handlePlayClicked}
-            className='videoCanvas'
-          />
+          {videos.map(video => (
+            <video
+              ref={this[video.id]}
+              key={video.id}
+              src={video.src}
+              onPlay={this.handlePlay}
+              onEnded={this.handleEnded(video.next)}
+              onLoadedData={this.handleLoadedData(video.id)}
+              onCanPlayThrough={this.handleCanPlayThrough}
+              hidden
+            />
+          ))}
+          <div className='canvas'>
+            {!isPlaying && isReady && (
+              <img
+                src={playButton}
+                onClick={this.handlePlayClicked}
+                className='playButton'
+                alt='Play Video'
+              />
+            )}
+            {scrollText.length > 0 && (
+              <TextCanvas text={scrollText} handleCallback={handleCallback} />
+            )}
+            <canvas
+              ref={this.videoCanvas}
+              width='800'
+              height='450'
+              onClick={this.handlePlayClicked}
+              className='videoCanvas'
+            />
+          </div>
         </div>
-      </div>
+      )
     );
   }
 }
