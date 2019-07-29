@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { Link } from 'react-router-dom';
+import { LinkContainer } from 'react-router-bootstrap';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import logo from '../../../logo.png';
@@ -25,19 +26,27 @@ export default class Navigation extends Component {
             {this.props.childProps.isAuthenticated ? (
               <Fragment>
                 <Nav.Item>
-                  <Nav.Link href='/dashboard'>Dashboard</Nav.Link>
+                  <LinkContainer to='/dashboard'>
+                    <Nav.Link>Dashboard</Nav.Link>
+                  </LinkContainer>
                 </Nav.Item>
                 <Nav.Item>
-                  <Nav.Link href='/contact'>Contact</Nav.Link>
+                  <LinkContainer to='/contact'>
+                    <Nav.Link>Contact</Nav.Link>
+                  </LinkContainer>
                 </Nav.Item>
               </Fragment>
             ) : (
               <Fragment>
                 <Nav.Item>
-                  <Nav.Link href='/about'>About</Nav.Link>
+                  <LinkContainer to='/about'>
+                    <Nav.Link>About</Nav.Link>
+                  </LinkContainer>
                 </Nav.Item>
                 <Nav.Item>
-                  <Nav.Link href='/contact'>Contact</Nav.Link>
+                  <LinkContainer to='/contact'>
+                    <Nav.Link>Contact</Nav.Link>
+                  </LinkContainer>
                 </Nav.Item>
               </Fragment>
             )}
@@ -54,10 +63,14 @@ export default class Navigation extends Component {
             ) : (
               <Fragment>
                 <Nav.Item>
-                  <Nav.Link href='/register'>Register</Nav.Link>
+                  <LinkContainer to='/register'>
+                    <Nav.Link>Register</Nav.Link>
+                  </LinkContainer>
                 </Nav.Item>
                 <Nav.Item>
-                  <Nav.Link href='/login'>Login</Nav.Link>
+                  <LinkContainer to='/login'>
+                    <Nav.Link>Login</Nav.Link>
+                  </LinkContainer>
                 </Nav.Item>
               </Fragment>
             )}

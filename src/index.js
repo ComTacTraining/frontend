@@ -43,7 +43,7 @@ Amplify.configure({
 });
 
 ReactDOM.render(
-  <Router basename={process.env.PUBLIC_URL}>
+  <Router>
     <App />
   </Router>,
   document.getElementById('root')
