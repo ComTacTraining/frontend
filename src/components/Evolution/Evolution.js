@@ -6,6 +6,7 @@ import TextCanvas from './TextCanvas/TextCanvas';
 import './Evolution.css';
 import playButton from './play.svg';
 import Speak from './Speak/Speak';
+import { education } from './Education/Education';
 
 export default class Evolution extends Component {
   state = {
@@ -162,6 +163,8 @@ export default class Evolution extends Component {
     const { scrollText } = this.state;
     if (scrollText.length === 0 && next === 'dispatchLoop') {
       this.setDispatchText();
+    } else if (scrollText.length === 0 && next === 'alphaLoop') {
+      this.setEducationText();
     }
     const video = this[next].current;
     this.stopTimer();
@@ -200,6 +203,12 @@ export default class Evolution extends Component {
     const phrase = `Structure fire, ${alarms.alarm1} at ${evolution.street}.`;
     const scrollText = [phrase, `Repeating. ${phrase}`];
     this.setState({ scrollText: scrollText, speakPhrases: scrollText });
+  }
+
+  setEducationText() {
+    const { alarms, evolution } = this.state;
+    const phrases = education(evolution, alarms);
+    this.setState({ scrollText: phrases, speakPhrases: phrases });
   }
 
   handleDispatchLoopComplete = () => {
