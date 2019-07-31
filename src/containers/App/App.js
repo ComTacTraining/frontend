@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import Routes from '../../Routes';
-import { Auth } from 'aws-amplify';
+import { Auth, API } from 'aws-amplify';
 import Navigation from './Navigation/Navigation';
 import Container from 'react-bootstrap/Container';
 import './App.css';
@@ -9,7 +9,8 @@ import './App.css';
 class App extends Component {
   state = {
     isAuthenticated: false,
-    isAuthenticating: true
+    isAuthenticating: true,
+    memberType: 'guest'
   };
 
   async componentDidMount() {
@@ -21,8 +22,29 @@ class App extends Component {
         alert(e);
       }
     }
+
+    try {
+      const billing = await this.getBilling();
+      if (billing) {
+        this.setMemberType(billing.canceled);
+      }
+    } catch (e) {
+      if (e.message !== 'Request failed with status code 500') {
+        alert(e);
+      }
+    }
+
     this.setState({ isAuthenticating: false });
   }
+
+  getBilling() {
+    return API.get('comtac', '/billing/subscription');
+  }
+
+  setMemberType = canceled => {
+    const memberType = canceled ? 'demo' : 'member';
+    this.setState({ memberType: memberType });
+  };
 
   userHasAuthenticated = authenticated => {
     this.setState({ isAuthenticated: authenticated });
@@ -35,10 +57,12 @@ class App extends Component {
   };
 
   render() {
-    const { isAuthenticated, isAuthenticating } = this.state;
+    const { isAuthenticated, isAuthenticating, memberType } = this.state;
     const childProps = {
       isAuthenticated: isAuthenticated,
       userHasAuthenticated: this.userHasAuthenticated,
+      memberType: memberType,
+      setMemberType: this.setMemberType,
       handleLogout: this.handleLogout
     };
 

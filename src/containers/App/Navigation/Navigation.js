@@ -23,37 +23,48 @@ export default class Navigation extends Component {
         <Navbar.Toggle aria-controls='navbar-links' />
         <Navbar.Collapse id='navbar-links'>
           <Nav className='mr-auto'>
-            {this.props.childProps.isAuthenticated ? (
+            {this.props.childProps.memberType === 'member' && (
               <Fragment>
                 <Nav.Item>
                   <LinkContainer to='/dashboard'>
                     <Nav.Link>Dashboard</Nav.Link>
                   </LinkContainer>
                 </Nav.Item>
-                <Nav.Item>
-                  <LinkContainer to='/contact'>
-                    <Nav.Link>Contact</Nav.Link>
-                  </LinkContainer>
-                </Nav.Item>
               </Fragment>
-            ) : (
+            )}
+            {this.props.childProps.isAuthenticated &&
+              this.props.childProps.memberType === 'demo' && (
+                <Fragment>
+                  <Nav.Item>
+                    <LinkContainer to='/demo'>
+                      <Nav.Link>Demo</Nav.Link>
+                    </LinkContainer>
+                  </Nav.Item>
+                </Fragment>
+              )}
+            {!this.props.childProps.isAuthenticated && (
               <Fragment>
                 <Nav.Item>
                   <LinkContainer to='/about'>
                     <Nav.Link>About</Nav.Link>
                   </LinkContainer>
                 </Nav.Item>
-                <Nav.Item>
-                  <LinkContainer to='/contact'>
-                    <Nav.Link>Contact</Nav.Link>
-                  </LinkContainer>
-                </Nav.Item>
               </Fragment>
             )}
+            <Nav.Item>
+              <LinkContainer to='/contact'>
+                <Nav.Link>Contact</Nav.Link>
+              </LinkContainer>
+            </Nav.Item>
           </Nav>
           <Nav className='justify-content-end'>
             {this.props.childProps.isAuthenticated ? (
               <Fragment>
+                <Nav.Item>
+                  <LinkContainer to='/billing'>
+                    <Nav.Link>Billing</Nav.Link>
+                  </LinkContainer>
+                </Nav.Item>
                 <Nav.Item>
                   <LinkContainer to='/profile'>
                     <Nav.Link>Profile</Nav.Link>

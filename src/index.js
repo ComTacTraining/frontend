@@ -5,11 +5,11 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import './index.css';
 import App from './containers/App/App';
 import * as serviceWorker from './serviceWorker';
-import axios from 'axios';
+//import axios from 'axios';
 import Amplify from 'aws-amplify';
 import config from './config';
 
-axios.interceptors.request.use(
+/*axios.interceptors.request.use(
   request => {
     console.log(request);
     // Edit request config
@@ -30,7 +30,7 @@ axios.interceptors.response.use(
     console.log(error);
     return Promise.reject(error);
   }
-);
+);*/
 
 Amplify.configure({
   Auth: {

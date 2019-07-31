@@ -56,7 +56,7 @@ export default class Register extends Component {
       await Auth.confirmSignUp(email, confirmationCode);
       await Auth.signIn(email, password);
       this.props.userHasAuthenticated(true);
-      this.props.history.push('/');
+      this.props.history.push('/profile');
     } catch (e) {
       alert(e.message);
       this.setState({ isLoading: false });

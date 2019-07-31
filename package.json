@@ -14,7 +14,8 @@
     "react-router": "^4.3.1",
     "react-router-bootstrap": "^0.25.0",
     "react-router-dom": "^4.3.1",
-    "react-scripts": "2.1.3"
+    "react-scripts": "^3.0.1",
+    "react-stripe-elements": "^4.0.0"
   },
   "scripts": {
     "predeploy": "npm run build",

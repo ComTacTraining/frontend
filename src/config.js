@@ -1,4 +1,5 @@
 export default {
+  STRIPE_KEY: 'pk_test_SdjnHScZnZMzPIk4Y5jHXo4H00gR6cyGFH',
   apiGateway: {
     REGION: 'us-west-2',
     URL: 'https://u2z0rz9asj.execute-api.us-west-2.amazonaws.com/prod'
