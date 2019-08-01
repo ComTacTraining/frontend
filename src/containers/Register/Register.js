@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { Auth } from 'aws-amplify';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
