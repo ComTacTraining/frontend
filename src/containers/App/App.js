@@ -19,7 +19,7 @@ class App extends Component {
       this.userHasAuthenticated(true);
     } catch (e) {
       if (e !== 'No current user') {
-        alert(e);
+        //alert(e);
       }
     }
 
@@ -30,7 +30,7 @@ class App extends Component {
       }
     } catch (e) {
       if (e.message !== 'Request failed with status code 500') {
-        alert(e);
+        //alert(e);
       }
     }
 

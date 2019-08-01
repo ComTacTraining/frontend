@@ -1,8 +1,9 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { Auth } from 'aws-amplify';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
+import Alert from 'react-bootstrap/Alert';
 import LoaderButton from '../../components/LoaderButton/LoaderButton';
 import './Register.css';
 
@@ -13,13 +14,14 @@ export default class Register extends Component {
     password: '',
     confirmPassword: '',
     confirmationCode: '',
-    newUser: null
+    newUser: null,
+    alertError: ''
   };
 
   validateForm() {
     const { email, password, confirmPassword } = this.state;
     return (
-      email.length > 0 && password.length > 0 && password === confirmPassword
+      email.length > 0 && password.length > 5 && password === confirmPassword
     );
   }
 
@@ -41,11 +43,10 @@ export default class Register extends Component {
         username: email,
         password: password
       });
-      this.setState({ newUser });
+      this.setState({ newUser, isLoading: false });
     } catch (e) {
-      alert(e.message);
+      this.setState({ isLoading: false, alertError: e.message });
     }
-    this.setState({ isLoading: false });
   };
 
   handleConfirmationSubmit = async event => {
@@ -58,8 +59,7 @@ export default class Register extends Component {
       this.props.userHasAuthenticated(true);
       this.props.history.push('/profile');
     } catch (e) {
-      alert(e.message);
-      this.setState({ isLoading: false });
+      this.setState({ isLoading: false, alertError: e.message });
     }
   };
 
@@ -141,12 +141,27 @@ export default class Register extends Component {
     );
   }
 
+  handleDismissAlert = () => {
+    this.setState({ alertError: '' });
+  };
+
+  renderAlert() {
+    const { alertError } = this.state;
+    return (
+      <Alert variant='danger' onClose={this.handleDismissAlert} dismissible>
+        <Alert.Heading>Error</Alert.Heading>
+        <p>{alertError}</p>
+      </Alert>
+    );
+  }
+
   render() {
-    const { newUser } = this.state;
+    const { newUser, alertError } = this.state;
     return (
       <div className='Register'>
         <Row>
           <Col md={{ span: 4, offset: 4 }}>
+            {alertError !== '' && this.renderAlert()}
             {newUser === null
               ? this.renderForm()
               : this.renderConfirmationForm()}
