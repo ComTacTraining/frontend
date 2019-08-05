@@ -16,7 +16,7 @@ export default class Profile extends Component {
     alarm1: '',
     alarm2: '',
     alarm3: '',
-    dispatcher: ''
+    dispatchCenter: ''
   };
 
   async componentDidMount() {
@@ -27,7 +27,7 @@ export default class Profile extends Component {
         alarm1: data.alarm1,
         alarm2: data.alarm2,
         alarm3: data.alarm3,
-        dispatcher: data.dispatcher,
+        dispatchCenter: data.dispatchCenter,
         isLoadingAlarms: false
       });
     } catch (e) {
@@ -36,12 +36,12 @@ export default class Profile extends Component {
   }
 
   validateForm() {
-    const { alarm1, alarm2, alarm3, dispatcher } = this.state;
+    const { alarm1, alarm2, alarm3, dispatchCenter } = this.state;
     return (
       alarm1.length > 0 &&
       alarm2.length > 0 &&
       alarm3.length > 0 &&
-      dispatcher.length > 0
+      dispatchCenter.length > 0
     );
   }
 
@@ -50,7 +50,7 @@ export default class Profile extends Component {
   };
 
   handleSubmit = async event => {
-    const { alarm1, alarm2, alarm3, dispatcher, isUpdating } = this.state;
+    const { alarm1, alarm2, alarm3, dispatchCenter, isUpdating } = this.state;
     event.preventDefault();
     this.setState({ isLoading: true });
     try {
@@ -58,7 +58,7 @@ export default class Profile extends Component {
         alarm1: alarm1,
         alarm2: alarm2,
         alarm3: alarm3,
-        dispatcher: dispatcher
+        dispatchCenter: dispatchCenter
       };
       if (isUpdating) {
         await this.updateAlarms(data);
@@ -92,7 +92,7 @@ export default class Profile extends Component {
   }
 
   renderForm() {
-    const { isLoading, alarm1, alarm2, alarm3, dispatcher } = this.state;
+    const { isLoading, alarm1, alarm2, alarm3, dispatchCenter } = this.state;
     return (
       <Fragment>
         <p>Personalize your alarms by separating them with commas.</p>
@@ -128,13 +128,13 @@ export default class Profile extends Component {
               onChange={this.handleChange}
             />
           </Form.Group>
-          <Form.Group controlId='dispatcher'>
-            <Form.Label>Dispatcher</Form.Label>
+          <Form.Group controlId='dispatchCenter'>
+            <Form.Label>Dispatch Center</Form.Label>
             <Form.Control
               type='text'
               size='lg'
-              value={dispatcher}
-              placeholder='John Doe'
+              value={dispatchCenter}
+              placeholder='Dispatch Center Name'
               onChange={this.handleChange}
             />
           </Form.Group>
@@ -153,7 +153,7 @@ export default class Profile extends Component {
   }
 
   renderAlarms() {
-    const { alarm1, alarm2, alarm3, dispatcher } = this.state;
+    const { alarm1, alarm2, alarm3, dispatchCenter } = this.state;
     return (
       <Fragment>
         <Button variant='dark' size='sm' onClick={this.handleUpdateRequest}>
@@ -170,7 +170,7 @@ export default class Profile extends Component {
             <strong>Third Alarm:</strong> {alarm3}
           </ListGroup.Item>
           <ListGroup.Item>
-            <strong>Dispatcher:</strong> {dispatcher}
+            <strong>Dispatch Center:</strong> {dispatchCenter}
           </ListGroup.Item>
         </ListGroup>
       </Fragment>
