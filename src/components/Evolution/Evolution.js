@@ -1,12 +1,15 @@
 import React, { Component } from 'react';
 import { API } from 'aws-amplify';
+import createPonyfill from 'web-speech-cognitive-services/lib/SpeechServices';
 //import Videos from './Videos/Videos';
 //import VideoCanvas from './VideoCanvas/VideoCanvas';
 import TextCanvas from './TextCanvas/TextCanvas';
 import './Evolution.css';
 import playButton from './play.svg';
 import Speak from './Speak/Speak';
+//import Listen from './Listen/Listen';
 import { education } from './Education/Education';
+import config from '../../config';
 
 export default class Evolution extends Component {
   state = {
@@ -43,6 +46,11 @@ export default class Evolution extends Component {
   }
 
   async componentDidMount() {
+    const ponyfill = await createPonyfill({
+      region: 'westus',
+      subscriptionKey: config.COGNITIVE_SPEECH_KEY
+    });
+    this.setState(() => ({ ponyfill }));
     if (this.props.match.params.id) {
       try {
         const evolution = await this.getEvolution(this.props.match.params.id);
@@ -58,6 +66,7 @@ export default class Evolution extends Component {
         this.setState({ isLoadingEvolution: false });
       }
     }
+    document.addEventListener('keydown', this.handleKeyPress.bind(this));
   }
 
   async setupAlarms() {
@@ -234,6 +243,24 @@ export default class Evolution extends Component {
     });
   };
 
+  handleListenResponse = response => {
+    console.log(response);
+  };
+
+  handleKeyPress = event => {
+    if (event.code === 'Space') {
+      event.preventDefault();
+      const { ponyfill } = this.state;
+      const recognition = new ponyfill.SpeechRecognition();
+      recognition.interimResults = false;
+      recognition.lang = 'en-US';
+      recognition.onresult = ({ results }) => {
+        this.handleListenResponse(results[0][0].transcript);
+      };
+      recognition.start();
+    }
+  };
+
   render() {
     const {
       isLoadingEvolution,
@@ -260,6 +287,9 @@ export default class Evolution extends Component {
               timeout={speakTimeout}
             />
           )}
+          {/*<Listen
+            handleListenResponse={this.handleListenResponse}
+          />*/}
           {videos.map(video => (
             <video
               ref={this[video.id]}

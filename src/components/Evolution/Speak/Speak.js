@@ -1,6 +1,7 @@
 import { Component } from 'react';
 import CognitiveSpeech from './CognitiveSpeech/CognitiveSpeech';
 import { isArray } from 'util';
+import config from '../../../config';
 
 class Speak extends Component {
   state = {
@@ -12,9 +13,7 @@ class Speak extends Component {
   }
 
   setupClient() {
-    const speechKey = '702243bec2934359a0d4ea8db32aef38';
-
-    const client = new CognitiveSpeech.TTSClient(speechKey);
+    const client = new CognitiveSpeech.TTSClient(config.COGNITIVE_SPEECH_KEY);
     client.multipleXHR = false;
     this.setState({ client: client }, this.setupVoices);
   }

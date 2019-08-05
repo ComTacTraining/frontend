@@ -1,5 +1,6 @@
 export default {
   STRIPE_KEY: 'pk_test_SdjnHScZnZMzPIk4Y5jHXo4H00gR6cyGFH',
+  COGNITIVE_SPEECH_KEY: '702243bec2934359a0d4ea8db32aef38',
   apiGateway: {
     REGION: 'us-west-2',
     URL: 'https://u2z0rz9asj.execute-api.us-west-2.amazonaws.com/prod'

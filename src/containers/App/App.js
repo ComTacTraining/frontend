@@ -7,6 +7,8 @@ import Container from 'react-bootstrap/Container';
 import './App.css';
 
 class App extends Component {
+  _isMounted = false;
+
   state = {
     isAuthenticated: false,
     isAuthenticating: true,
@@ -14,6 +16,8 @@ class App extends Component {
   };
 
   async componentDidMount() {
+    this._isMounted = true;
+
     try {
       await Auth.currentSession();
       this.userHasAuthenticated(true);
@@ -34,7 +38,13 @@ class App extends Component {
       }
     }
 
-    this.setState({ isAuthenticating: false });
+    if (this._isMounted) {
+      this.setState({ isAuthenticating: false });
+    }
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
   }
 
   getBilling() {
