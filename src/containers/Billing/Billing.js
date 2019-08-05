@@ -33,14 +33,16 @@ export default class Billing extends Component {
       const products = await this.getProducts();
       const plans = await this.getPlans();
       const session = await Auth.currentSession();
-      const subscription = await this.getSubscription();
       this.setState({
         products: products,
         plans: plans,
-        email: session.idToken.payload.email,
-        isLoadingProducts: false,
-        subscription: subscription
+        email: session.idToken.payload.email
       });
+      const subscription = await this.getSubscription();
+      if (subscription) {
+        this.setState({ subscription: subscription });
+      }
+      this.setState({ isLoadingProducts: false });
     } catch (e) {
       this.setState({ isLoadingProducts: false });
     }
@@ -255,17 +257,26 @@ export default class Billing extends Component {
                 );
               })}
             </Card>
-            {subscription === null ||
-              (subscription.canceled && (
-                <StripeProvider apiKey={config.STRIPE_KEY}>
-                  <Elements>
-                    <BillingForm
-                      loading={isLoading}
-                      onSubmit={this.handleFormSubmit}
-                    />
-                  </Elements>
-                </StripeProvider>
-              ))}
+            {subscription === null && (
+              <StripeProvider apiKey={config.STRIPE_KEY}>
+                <Elements>
+                  <BillingForm
+                    loading={isLoading}
+                    onSubmit={this.handleFormSubmit}
+                  />
+                </Elements>
+              </StripeProvider>
+            )}
+            {subscription !== null && subscription.canceled && (
+              <StripeProvider apiKey={config.STRIPE_KEY}>
+                <Elements>
+                  <BillingForm
+                    loading={isLoading}
+                    onSubmit={this.handleFormSubmit}
+                  />
+                </Elements>
+              </StripeProvider>
+            )}
           </Col>
         </Row>
       </div>

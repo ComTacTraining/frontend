@@ -52,12 +52,13 @@ class App extends Component {
   }
 
   setMemberType = canceled => {
-    const memberType = canceled ? 'demo' : 'member';
-    this.setState({ memberType: memberType });
+    if (!canceled) {
+      this.setState({ memberType: 'member' });
+    }
   };
 
   userHasAuthenticated = authenticated => {
-    this.setState({ isAuthenticated: authenticated });
+    this.setState({ isAuthenticated: authenticated, memberType: 'demo' });
   };
 
   handleLogout = async event => {
