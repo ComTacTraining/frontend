@@ -7,6 +7,7 @@ import TextCanvas from './TextCanvas/TextCanvas';
 import './Evolution.css';
 import playButton from './play.svg';
 import Speak from './Speak/Speak';
+import ProcessSpeech from './ProcessSpeech/ProcessSpeech';
 //import Listen from './Listen/Listen';
 import { education } from './Education/Education';
 import config from '../../config';
@@ -15,6 +16,8 @@ export default class Evolution extends Component {
   state = {
     isLoadingEvolution: true,
     alarms: null,
+    firstAlarm: [],
+    chief: '',
     evolution: null,
     videos: [],
     timerId: null,
@@ -25,7 +28,12 @@ export default class Evolution extends Component {
     scrollText: [],
     speakPhrases: [],
     speakVoice: 'enUS_Male',
-    speakTimeout: 0
+    speakTimeout: 0,
+    step: 0,
+    transcript: '',
+    recognition: null,
+    speechRecognitionResult: '',
+    isSpeaking: false
   };
 
   constructor(props) {
@@ -66,16 +74,34 @@ export default class Evolution extends Component {
         this.setState({ isLoadingEvolution: false });
       }
     }
-    document.addEventListener('keydown', this.handleKeyPress.bind(this));
+    document.addEventListener('keydown', this.handleKeyDown.bind(this));
+    document.addEventListener('keyup', this.handleKeyUp.bind(this));
   }
 
   async setupAlarms() {
     try {
       const alarms = await this.getAlarms();
-      this.setState({ alarms: alarms });
+      let firstAlarm = alarms.alarm1.split(',').map(alarm => alarm.trim());
+      firstAlarm.shift();
+      const chief = firstAlarm.pop();
+      this.setState(
+        { alarms: alarms, firstAlarm: firstAlarm, chief: chief },
+        () => {
+          this.shuffleFirstAlarm();
+        }
+      );
     } catch (e) {
       alert(e.message);
     }
+  }
+
+  shuffleFirstAlarm() {
+    let { firstAlarm } = this.state;
+    for (let i = firstAlarm.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [firstAlarm[i], firstAlarm[j]] = [firstAlarm[j], firstAlarm[i]];
+    }
+    this.setState({ firstAlarm: firstAlarm });
   }
 
   getEvolution(id) {
@@ -243,21 +269,84 @@ export default class Evolution extends Component {
     });
   };
 
-  handleListenResponse = response => {
-    console.log(response);
+  handleStepUpdate = step => {
+    console.log(`handleStepUpdate(${step});`);
+    this.setState({ step: step });
   };
 
-  handleKeyPress = event => {
+  handleSpeak = (phrases, voice = 'enUS_Male', timeout = 0) => {
+    console.log(`handleSpeak(${phrases}, ${voice}, ${timeout});`);
+    this.setState({
+      speakPhrases: phrases,
+      speakVoice: voice,
+      speakTimeout: timeout
+    });
+  };
+
+  handleSpeechComplete = () => {
+    const { step } = this.state;
+    let newStep = step;
+    if (step < 3) {
+      newStep++;
+    }
+    this.setState({ speakPhrases: [], step: newStep });
+  };
+
+  handleTranscriptReset = () => {
+    this.setState({ transcript: '' });
+  };
+
+  handleListenComplete = () => {
+    const { speechRecognitionResult, step } = this.state;
+    this.setState({
+      transcript: speechRecognitionResult,
+      speechRecognitionResult: ''
+    });
+    if (step === 0) {
+      this.handleStepUpdate(1);
+    }
+  };
+
+  handleListenResponse = response => {
+    console.log(`handleListenResponse(${response});`);
+    const { speechRecognitionResult } = this.state;
+    const newResult = `${speechRecognitionResult} ${response}`.trim();
+    this.setState({ speechRecognitionResult: newResult, isSpeaking: false });
+  };
+
+  handleKeyDown = event => {
     if (event.code === 'Space') {
       event.preventDefault();
-      const { ponyfill } = this.state;
-      const recognition = new ponyfill.SpeechRecognition();
-      recognition.interimResults = false;
-      recognition.lang = 'en-US';
-      recognition.onresult = ({ results }) => {
-        this.handleListenResponse(results[0][0].transcript);
-      };
-      recognition.start();
+      const { speakPhrases, recognition, isSpeaking } = this.state;
+      if (!event.repeat) {
+        // Only allow microphone when not speaking
+        if (speakPhrases.length === 0 && recognition === null) {
+          const { ponyfill } = this.state;
+          const recognition = new ponyfill.SpeechRecognition();
+          recognition.interimResults = false;
+          recognition.lang = 'en-US';
+          recognition.onresult = ({ results }) => {
+            this.handleListenResponse(results[0][0].transcript);
+          };
+          recognition.start();
+          this.setState({ recognition: recognition, isSpeaking: true });
+        }
+      }
+      if (event.repeat && !isSpeaking) {
+        recognition.start();
+        this.setState({ isSpeaking: true });
+      }
+    }
+  };
+
+  handleKeyUp = event => {
+    if (event.code === 'Space') {
+      const { recognition } = this.state;
+      setTimeout(() => {
+        recognition.stop();
+        this.setState({ recognition: null, isSpeaking: false });
+        this.handleListenComplete();
+      }, 1000);
     }
   };
 
@@ -271,7 +360,12 @@ export default class Evolution extends Component {
       scrollText,
       speakPhrases,
       speakVoice,
-      speakTimeout
+      speakTimeout,
+      alarms,
+      firstAlarm,
+      step,
+      transcript,
+      isSpeaking
     } = this.state;
     let handleCallback = this.handleDispatchLoopComplete;
     if (currentVideo === 'alphaLoop') {
@@ -285,6 +379,18 @@ export default class Evolution extends Component {
               phrases={speakPhrases}
               voice={speakVoice}
               timeout={speakTimeout}
+              handleSpeechComplete={this.handleSpeechComplete}
+            />
+          )}
+          {(transcript !== '' || step === 3) && !isSpeaking && (
+            <ProcessSpeech
+              firstAlarm={firstAlarm}
+              dispatchCenter={alarms.dispatchCenter}
+              step={step}
+              transcript={transcript}
+              handleStepUpdate={this.handleStepUpdate}
+              handleSpeak={this.handleSpeak}
+              handleTranscriptReset={this.handleTranscriptReset}
             />
           )}
           {/*<Listen

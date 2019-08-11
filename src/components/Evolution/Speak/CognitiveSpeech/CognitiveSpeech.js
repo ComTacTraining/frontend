@@ -118,7 +118,7 @@ var CognitiveSpeech;
                       var resultsText = yield this.makeHttpRequest("POST", "https://westus.api.cognitive.microsoft.com/sts/v1.0/issueToken", false, optionalHeaders);
                       newAuthToken = resultsText;
                       this._tokenTime = Date.now();
-                      console.log("New authentication token generated.");
+                      //console.log("New authentication token generated.");
                   }
                   catch (ex) {
                       console.error("Error issuing token. Did you provide a valid Bing Speech API key?");

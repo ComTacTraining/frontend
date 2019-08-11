@@ -40,7 +40,10 @@ class Speak extends Component {
       },
       { id: 'enUS_Male', voice: CognitiveSpeech.SupportedLocales.enUS_Male }
     ];
-    this.setState({ voices: voices }, this.handleVoicePlay);
+    this.setState({ voices: voices }, async () => {
+      await this.handleVoicePlay();
+      this.props.handleSpeechComplete();
+    });
   }
 
   getVoice(key) {
@@ -58,7 +61,6 @@ class Speak extends Component {
     const voiceString = this.props.voice || 'enUS_Male';
     const voice = this.getVoice(voiceString);
     phrases.forEach(phrase => {
-      console.log(phrase, voice, timeout);
       setTimeout(function() {
         client.synthesize(phrase, voice);
       }, timeout);
