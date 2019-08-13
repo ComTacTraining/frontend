@@ -13,7 +13,7 @@ class TextCanvas extends Component {
   constructor(props) {
     super(props);
     this.textCanvas = React.createRef();
-    this.padding = 20;
+    this.padding = 40;
     this.leading = 10;
     this.fontSize = 32;
     this.font = `${this.fontSize}px Anton`;

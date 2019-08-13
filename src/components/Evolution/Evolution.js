@@ -33,11 +33,13 @@ export default class Evolution extends Component {
     transcript: '',
     recognition: null,
     speechRecognitionResult: '',
-    isSpeaking: false
+    isSpeaking: false,
+    canTalk: false
   };
 
   constructor(props) {
     super(props);
+    this.canvasContainer = React.createRef();
     this.videoCanvas = React.createRef();
     this.intro = React.createRef();
     this.dispatch = React.createRef();
@@ -200,6 +202,8 @@ export default class Evolution extends Component {
       this.setDispatchText();
     } else if (scrollText.length === 0 && next === 'alphaLoop') {
       this.setEducationText();
+    } else if (next === 'alphaIntro') {
+      this.setState({ canTalk: true });
     }
     const video = this[next].current;
     this.stopTimer();
@@ -224,6 +228,15 @@ export default class Evolution extends Component {
   };
 
   handlePlayClicked = () => {
+    const canvas = this.canvasContainer.current;
+    if (canvas.requestFullScreen) {
+      canvas.requestFullScreen();
+    } else if (canvas.webkitRequestFullScreen) {
+      canvas.webkitRequestFullScreen();
+    } else if (canvas.moRequestFullScreen) {
+      canvas.mozRequestFullScreen();
+    }
+
     const { isPlaying } = this.state;
     if (!isPlaying) {
       this.stopTimer();
@@ -315,9 +328,10 @@ export default class Evolution extends Component {
   };
 
   handleKeyDown = event => {
-    if (event.code === 'Space') {
+    const { speakPhrases, recognition, isSpeaking, canTalk } = this.state;
+    console.log(canTalk);
+    if (event.code === 'Space' && canTalk) {
       event.preventDefault();
-      const { speakPhrases, recognition, isSpeaking } = this.state;
       if (!event.repeat) {
         // Only allow microphone when not speaking
         if (speakPhrases.length === 0 && recognition === null) {
@@ -340,8 +354,9 @@ export default class Evolution extends Component {
   };
 
   handleKeyUp = event => {
-    if (event.code === 'Space') {
-      const { recognition } = this.state;
+    const { recognition, canTalk } = this.state;
+    console.log(canTalk);
+    if (event.code === 'Space' && canTalk) {
       setTimeout(() => {
         recognition.stop();
         this.setState({ recognition: null, isSpeaking: false });
@@ -408,7 +423,7 @@ export default class Evolution extends Component {
               hidden
             />
           ))}
-          <div className='canvas'>
+          <div className='canvas' ref={this.canvasContainer}>
             {!isPlaying && isReady && (
               <img
                 src={playButton}
