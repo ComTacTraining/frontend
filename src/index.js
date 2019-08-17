@@ -35,11 +35,17 @@ axios.interceptors.response.use(
 Amplify.configure({
   Auth: {
     mandatorySignIn: true,
+    identityPoolId: config.cognito.IDENTITY_POOL_ID,
     region: config.cognito.REGION,
     userPoolId: config.cognito.USER_POOL_ID,
-    identityPoolId: config.cognito.IDENTITY_POOL_ID,
     userPoolWebClientId: config.cognito.APP_CLIENT_ID
   },
+  /*Storage: {
+    AWSS3: {
+      region: config.s3.REGION,
+      bucket: config.s3.BUCKET
+    }
+  },*/
   API: {
     endpoints: [
       {

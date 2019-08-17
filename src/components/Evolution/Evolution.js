@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+//import { API, Storage } from 'aws-amplify';
 import { API } from 'aws-amplify';
 import createPonyfill from 'web-speech-cognitive-services/lib/SpeechServices';
 //import Videos from './Videos/Videos';
@@ -6,6 +7,7 @@ import createPonyfill from 'web-speech-cognitive-services/lib/SpeechServices';
 import TextCanvas from './TextCanvas/TextCanvas';
 import './Evolution.css';
 import playButton from './play.svg';
+import ProgressBar from 'react-bootstrap/ProgressBar';
 import Speak from './Speak/Speak';
 import ProcessSpeech from './ProcessSpeech/ProcessSpeech';
 //import Listen from './Listen/Listen';
@@ -22,7 +24,6 @@ export default class Evolution extends Component {
     videos: [],
     timerId: null,
     isPlaying: false,
-    isReady: false,
     preloadedVideoCount: 0,
     currentVideo: null,
     scrollText: [],
@@ -34,7 +35,9 @@ export default class Evolution extends Component {
     recognition: null,
     speechRecognitionResult: '',
     isSpeaking: false,
-    canTalk: false
+    canTalk: false,
+    videosLoaded: 0,
+    preloadPercentage: 0
   };
 
   constructor(props) {
@@ -118,7 +121,7 @@ export default class Evolution extends Component {
     this.stopTimer();
   }
 
-  getVideos = () => {
+  getVideos = async () => {
     const { evolution } = this.state;
     const bucket = 'https://s3-us-west-2.amazonaws.com/ctt-video/';
     const fileType = '.mp4';
@@ -171,8 +174,38 @@ export default class Evolution extends Component {
       },
       { id: 'credits', src: bucket + 'Credits' + fileType, next: '' }
     ];
-    this.setState({ videos: videos });
+    this.setState({ videos: videos }, this.preloadVideos);
   };
+
+  preloadVideos() {
+    const { videos } = this.state;
+    videos.forEach(video => {
+      this.preloadVideo(video);
+    });
+  }
+
+  preloadVideo(video) {
+    const vidRef = this[video.id].current;
+    fetch(video.src, { mode: 'cors' })
+      .then(response => response.blob())
+      .then(videoBlob => {
+        const videoObject = window.URL.createObjectURL(videoBlob);
+        vidRef.src = videoObject;
+        this.updateVideosLoaded();
+      });
+  }
+
+  updateVideosLoaded() {
+    const { videosLoaded, videos } = this.state;
+    const newVideosLoaded = videosLoaded + 1;
+    const preloadPercentage = Math.floor(
+      (newVideosLoaded / videos.length) * 100
+    );
+    this.setState({
+      videosLoaded: newVideosLoaded,
+      preloadPercentage: preloadPercentage
+    });
+  }
 
   stopTimer() {
     const { timerId } = this.state;
@@ -212,18 +245,10 @@ export default class Evolution extends Component {
   };
 
   handleLoadedData = id => event => {
+    console.log(id);
     if (id === 'intro') {
       const intro = this.intro.current;
       this.drawImage(intro);
-    }
-  };
-
-  handleCanPlayThrough = () => {
-    const { preloadedVideoCount, videos } = this.state;
-    const newCount = preloadedVideoCount + 1;
-    this.setState({ preloadedVideoCount: newCount });
-    if (newCount === videos.length) {
-      this.setState({ isReady: true });
     }
   };
 
@@ -329,7 +354,6 @@ export default class Evolution extends Component {
 
   handleKeyDown = event => {
     const { speakPhrases, recognition, isSpeaking, canTalk } = this.state;
-    console.log(canTalk);
     if (event.code === 'Space' && canTalk) {
       event.preventDefault();
       if (!event.repeat) {
@@ -355,7 +379,6 @@ export default class Evolution extends Component {
 
   handleKeyUp = event => {
     const { recognition, canTalk } = this.state;
-    console.log(canTalk);
     if (event.code === 'Space' && canTalk) {
       setTimeout(() => {
         recognition.stop();
@@ -370,7 +393,6 @@ export default class Evolution extends Component {
       isLoadingEvolution,
       videos,
       isPlaying,
-      isReady,
       currentVideo,
       scrollText,
       speakPhrases,
@@ -380,7 +402,8 @@ export default class Evolution extends Component {
       firstAlarm,
       step,
       transcript,
-      isSpeaking
+      isSpeaking,
+      preloadPercentage
     } = this.state;
     let handleCallback = this.handleDispatchLoopComplete;
     if (currentVideo === 'alphaLoop') {
@@ -415,21 +438,27 @@ export default class Evolution extends Component {
             <video
               ref={this[video.id]}
               key={video.id}
-              src={video.src}
               onPlay={this.handlePlay}
               onEnded={this.handleEnded(video.next)}
               onLoadedData={this.handleLoadedData(video.id)}
-              onCanPlayThrough={this.handleCanPlayThrough}
               hidden
             />
           ))}
           <div className='canvas' ref={this.canvasContainer}>
-            {!isPlaying && isReady && (
+            {!isPlaying && preloadPercentage === 100 && (
               <img
                 src={playButton}
                 onClick={this.handlePlayClicked}
                 className='playButton'
                 alt='Play Video'
+              />
+            )}
+            {!isPlaying && preloadPercentage < 100 && (
+              <ProgressBar
+                striped
+                animated
+                now={preloadPercentage}
+                className='progressBar'
               />
             )}
             {scrollText.length > 0 && (
