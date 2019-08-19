@@ -61,11 +61,6 @@ export default class Navigation extends Component {
             {this.props.childProps.isAuthenticated ? (
               <Fragment>
                 <Nav.Item>
-                  <LinkContainer to='/billing'>
-                    <Nav.Link>Billing</Nav.Link>
-                  </LinkContainer>
-                </Nav.Item>
-                <Nav.Item>
                   <LinkContainer to='/profile'>
                     <Nav.Link>Profile</Nav.Link>
                   </LinkContainer>

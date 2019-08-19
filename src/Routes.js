@@ -9,7 +9,6 @@ import About from './containers/About/About';
 import Contact from './containers/Contact/Contact';
 import Register from './containers/Register/Register';
 import Login from './containers/Login/Login';
-import Billing from './containers/Billing/Billing';
 import Demo from './containers/Demo/Demo';
 import Profile from './containers/Profile/Profile';
 import Dashboard from './containers/Dashboard/Dashboard';
@@ -41,12 +40,6 @@ export default ({ childProps }) => (
       path='/login'
       exact
       component={Login}
-      props={childProps}
-    />
-    <AuthenticatedRoute
-      path='/billing'
-      exact
-      component={Billing}
       props={childProps}
     />
     <AuthenticatedRoute

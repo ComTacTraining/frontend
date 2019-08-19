@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react';
+import Billing from './Billing/Billing';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
@@ -185,7 +186,15 @@ export default class Profile extends Component {
           <Row>
             <Col md={{ span: 8, offset: 2 }}>
               <h1>Profile</h1>
+              <h3>Alarms</h3>
               {!alarms || isUpdating ? this.renderForm() : this.renderAlarms()}
+              <br />
+              <br />
+              <h3>Billing</h3>
+              <Billing
+                setMemberType={this.props.setMemberType}
+                history={this.props.history}
+              />
             </Col>
           </Row>
         </div>

@@ -1,16 +1,15 @@
 import React, { Component, Fragment } from 'react';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
 import Card from 'react-bootstrap/Card';
 import Spinner from 'react-bootstrap/Spinner';
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
-import LoaderButton from '../../components/LoaderButton/LoaderButton';
+import LoaderButton from '../../../components/LoaderButton/LoaderButton';
 import { Auth, API } from 'aws-amplify';
 import { Elements, StripeProvider } from 'react-stripe-elements';
 import BillingForm from './BillingForm/BillingForm';
-import config from '../../config';
-import { formatUSD, nextBill } from '../../utils/formatNumbers';
+import config from '../../../config';
+//import { formatUSD, nextBill } from '../../../utils/formatNumbers';
+import { formatUSD } from '../../../utils/formatNumbers';
 
 export default class Billing extends Component {
   state = {
@@ -25,7 +24,8 @@ export default class Billing extends Component {
     alertMessage: '',
     alertRedirect: '',
     alertRedirectMessage: '',
-    showAlert: false
+    showAlert: false,
+    showCancelSubscriptionAlert: false
   };
 
   async componentDidMount() {
@@ -132,6 +132,18 @@ export default class Billing extends Component {
     }
   };
 
+  handleCancelSubscriptionConfirmation = event => {
+    this.setState({
+      showCancelSubscriptionAlert: true
+    });
+  };
+
+  handleDismissCancelSubscriptionAlert = () => {
+    this.setState({
+      showCancelSubscriptionAlert: false
+    });
+  };
+
   handleCancelSubscription = async event => {
     this.setState({ isCanceling: true });
     await this.cancelSubscription();
@@ -141,11 +153,12 @@ export default class Billing extends Component {
       alertHeading: 'Success',
       alertVariant: 'success',
       alertMessage: 'Your subscription has been successfully been canceled.',
-      alertRedirect: '/profile',
-      alertRedirectMessage: 'Profile',
+      alertRedirect: '',
+      alertRedirectMessage: '',
       showAlert: true,
       isCanceling: false,
-      subscription: null
+      subscription: null,
+      showCancelSubscriptionAlert: false
     });
   };
 
@@ -203,16 +216,50 @@ export default class Billing extends Component {
     );
   }
 
+  renderCancelSubscriptionAlert() {
+    const { isCanceling } = this.state;
+    return (
+      <Fragment>
+        <Alert
+          variant='danger'
+          onClose={this.handleDismissCancelSubscriptionAlert}
+          dismissible
+        >
+          <Alert.Heading>Are you sure you want to cancel?</Alert.Heading>
+          <p>
+            You are subscribed using our introductory pricing. If you cancel
+            now, and later wish to resubscribe the cost will be the full $80
+            monthly.
+          </p>
+          <hr />
+          <div className='d-flex justify-content-end'>
+            <LoaderButton
+              variant='danger'
+              size='sm'
+              type='button'
+              isLoading={isCanceling}
+              text='Cancel'
+              loadingText='Canceling...'
+              onClick={this.handleCancelSubscription}
+            />
+          </div>
+        </Alert>
+      </Fragment>
+    );
+  }
+
   renderNextBill() {
-    const { subscription, isCanceling } = this.state;
+    /*const { subscription, isCanceling } = this.state;
     const currentPeriodEnd = subscription.stripe.current_period_end;
-    const days = nextBill(currentPeriodEnd);
+    const days = nextBill(currentPeriodEnd);*/
+    const { isCanceling } = this.state;
 
     return (
       <Fragment>
         <Card.Text>
-          Next payment in {days} day
-          {days !== 1 ? 's' : ''}
+          {/*Next payment in {days} day
+          {days !== 1 ? 's' : ''}*/}
+          <strong>Subscribed!</strong>
         </Card.Text>
         <LoaderButton
           variant='danger'
@@ -221,7 +268,7 @@ export default class Billing extends Component {
           isLoading={isCanceling}
           text='Cancel'
           loadingText='Canceling...'
-          onClick={this.handleCancelSubscription}
+          onClick={this.handleCancelSubscriptionConfirmation}
         />
       </Fragment>
     );
@@ -234,51 +281,50 @@ export default class Billing extends Component {
       products,
       plans,
       subscription,
-      alertHeading
+      alertHeading,
+      showCancelSubscriptionAlert
     } = this.state;
     return !isLoadingProducts ? (
       <div className='Billing'>
-        <Row>
-          <Col md={{ span: 8, offset: 2 }}>
-            <h1>Billing</h1>
-            {alertHeading !== '' ? this.renderAlert() : ''}
-            <Card style={{ width: '18rem' }}>
-              {plans.map((plan, key) => {
-                return (
-                  <Card.Body key={key}>
-                    <Card.Title>{products[0].name}</Card.Title>
-                    <Card.Subtitle className='mb-2 text-muted'>
-                      {formatUSD(plan.amount)} / {plan.interval}
-                    </Card.Subtitle>
-                    {subscription !== null &&
-                      !subscription.canceled &&
-                      this.renderNextBill()}
-                  </Card.Body>
-                );
-              })}
-            </Card>
-            {subscription === null && (
-              <StripeProvider apiKey={config.STRIPE_KEY}>
-                <Elements>
-                  <BillingForm
-                    loading={isLoading}
-                    onSubmit={this.handleFormSubmit}
-                  />
-                </Elements>
-              </StripeProvider>
-            )}
-            {subscription !== null && subscription.canceled && (
-              <StripeProvider apiKey={config.STRIPE_KEY}>
-                <Elements>
-                  <BillingForm
-                    loading={isLoading}
-                    onSubmit={this.handleFormSubmit}
-                  />
-                </Elements>
-              </StripeProvider>
-            )}
-          </Col>
-        </Row>
+        {showCancelSubscriptionAlert
+          ? this.renderCancelSubscriptionAlert()
+          : ''}
+        {alertHeading !== '' ? this.renderAlert() : ''}
+        <Card style={{ width: '18rem' }}>
+          {plans.map((plan, key) => {
+            return (
+              <Card.Body key={key}>
+                <Card.Title>{products[0].name}</Card.Title>
+                <Card.Subtitle className='mb-2 text-muted'>
+                  {formatUSD(plan.amount)} / {plan.interval}
+                </Card.Subtitle>
+                {subscription !== null &&
+                  !subscription.canceled &&
+                  this.renderNextBill()}
+              </Card.Body>
+            );
+          })}
+        </Card>
+        {subscription === null && (
+          <StripeProvider apiKey={config.STRIPE_KEY}>
+            <Elements>
+              <BillingForm
+                loading={isLoading}
+                onSubmit={this.handleFormSubmit}
+              />
+            </Elements>
+          </StripeProvider>
+        )}
+        {subscription !== null && subscription.canceled && (
+          <StripeProvider apiKey={config.STRIPE_KEY}>
+            <Elements>
+              <BillingForm
+                loading={isLoading}
+                onSubmit={this.handleFormSubmit}
+              />
+            </Elements>
+          </StripeProvider>
+        )}
       </div>
     ) : (
       <Spinner animation='border' role='status'>

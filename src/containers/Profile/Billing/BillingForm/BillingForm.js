@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Form from 'react-bootstrap/Form';
 import { CardElement, injectStripe } from 'react-stripe-elements';
-import LoaderButton from '../../../components/LoaderButton/LoaderButton';
+import LoaderButton from '../../../../components/LoaderButton/LoaderButton';
 import './BillingForm.css';
 
 class BillingForm extends Component {
