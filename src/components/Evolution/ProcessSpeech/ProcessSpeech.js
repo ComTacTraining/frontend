@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 
 export default class ProcessSpeech extends Component {
   componentDidMount() {
+    console.log('Process Speech is called');
     this.processTranscript();
   }
 
