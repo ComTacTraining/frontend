@@ -19,6 +19,7 @@ export default class Evolution extends Component {
     isLoadingEvolution: true,
     alarms: null,
     firstAlarm: [],
+    secondAlarm: [],
     chief: '',
     evolution: null,
     videos: [],
@@ -70,7 +71,8 @@ export default class Evolution extends Component {
         this.setState(
           { evolution: evolution, isLoadingEvolution: false },
           () => {
-            this.getVideos();
+            //this.getVideos();
+            //this.setDispatchText();
             this.setupAlarms();
           }
         );
@@ -86,11 +88,14 @@ export default class Evolution extends Component {
   async setupAlarms() {
     try {
       const alarms = await this.getAlarms();
+      
       let firstAlarm = alarms.alarm1.split(',').map(alarm => alarm.trim());
+      let secondAlarm = alarms.alarm2.split(',').map(alarm => alarm.trim());
+      console.log(alarms);
       firstAlarm.shift();
       const chief = firstAlarm.pop();
       this.setState(
-        { alarms: alarms, firstAlarm: firstAlarm, chief: chief },
+        { alarms: alarms, firstAlarm: firstAlarm, secondAlarm: secondAlarm, chief: chief },
         () => {
           this.shuffleFirstAlarm();
         }
@@ -388,6 +393,18 @@ export default class Evolution extends Component {
     }
   };
 
+  myCallback = (dataFromChild) => {
+    console.log(dataFromChild);
+    this.setState({firstAlarm: dataFromChild}, ()=>{
+      console.log(this.state.firstAlarm);
+    });
+    
+   };
+
+   startSimulation() {
+     this.setDispatchText();
+   }
+
   render() {
     const {
       isLoadingEvolution,
@@ -412,12 +429,14 @@ export default class Evolution extends Component {
     return (
       !isLoadingEvolution && (
         <div>
+          <button onClick={this.startSimulation}>Start Simulation</button>
           {speakPhrases.length > 0 && (
             <Speak
               phrases={speakPhrases}
               voice={speakVoice}
               timeout={speakTimeout}
               handleSpeechComplete={this.handleSpeechComplete}
+              callbackFromParent={this.myCallback}
             />
           )}
           {(transcript !== '' || step === 3) && !isSpeaking && (
@@ -428,12 +447,12 @@ export default class Evolution extends Component {
               transcript={transcript}
               handleStepUpdate={this.handleStepUpdate}
               handleSpeak={this.handleSpeak}
-              handleTranscriptReset={this.handleTranscriptReset}
+              handleTranscriptReset={this.handleTranscriptReset}     
             />
           )}
-          {/*<Listen
+          {/* <Listen
             handleListenResponse={this.handleListenResponse}
-          />*/}
+          /> */}
           {videos.map(video => (
             <video
               ref={this[video.id]}

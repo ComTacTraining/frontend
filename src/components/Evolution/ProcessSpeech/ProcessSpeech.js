@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 
 export default class ProcessSpeech extends Component {
   componentDidMount() {
+    console.log('Process Speech');
     this.processTranscript();
   }
 
@@ -14,6 +15,7 @@ export default class ProcessSpeech extends Component {
 
   processTranscript() {
     const { step } = this.props;
+    console.log(step);
     switch (step) {
       case 1:
         this.processInitialReport();
@@ -28,16 +30,32 @@ export default class ProcessSpeech extends Component {
         break;
     }
   }
+  ////////STEP 1////////////
+  dispatchInfo() {
+    
+  }
 
+  repeatDispatchInfo(){
+
+  }
+  /////////STEP 1////////////
+
+  /////////STEP 2/////////////
   processInitialReport() {
+    console.log('Process Initial');
     this.processReport();
   }
+  /////////STEP 2/////////////
 
+  ////////STEP 3//////////////
   processSecondaryReport() {
+    console.log('Secondary Report');
     this.processReport();
   }
+  ////////STEP 3//////////////
 
   processArrivals() {
+    console.log('Process Arrival');
     const { firstAlarm } = this.props;
     const phrase = `${firstAlarm[0]} staged and awaiting assignment.`;
     //this.props.handleSpeak(phrase);
@@ -54,7 +72,7 @@ export default class ProcessSpeech extends Component {
   }
 
   dispatchCenterCopies() {
-    const { transcript, dispatchCenter } = this.props;
+    const { transcript, dispatchCenter } = this.props;;
     return `${dispatchCenter} copies ${transcript}`;
   }
 
