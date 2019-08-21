@@ -9,7 +9,6 @@ class Speak extends Component {
   };
 
   componentDidMount() {
-    console.log('Speak file is called');
     this.setupClient();
   }
 

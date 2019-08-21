@@ -54,13 +54,13 @@ export default ({ childProps }) => (
       component={Demo}
       props={childProps}
     />
-    <AuthenticatedRoute
+    <MemberRoute
       path='/dashboard'
       exact
       component={Dashboard}
       props={childProps}
     />
-    <AuthenticatedRoute
+    <MemberRoute
       path='/evolutions/:id'
       component={Evolution}
       props={childProps}
