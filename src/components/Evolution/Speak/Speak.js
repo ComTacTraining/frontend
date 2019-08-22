@@ -12,7 +12,6 @@ class Speak extends Component {
     this.setupClient();
     console.log('Inside speak');
     let firstAlarm = ['This is test'];
-    this.props.callbackFromParent(firstAlarm);
   }
 
   setupClient() {
@@ -57,6 +56,7 @@ class Speak extends Component {
 
   handleVoicePlay = () => {
     const { client } = this.state;
+    //const {step, step4_index} = this.props;
     const phrases = isArray(this.props.phrases)
       ? this.props.phrases
       : [this.props.phrases];
@@ -65,6 +65,7 @@ class Speak extends Component {
     const voice = this.getVoice(voiceString);
     phrases.forEach(phrase => {
       setTimeout(function() {
+        console.log('Phrase is '+ phrase);
         client.synthesize(phrase, voice);
       }, timeout);
     });
@@ -73,6 +74,7 @@ class Speak extends Component {
   render() {
     return null;
   }
+
 }
 
 export default Speak;

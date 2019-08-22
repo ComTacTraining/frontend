@@ -38,7 +38,79 @@ export default class Evolution extends Component {
     isSpeaking: false,
     canTalk: false,
     videosLoaded: 0,
-    preloadPercentage: 0
+    preloadPercentage: 0,
+    /////////////////////CJ VARIABLES////////////////////
+    flag : true,
+    ////Dictionary
+    alarm2KeywordDictionary : ['Alarm 2:00', 'Alarm 2', 'alarm 2:00', 'alarm 2', 'alarm two', 'Alarm two'],
+    fireAttackDictionary : ['fire attach', 'fire attack', 'far attack'],
+    exposureGroupDictionary : ['exposure'],
+    ventGroupDictionary : ['whent', 'went', 'vent', 'when', 'Ventilacion', 'Ventilation'],
+    rickGroupDictionary : ['rick', 'R I C', 'R.I.C', 'Rick', 'R I C'],
+    assignKeywordDictionary : ['Assign', 'assign', 'Sign', 'Sign', 'Assigned'],
+    parKeywordArray : ['Par', 'par', 'per', 'bar'],
+    ////Dictionary
+    finalJsonOutput : [],
+    finalJsonOutputIndex : 0,
+    comp_speakup_allowed : 1,
+    repeat : 0,
+    simpleAssignment : 0,
+    assignKeyword : 0,
+    parDetected : 0,
+    nameDetected : 0,
+    user_speech: '',
+    all_user_speech : [],
+    user_speech_index : 0,
+    user_speech_end_detected : 0,
+    assigned : 0,
+    assignedSpeech : [],
+    assignedSpeechIndex : 0,
+    parSpeech : [],
+    parKeyword : 0,
+    parSpeechIndex : 0,
+    userSpeech : [],
+    userSpeechIndex : 0,
+    initial_report: '',
+    secondary_report: '',
+    user_speech_changed: '',
+    commanding_unit_report : '',
+    groups : [],
+    group_names : ['Fire Attack', 'Exposure Group', 'Ventilation Group', 'RIC Group'],
+    alarm1_units : [],
+    calling_units :[],
+    calling_units_length : 0,
+    step4_index : 0,
+    checkUserSpeech: 0, alarm2_called: 0
+    // group_names : ['Fire Attack', 'Exposure Group', 'Ventilation Group', 'RIC Group'],
+    // groups : [{
+    //   "name": "Fire Attack", "assigned": 0, "assigned_to": [], "response": 0
+    // }, {
+    //   "name": "Exposure Group", "assigned": 0, "assigned_to": [], "response": 0
+    // }, {
+    //   "name": "Ventilation Group", "assigned": 0, "assigned_to": [], "response": 0
+    // }, {
+    //   "name": "RIC Group", "assigned": 0, "assigned_to": [], "response": 0
+    // }],
+    // x: '',
+    // y: null,
+    // alarm1_temp: null,
+    // alarm2_temp: null,
+    // unit1_names: null,
+    // unit2_names: null,
+    // alarm1_units : [],
+    // alarm2_units : [],
+    // alarm1_index : 0,
+    // alarm2_index : 0,
+    // step4_index : 0,
+    // initial_report: null,
+    // secondary_report: null,
+    // calling_units : [],
+    // calling_units_length : 0,
+    // alarm2_names: null,
+    // alarm2_called : 0,
+    // wait : 0,
+    // alarms: null,
+    // wait: false
   };
 
   constructor(props) {
@@ -59,6 +131,31 @@ export default class Evolution extends Component {
     this.fps = 30;
   }
 
+  loadVariables() {
+    const {group_names, groups, firstAlarm, calling_units, calling_units_length} = this.state;
+    group_names.forEach((element, index) => {
+      groups[index] = [];
+      groups[index].name = element;
+      groups[index].response = 0;
+      groups[index].assigned = 0;
+      groups[index].assigned_to = [];
+      //For double assignment
+      groups[index].found = 0;
+      groups[index].index = 0;
+      groups[index].count = 0;
+    });
+    var index = 0;
+    firstAlarm.forEach(elem => {
+      calling_units[index] = [];
+      calling_units[index].name = elem;
+      index++;
+    });
+    this.setState({groups: groups, calling_units: calling_units, calling_units_length: index}, ()=> {
+      console.log(this.state.calling_units_length);
+    });
+
+  }
+
   async componentDidMount() {
     const ponyfill = await createPonyfill({
       region: 'westus',
@@ -71,9 +168,11 @@ export default class Evolution extends Component {
         this.setState(
           { evolution: evolution, isLoadingEvolution: false },
           () => {
-            //this.getVideos();
+            this.getVideos();
+            
             //this.setDispatchText();
             this.setupAlarms();
+            
           }
         );
       } catch (e) {
@@ -88,16 +187,16 @@ export default class Evolution extends Component {
   async setupAlarms() {
     try {
       const alarms = await this.getAlarms();
-      
       let firstAlarm = alarms.alarm1.split(',').map(alarm => alarm.trim());
       let secondAlarm = alarms.alarm2.split(',').map(alarm => alarm.trim());
-      console.log(alarms);
-      firstAlarm.shift();
-      const chief = firstAlarm.pop();
+      // firstAlarm.shift();
+      //const chief = firstAlarm.pop();
+      const chief = firstAlarm[0];
       this.setState(
         { alarms: alarms, firstAlarm: firstAlarm, secondAlarm: secondAlarm, chief: chief },
         () => {
-          this.shuffleFirstAlarm();
+          //this.shuffleFirstAlarm();
+          console.log(this.state.firstAlarm, this.state.secondAlarm);
         }
       );
     } catch (e) {
@@ -127,6 +226,7 @@ export default class Evolution extends Component {
   }
 
   getVideos = async () => {
+    console.log('getVideos()');
     const { evolution } = this.state;
     const bucket = 'https://s3-us-west-2.amazonaws.com/ctt-video/';
     const fileType = '.mp4';
@@ -183,6 +283,7 @@ export default class Evolution extends Component {
   };
 
   preloadVideos() {
+    console.log('preloadVideos()');
     const { videos } = this.state;
     videos.forEach(video => {
       this.preloadVideo(video);
@@ -190,6 +291,7 @@ export default class Evolution extends Component {
   }
 
   preloadVideo(video) {
+    console.log('preloadVideo()');
     const vidRef = this[video.id].current;
     fetch(video.src, { mode: 'cors' })
       .then(response => response.blob())
@@ -201,6 +303,7 @@ export default class Evolution extends Component {
   }
 
   updateVideosLoaded() {
+    console.log('updateVideosLoaded()');
     const { videosLoaded, videos } = this.state;
     const newVideosLoaded = videosLoaded + 1;
     const preloadPercentage = Math.floor(
@@ -213,17 +316,20 @@ export default class Evolution extends Component {
   }
 
   stopTimer() {
+    console.log('stopTimer()');
     const { timerId } = this.state;
     window.clearInterval(timerId);
   }
 
   drawImage(video) {
+    console.log('drawImage()');
     const canvas = this.videoCanvas.current;
     const ctx = canvas.getContext('2d');
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
   }
 
   loadVideo(video) {
+    console.log('loadVideo()');
     const timerId = window.setInterval(() => {
       this.drawImage(video);
     }, this.fps);
@@ -231,15 +337,17 @@ export default class Evolution extends Component {
   }
 
   handlePlay = event => {
+    console.log('handlePlay()');
     this.loadVideo(event.target);
   };
 
   handleEnded = next => event => {
+    console.log('handleEnded()')
     const { scrollText } = this.state;
     if (scrollText.length === 0 && next === 'dispatchLoop') {
       this.setDispatchText();
     } else if (scrollText.length === 0 && next === 'alphaLoop') {
-      this.setEducationText();
+      //this.setEducationText();
     } else if (next === 'alphaIntro') {
       this.setState({ canTalk: true });
     }
@@ -250,6 +358,7 @@ export default class Evolution extends Component {
   };
 
   handleLoadedData = id => event => {
+    console.log('handleLoadedData()')
     console.log(id);
     if (id === 'intro') {
       const intro = this.intro.current;
@@ -258,6 +367,7 @@ export default class Evolution extends Component {
   };
 
   handlePlayClicked = () => {
+    console.log('handlePlayClicked()')
     const canvas = this.canvasContainer.current;
     if (canvas.requestFullScreen) {
       canvas.requestFullScreen();
@@ -277,6 +387,7 @@ export default class Evolution extends Component {
   };
 
   setDispatchText() {
+    console.log('setDispatchText()')
     const { alarms, evolution } = this.state;
     const phrase = `Structure fire, ${alarms.alarm1} at ${evolution.street}.`;
     const scrollText = [phrase, `Repeating. ${phrase}`];
@@ -284,18 +395,21 @@ export default class Evolution extends Component {
   }
 
   setEducationText() {
+    console.log('setEducationText()')
     const { alarms, evolution } = this.state;
     const phrases = education(evolution, alarms);
     this.setState({ scrollText: phrases, speakPhrases: phrases });
   }
 
   handleDispatchLoopComplete = () => {
+    console.log('handleDispatchLoopComplete()')
     const dispatchLoop = this.dispatchLoop.current;
     const approach = this.approach.current;
     this.setState(
       { currentVideo: 'approach', scrollText: [], speakPhrases: [] },
       () => {
         this.stopTimer();
+        // // CJ Comment
         dispatchLoop.pause();
         approach.play();
       }
@@ -303,6 +417,7 @@ export default class Evolution extends Component {
   };
 
   handleAlphaLoopComplete = () => {
+    console.log('handleAlphaLoopComplete()')
     const alphaLoop = this.alphaLoop.current;
     const credits = this.credits.current;
     this.setState({ currentVideo: 'credits', scrollText: [] }, () => {
@@ -318,6 +433,7 @@ export default class Evolution extends Component {
   };
 
   handleSpeak = (phrases, voice = 'enUS_Male', timeout = 0) => {
+    console.log('handleSpeak()')
     console.log(`handleSpeak(${phrases}, ${voice}, ${timeout});`);
     this.setState({
       speakPhrases: phrases,
@@ -327,6 +443,7 @@ export default class Evolution extends Component {
   };
 
   handleSpeechComplete = () => {
+    console.log('handleSpeechComplete()')
     const { step } = this.state;
     let newStep = step;
     if (step < 3) {
@@ -336,11 +453,14 @@ export default class Evolution extends Component {
   };
 
   handleTranscriptReset = () => {
+    console.log('handleTranscriptReset()')
     this.setState({ transcript: '' });
   };
 
   handleListenComplete = () => {
+    console.log('handleListenComplete()')
     const { speechRecognitionResult, step } = this.state;
+    console.log(speechRecognitionResult);
     this.setState({
       transcript: speechRecognitionResult,
       speechRecognitionResult: ''
@@ -351,6 +471,7 @@ export default class Evolution extends Component {
   };
 
   handleListenResponse = response => {
+    console.log('handleListenResponse()')
     console.log(`handleListenResponse(${response});`);
     const { speechRecognitionResult } = this.state;
     const newResult = `${speechRecognitionResult} ${response}`.trim();
@@ -393,17 +514,26 @@ export default class Evolution extends Component {
     }
   };
 
-  myCallback = (dataFromChild) => {
-    console.log(dataFromChild);
-    this.setState({firstAlarm: dataFromChild}, ()=>{
-      console.log(this.state.firstAlarm);
+  speakCallback = (checkUserSpeech1, assignKeyword1, parDetected1, nameDetected1, assigned1, simpleAssignment1, alarm2KeywordDictionary1,
+    alarm2_called1) => {
+      console.log('Speak callback called');
+      this.setState({checkUserSpeech: checkUserSpeech1, assignKeyword: assignKeyword1, parDetected: parDetected1, nameDetected: nameDetected1, 
+      assigned: assigned1, simpleAssignment: simpleAssignment1, alarm2KeywordDictionary: alarm2KeywordDictionary1,alarm2_called: alarm2_called1});
+  }
+
+  speechCallback = (firstAlarm1, calling_units1, calling_units_length1, step4_index1) => {
+    const {firstAlarm, calling_units, calling_units_length, step4_index} = this.state;
+    console.log('STAP : '+ step4_index);
+    //console.log(dataFromChild);
+    this.setState({firstAlarm: firstAlarm1, calling_units:calling_units1, calling_units_length: calling_units_length1, step4_index: step4_index1}, ()=>{
+      console.log(this.state.calling);
     });
     
    };
 
-   startSimulation() {
-     this.setDispatchText();
-   }
+   startSimulation = () => {
+    this.loadVariables();
+   };
 
   render() {
     const {
@@ -420,7 +550,11 @@ export default class Evolution extends Component {
       step,
       transcript,
       isSpeaking,
-      preloadPercentage
+      preloadPercentage,
+      //CJ
+      calling_units, calling_units_length, step4_index,
+      checkUserSpeech, assignKeyword, parDetected, nameDetected, assigned, simpleAssignment, alarm2KeywordDictionary,
+      alarm2_called
     } = this.state;
     let handleCallback = this.handleDispatchLoopComplete;
     if (currentVideo === 'alphaLoop') {
@@ -436,10 +570,12 @@ export default class Evolution extends Component {
               voice={speakVoice}
               timeout={speakTimeout}
               handleSpeechComplete={this.handleSpeechComplete}
-              callbackFromParent={this.myCallback}
+              callbackForSpeak={this.speakCallBack}
+              step = {step}
+              step4_index = {step4_index}
             />
           )}
-          {(transcript !== '' || step === 3) && !isSpeaking && (
+          {(transcript !== '' || step >= 3) && !isSpeaking && (
             <ProcessSpeech
               firstAlarm={firstAlarm}
               dispatchCenter={alarms.dispatchCenter}
@@ -447,7 +583,19 @@ export default class Evolution extends Component {
               transcript={transcript}
               handleStepUpdate={this.handleStepUpdate}
               handleSpeak={this.handleSpeak}
-              handleTranscriptReset={this.handleTranscriptReset}     
+              handleTranscriptReset={this.handleTranscriptReset}
+              speechCallback={this.speechCallback}
+              calling_units={calling_units}
+              calling_units_length = {calling_units_length}
+              step4_index = {step4_index}  
+              checkUserSpeech = {checkUserSpeech}
+              assignKeyword = {assignKeyword}
+              parDetected = {parDetected}
+              nameDetected = {nameDetected}
+              assigned = {assigned}
+              simpleAssignment = {simpleAssignment}
+              alarm2KeywordDictionary = {alarm2KeywordDictionary}
+              alarm2_called = {alarm2_called}   
             />
           )}
           {/* <Listen
