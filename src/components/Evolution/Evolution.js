@@ -31,16 +31,17 @@ export default class Evolution extends Component {
     speakPhrases: [],
     speakVoice: 'enUS_Male',
     speakTimeout: 0,
-    step: 0,
+    step: 1,
     transcript: '',
     recognition: null,
     speechRecognitionResult: '',
     isSpeaking: false,
-    canTalk: false,
+    canTalk: true,
     videosLoaded: 0,
     preloadPercentage: 0,
     /////////////////////CJ VARIABLES////////////////////
     flag : true,
+    assignmentCheck: 0,
     ////Dictionary
     alarm2KeywordDictionary : ['Alarm 2:00', 'Alarm 2', 'alarm 2:00', 'alarm 2', 'alarm two', 'Alarm two'],
     fireAttackDictionary : ['fire attach', 'fire attack', 'far attack'],
@@ -48,7 +49,7 @@ export default class Evolution extends Component {
     ventGroupDictionary : ['whent', 'went', 'vent', 'when', 'Ventilacion', 'Ventilation'],
     rickGroupDictionary : ['rick', 'R I C', 'R.I.C', 'Rick', 'R I C'],
     assignKeywordDictionary : ['Assign', 'assign', 'Sign', 'Sign', 'Assigned'],
-    parKeywordArray : ['Par', 'par', 'per', 'bar'],
+    parKeywordDictionary : ['Par', 'par', 'per', 'bar'],
     ////Dictionary
     finalJsonOutput : [],
     finalJsonOutputIndex : 0,
@@ -56,7 +57,7 @@ export default class Evolution extends Component {
     repeat : 0,
     simpleAssignment : 0,
     assignKeyword : 0,
-    parDetected : 0,
+  
     nameDetected : 0,
     user_speech: '',
     all_user_speech : [],
@@ -65,6 +66,7 @@ export default class Evolution extends Component {
     assigned : 0,
     assignedSpeech : [],
     assignedSpeechIndex : 0,
+    parDetected : 0,
     parSpeech : [],
     parKeyword : 0,
     parSpeechIndex : 0,
@@ -150,10 +152,7 @@ export default class Evolution extends Component {
       calling_units[index].name = elem;
       index++;
     });
-    this.setState({groups: groups, calling_units: calling_units, calling_units_length: index}, ()=> {
-      console.log(this.state.calling_units_length);
-    });
-
+    this.setState({groups: groups, calling_units: calling_units, calling_units_length: index});
   }
 
   async componentDidMount() {
@@ -168,7 +167,7 @@ export default class Evolution extends Component {
         this.setState(
           { evolution: evolution, isLoadingEvolution: false },
           () => {
-            this.getVideos();
+            // this.getVideos();
             
             //this.setDispatchText();
             this.setupAlarms();
@@ -196,7 +195,6 @@ export default class Evolution extends Component {
         { alarms: alarms, firstAlarm: firstAlarm, secondAlarm: secondAlarm, chief: chief },
         () => {
           //this.shuffleFirstAlarm();
-          console.log(this.state.firstAlarm, this.state.secondAlarm);
         }
       );
     } catch (e) {
@@ -222,169 +220,8 @@ export default class Evolution extends Component {
   }
 
   componentWillUnmount() {
-    this.stopTimer();
+    // this.stopTimer();
   }
-
-  getVideos = async () => {
-    console.log('getVideos()');
-    const { evolution } = this.state;
-    const bucket = 'https://s3-us-west-2.amazonaws.com/ctt-video/';
-    const fileType = '.mp4';
-    const videos = [
-      {
-        id: 'intro',
-        src: bucket + evolution.intro + fileType,
-        next: 'dispatch'
-      },
-      {
-        id: 'dispatch',
-        src: bucket + 'CTT Dispatch with Label' + fileType,
-        next: 'dispatchLoop'
-      },
-      {
-        id: 'dispatchLoop',
-        src: bucket + 'CTT Dispatch no label' + fileType,
-        next: 'dispatchLoop'
-      },
-      {
-        id: 'approach',
-        src: bucket + evolution.approach + fileType,
-        next: 'alphaIntro'
-      },
-      {
-        id: 'alphaIntro',
-        src: bucket + evolution.loop + fileType,
-        next: 'bravo'
-      },
-      {
-        id: 'bravo',
-        src: bucket + evolution.bravo + fileType,
-        next: 'charlie'
-      },
-      {
-        id: 'charlie',
-        src: bucket + evolution.charlie + fileType,
-        next: 'delta'
-      },
-      { id: 'delta', src: bucket + evolution.delta + fileType, next: 'alpha' },
-      {
-        id: 'alpha',
-        src: bucket + evolution.alpha + fileType,
-        next: 'alphaLoop'
-      },
-      {
-        id: 'alphaLoop',
-        src: bucket + evolution.loop + fileType,
-        next: 'alphaLoop'
-      },
-      { id: 'credits', src: bucket + 'Credits' + fileType, next: '' }
-    ];
-    this.setState({ videos: videos }, this.preloadVideos);
-  };
-
-  preloadVideos() {
-    console.log('preloadVideos()');
-    const { videos } = this.state;
-    videos.forEach(video => {
-      this.preloadVideo(video);
-    });
-  }
-
-  preloadVideo(video) {
-    console.log('preloadVideo()');
-    const vidRef = this[video.id].current;
-    fetch(video.src, { mode: 'cors' })
-      .then(response => response.blob())
-      .then(videoBlob => {
-        const videoObject = window.URL.createObjectURL(videoBlob);
-        vidRef.src = videoObject;
-        this.updateVideosLoaded();
-      });
-  }
-
-  updateVideosLoaded() {
-    console.log('updateVideosLoaded()');
-    const { videosLoaded, videos } = this.state;
-    const newVideosLoaded = videosLoaded + 1;
-    const preloadPercentage = Math.floor(
-      (newVideosLoaded / videos.length) * 100
-    );
-    this.setState({
-      videosLoaded: newVideosLoaded,
-      preloadPercentage: preloadPercentage
-    });
-  }
-
-  stopTimer() {
-    console.log('stopTimer()');
-    const { timerId } = this.state;
-    window.clearInterval(timerId);
-  }
-
-  drawImage(video) {
-    console.log('drawImage()');
-    const canvas = this.videoCanvas.current;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-  }
-
-  loadVideo(video) {
-    console.log('loadVideo()');
-    const timerId = window.setInterval(() => {
-      this.drawImage(video);
-    }, this.fps);
-    this.setState({ timerId: timerId });
-  }
-
-  handlePlay = event => {
-    console.log('handlePlay()');
-    this.loadVideo(event.target);
-  };
-
-  handleEnded = next => event => {
-    console.log('handleEnded()')
-    const { scrollText } = this.state;
-    if (scrollText.length === 0 && next === 'dispatchLoop') {
-      this.setDispatchText();
-    } else if (scrollText.length === 0 && next === 'alphaLoop') {
-      //this.setEducationText();
-    } else if (next === 'alphaIntro') {
-      this.setState({ canTalk: true });
-    }
-    const video = this[next].current;
-    this.stopTimer();
-    video.play();
-    this.setState({ currentVideo: next });
-  };
-
-  handleLoadedData = id => event => {
-    console.log('handleLoadedData()')
-    console.log(id);
-    if (id === 'intro') {
-      const intro = this.intro.current;
-      this.drawImage(intro);
-    }
-  };
-
-  handlePlayClicked = () => {
-    console.log('handlePlayClicked()')
-    const canvas = this.canvasContainer.current;
-    if (canvas.requestFullScreen) {
-      canvas.requestFullScreen();
-    } else if (canvas.webkitRequestFullScreen) {
-      canvas.webkitRequestFullScreen();
-    } else if (canvas.moRequestFullScreen) {
-      canvas.mozRequestFullScreen();
-    }
-
-    const { isPlaying } = this.state;
-    if (!isPlaying) {
-      this.stopTimer();
-      const intro = this.intro.current;
-      intro.play();
-      this.setState({ isPlaying: true });
-    }
-  };
 
   setDispatchText() {
     console.log('setDispatchText()')
@@ -408,10 +245,10 @@ export default class Evolution extends Component {
     this.setState(
       { currentVideo: 'approach', scrollText: [], speakPhrases: [] },
       () => {
-        this.stopTimer();
+        // this.stopTimer();
         // // CJ Comment
-        dispatchLoop.pause();
-        approach.play();
+        // dispatchLoop.pause();
+        // approach.play();
       }
     );
   };
@@ -446,9 +283,14 @@ export default class Evolution extends Component {
     console.log('handleSpeechComplete()')
     const { step } = this.state;
     let newStep = step;
-    if (step < 3) {
+    if (step < 4) {
       newStep++;
     }
+
+    if(step === 4){
+      this.setState({assignmentCheck: 1});
+    }
+
     this.setState({ speakPhrases: [], step: newStep });
   };
 
@@ -465,13 +307,13 @@ export default class Evolution extends Component {
       transcript: speechRecognitionResult,
       speechRecognitionResult: ''
     });
-    if (step === 0) {
-      this.handleStepUpdate(1);
+    if (step === 1) {
+      this.handleStepUpdate(2);
     }
+
   };
 
   handleListenResponse = response => {
-    console.log('handleListenResponse()')
     console.log(`handleListenResponse(${response});`);
     const { speechRecognitionResult } = this.state;
     const newResult = `${speechRecognitionResult} ${response}`.trim();
@@ -521,18 +363,18 @@ export default class Evolution extends Component {
       assigned: assigned1, simpleAssignment: simpleAssignment1, alarm2KeywordDictionary: alarm2KeywordDictionary1,alarm2_called: alarm2_called1});
   }
 
-  speechCallback = (firstAlarm1, calling_units1, calling_units_length1, step4_index1) => {
+  speechCallback = (firstAlarm1, calling_units1, calling_units_length1, step4_index1, assignmentCheck1) => {
     const {firstAlarm, calling_units, calling_units_length, step4_index} = this.state;
-    console.log('STAP : '+ step4_index);
-    //console.log(dataFromChild);
-    this.setState({firstAlarm: firstAlarm1, calling_units:calling_units1, calling_units_length: calling_units_length1, step4_index: step4_index1}, ()=>{
+    this.setState({firstAlarm: firstAlarm1, calling_units:calling_units1, calling_units_length: calling_units_length1, step4_index: step4_index1,
+      assignmentCheck: assignmentCheck1}, ()=>{
       console.log(this.state.calling);
     });
     
    };
 
-   startSimulation = () => {
-    this.loadVariables();
+   startSimulation = async () => {
+    await this.loadVariables();
+    this.setDispatchText();
    };
 
   render() {
@@ -547,14 +389,22 @@ export default class Evolution extends Component {
       speakTimeout,
       alarms,
       firstAlarm,
+      secondAlarm,
       step,
       transcript,
       isSpeaking,
       preloadPercentage,
+      assignmentCheck,
+      parDetected,
+      parSpeech,
+      parKeyword,
+      parSpeechIndex,
       //CJ
+      alarm2KeywordDictionary,assignKeywordDictionary,parKeywordDictionary,fireAttackDictionary,exposureGroupDictionary,ventGroupDictionary,rickGroupDictionary,
       calling_units, calling_units_length, step4_index,
-      checkUserSpeech, assignKeyword, parDetected, nameDetected, assigned, simpleAssignment, alarm2KeywordDictionary,
-      alarm2_called
+      checkUserSpeech, assignKeyword, nameDetected, assigned, simpleAssignment,
+      alarm2_called,
+      groups, repeat,
     } = this.state;
     let handleCallback = this.handleDispatchLoopComplete;
     if (currentVideo === 'alphaLoop') {
@@ -575,9 +425,8 @@ export default class Evolution extends Component {
               step4_index = {step4_index}
             />
           )}
-          {(transcript !== '' || step >= 3) && !isSpeaking && (
+          {(transcript !== '' || step >= 4) && !isSpeaking && (
             <ProcessSpeech
-              firstAlarm={firstAlarm}
               dispatchCenter={alarms.dispatchCenter}
               step={step}
               transcript={transcript}
@@ -585,17 +434,36 @@ export default class Evolution extends Component {
               handleSpeak={this.handleSpeak}
               handleTranscriptReset={this.handleTranscriptReset}
               speechCallback={this.speechCallback}
-              calling_units={calling_units}
-              calling_units_length = {calling_units_length}
-              step4_index = {step4_index}  
+              //Alarms
+              firstAlarm={firstAlarm}
+              secondAlarm={secondAlarm}
+              // Dictionary
+              alarm2KeywordDictionary={alarm2KeywordDictionary}
+              assignKeywordDictionary={assignKeywordDictionary}
+              parKeywordDictionary = {parKeywordDictionary}
+              fireAttackDictionary={fireAttackDictionary}
+              exposureGroupDictionary={exposureGroupDictionary}
+              ventGroupDictionary={ventGroupDictionary}
+              rickGroupDictionary={rickGroupDictionary}
+              // parVariables
+              parDetected = {parDetected}
+              parKeyword = {parKeyword}
+              parSpeech = {parSpeech}
+              parSpeechIndex = {parSpeechIndex}
+              //Other
               checkUserSpeech = {checkUserSpeech}
               assignKeyword = {assignKeyword}
-              parDetected = {parDetected}
-              nameDetected = {nameDetected}
+              assignKeyword = {assignKeyword}
               assigned = {assigned}
               simpleAssignment = {simpleAssignment}
-              alarm2KeywordDictionary = {alarm2KeywordDictionary}
-              alarm2_called = {alarm2_called}   
+              alarm2_called = {alarm2_called}
+              calling_units = {calling_units}
+              calling_units_length = {calling_units_length}
+              step4_index = {step4_index}
+              assignmentCheck = {assignmentCheck}
+              groups = {groups}
+              repeat = {repeat}
+              
             />
           )}
           {/* <Listen

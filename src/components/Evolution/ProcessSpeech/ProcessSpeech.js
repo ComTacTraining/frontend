@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 
 export default class ProcessSpeech extends Component {
+  state = {
+    userSpeechChanged : ''
+  };
   componentDidMount() {
+    console.log('Process Speech componentDidMount()')
     const {step, transcript} = this.props;
-    console.log('STEP IS '+ step);
-    console.log('TRANSCCRIPT IS'+ transcript);
-    console.log('Process Speech');
     this.processTranscript();
   }
 
@@ -22,28 +23,22 @@ export default class ProcessSpeech extends Component {
     const { step } = this.props;
     console.log(step);
     switch (step) {
-      case 1:
+      case 2:
         this.processInitialReport();
         break;
-      case 2:
+      case 3:
         this.processSecondaryReport();
         break;
-      case 3:
+      case 4:
         this.processArrivals();
         break;
       default:
         break;
     }
   }
-  ////////STEP 1////////////
-  dispatchInfo() {
-    
-  }
 
-  repeatDispatchInfo(){
-
-  }
   /////////STEP 1////////////
+  //Step 1 in evolution.js setDispatchText
 
   /////////STEP 2/////////////
   processInitialReport() {
@@ -59,28 +54,21 @@ export default class ProcessSpeech extends Component {
   }
   ////////STEP 3//////////////
 
+  ////////STEP 4//////////////
   processArrivals() {
-    var { firstAlarm, calling_units, calling_units_length, step4_index, step, transcript } = this.props;
-    // if(step4_index < calling_units_length){
-      console.log('Process Arrival');
+    console.log('Process Arrival()');
+    var { firstAlarm, calling_units, calling_units_length, step4_index, step, transcript, assignmentCheck } = this.props;
+    if(assignmentCheck === 0){
       const phrase = `${firstAlarm[step4_index]} staged and awaiting assignment.`;
+      this.props.handleSpeak(phrase, 'enUS_Female', 5000);
+      this.props.handleTranscriptReset();
+      assignmentCheck = 1;
       step4_index++;
-      //this.props.handleSpeak(phrase);
-      this.props.speechCallback(firstAlarm, calling_units, calling_units_length, step4_index);
-      console.log('Transcript is '+ transcript);
-      console.log('STEP in SPEECH IS '+ step);
-      console.log('STEP 4 INDEX IS '+ step4_index);
-      if(step===3){
-        this.decisionOnSpeech(transcript, step4_index);
-        this.props.handleSpeak(transcript, 'enUS_Female', 5000);
-        //this.props.handleTranscriptReset();
-      }
-      else{
-        this.props.handleSpeak(transcript, 'enUS_Female', 5000);
-        this.props.handleTranscriptReset();
-    } 
-      // this.props.handleSpeak(phrase, 'enUS_Female', 5000);
-    // } 
+      this.props.speechCallback(firstAlarm, calling_units, calling_units_length, step4_index, assignmentCheck);
+    }
+    else {
+      this.decisionOnSpeech(transcript, step4_index);
+    }
   }
 
   processReport() {
@@ -104,12 +92,16 @@ export default class ProcessSpeech extends Component {
 
   
   decisionOnSpeech = (user_speech, index) => {
-    var { checkUserSpeech, assignKeyword, parDetected, nameDetected, assigned, simpleAssignment, alarm2KeywordDictionary,
-      alarm2_called } = this.props;
-    console.log('decision on speech is caalled');
-    console.log(user_speech);
-    console.log(alarm2KeywordDictionary);
-    
+    var {userSpeechChanged} = this.state;
+    //Changing variables
+    //checkUserSpeech, assignKeyword, parDetected, nameDetected, assigned, simpleAssignment, alarm2_called, assignmentCheck
+    //parDetected, parKeyword, parSpeech, parSpeechIndex, repeat, calling_units
+    var { checkUserSpeech, assignKeyword, nameDetected, assigned, simpleAssignment,
+      alarm2_called, firstAlarm, calling_units, calling_units_length, step4_index, secondAlarm, assignmentCheck,
+      groups, repeat,
+      alarm2KeywordDictionary,assignKeywordDictionary,parKeywordDictionary,fireAttackDictionary,exposureGroupDictionary,ventGroupDictionary,rickGroupDictionary,
+      parDetected, parKeyword, parSpeech, parSpeechIndex  } = this.props;
+    console.log('decision on speech is called');
     checkUserSpeech = 0;    //if it is matched
     assignKeyword = 0;      //Check if assigned keyword is detected
     parDetected = 0;        //Check if PAR keyword is detected
@@ -126,7 +118,6 @@ export default class ProcessSpeech extends Component {
     // ====================== ALARM 2 ====================== //
     if(!checkUserSpeech){
       alarm2KeywordDictionary.forEach(function (elem) {
-        console.log('Element is '+ elem);
             var re = new RegExp(elem, "gi");
             if (user_speech.match(re)) {
               console.log('Alarm 2 detected');
@@ -135,37 +126,362 @@ export default class ProcessSpeech extends Component {
         });
 
         if(checkUserSpeech && !alarm2_called){
-            console.log('Calling alarm 2');
-            //onCallingAlarm();
+          var phrase= 'Dispatch copies ';
+          secondAlarm.forEach((elem)=>{
+            phrase += elem + '';
+          });
+          this.props.handleSpeak(phrase, 'enUS_Female', 5000);
+          assignmentCheck = 1;
+          this.props.speechCallback(firstAlarm, calling_units, calling_units_length, step4_index, assignmentCheck, assignKeyword, parKeyword, parDetected, parSpeech, parSpeechIndex);
+
         }
     }
     // ====================== ALARM 2 ====================== //
+
+    // ====================== ASSIGN ====================== //
+    if(!checkUserSpeech){
+      assignKeywordDictionary.forEach(function (elem) {
+          var re = new RegExp(elem, "gi");
+          if (user_speech.match(re)) {
+              checkUserSpeech = 0;    //Because not to break condition if found
+              assignKeyword = 1;
+          }
+      });
+      if(assignKeyword) {
+          console.log('Assign keyword detected');
+      }
+    }
+    // ====================== ASSIGN ====================== //
+
+    // ====================== PAR REPORT ====================== //
+    if(!checkUserSpeech){
+      parKeywordDictionary.forEach(function (elem) {
+          console.log('Inside PAR');
+          var re = new RegExp(elem, "gi");
+          if (user_speech.match(re)) {
+              console.log('PAR SEARCHING')
+              checkUserSpeech = 0;
+              parDetected = 1;
+              parKeyword = 1;
+              parSpeech[parSpeechIndex] = user_speech;
+              parSpeechIndex++;
+          }
+          console.log('PAR DETECTED : ' + parDetected);
+      });
+      if(parDetected)   //Check if it is not already assigned to someone
+      {
+          console.log('PAR keyword detected');
+      }
+    }
+    // ====================== PAR REPORT ====================== //
+
+    // ====================== FIRE ATTACK ====================== //
+    if(!checkUserSpeech){
+      console.log('In fire attack');
+      fireAttackDictionary.forEach(function (elem) {
+          var re = new RegExp(elem, "gi");
+          if (user_speech.match(re)) {
+              checkUserSpeech = 1;
+              console.log('Fire attack matched');
+          }
+      });
+      if(checkUserSpeech)   //Check if it is not already assigned to someone
+      {
+          if(!groups[0].assigned && !parDetected){    // Simple assignment
+              repeat = 0;
+              calling_units[index].group = 'Fire attack';
+              groups[0].assigned_to.push(calling_units[index].name);
+              groups[0].assigned = 1;
+              // userAssignTranscript();
+              simpleAssignment = 1;
+              this.changeKeywords(user_speech);
+              user_speech = userSpeechChanged;
+              console.log('Fire attack assigned to ' + calling_units[step4_index]);
+              this.giveResponse(4, assignKeyword, parDetected, simpleAssignment);
+          }
+
+          else {      // IF PAR AND ALREADY ASSIGNED
+              if(!parDetected){   //If assigned
+                  if(groups[0].assigned && !assignKeyword){
+                      console.log('Assigned keyword and calling response');
+                      groups[0].response = 1;
+                      repeat = 1;
+                      this.giveResponse(0, assignKeyword, parDetected);
+                      step4_index--;
+                  }
+                  else {      // IF ASSIGNED
+                      console.log('Fire attack assigned with assign keyword')
+                      repeat = 0;
+                      groups[0].assigned_to.push(calling_units[index].name);
+                      groups[0].assigned = 1;
+                      this.giveResponse(0, assignKeyword, parDetected);
+                      // userAssignTranscript();
+                  }
+              }
+
+              else {  //FIRE ATTACK PAR
+                  console.log('I am in par function to call response');
+                  repeat = 1;
+                  this.giveResponse(0, assignKeyword, parDetected);
+                  step4_index--;
+              }
+          }
+      }
+    }
+    // ====================== FIRE ATTACK ====================== //
+
+    // ====================== EXPOSURE GROUP ====================== //
+    if(!checkUserSpeech){
+      console.log('in exposure');
+      exposureGroupDictionary.forEach(function (elem) {
+          var re = new RegExp(elem, "gi");
+          if (user_speech.match(re)) {
+              checkUserSpeech = 1;
+          }
+      });
+      if(checkUserSpeech)   //Check if it is not already assigned to someone
+      {
+          if(!groups[1].assigned && !parDetected){    // Simple assignment
+              repeat = 0;
+              calling_units[index].group = 'Exposure';
+              groups[1].assigned_to.push(calling_units[index].name);
+              groups[1].assigned = 1;
+              // userAssignTranscript();
+              simpleAssignment = 1;
+              this.changeKeywords(user_speech);
+              user_speech = userSpeechChanged;
+              console.log('Exposure group has been assigned to ' + calling_units[step4_index]);
+              this.giveResponse(4, assignKeyword, parDetected, simpleAssignment);
+
+          }
+
+          else {      //else give response
+              if(!parDetected){
+                  if(groups[1].assigned && !assignKeyword){
+                      repeat = 1;
+                      groups[1].response = 1;
+                      this.giveResponse(1, assignKeyword, parDetected);
+                      step4_index--;
+                  }
+                  else {
+                      repeat = 0;
+                      groups[1].assigned_to.push(calling_units[index].name);
+                      groups[1].assigned = 1;
+                      this.giveResponse(1, assignKeyword, parDetected);
+                      // userAssignTranscript();
+                  }
+              }
+
+              else {
+                  console.log('I am in par fnction to call response')
+                  repeat = 1;
+                  this.giveResponse(1, assignKeyword, parDetected);
+                  step4_index--;
+              }
+          }
+      }
+    }
+    // ====================== EXPOSURE GROUP ====================== //
+
+    // ====================== VENTILATION GROUP ====================== //
+    if(!checkUserSpeech){
+      console.log('In vent');
+
+      ventGroupDictionary.forEach(function (elem) {
+          var re = new RegExp(elem, "gi");
+          if (user_speech.match(re)) {
+              checkUserSpeech = 1;
+          }
+      });
+      if(checkUserSpeech)   //Check if it is not already assigned to someone
+      {
+          if(!groups[2].assigned && !parDetected){
+              repeat = 0;
+              calling_units[index].group = 'Vent';
+              groups[2].assigned_to.push(calling_units[index].name);
+              groups[2].assigned = 1;
+              // userAssignTranscript();
+              simpleAssignment = 1;
+              this.changeKeywords(user_speech);
+              user_speech = userSpeechChanged;
+              console.log('Vent group has been assigned to ' + calling_units[step4_index]);
+              this.giveResponse(4, assignKeyword, parDetected, simpleAssignment);
+          }
+
+          else {      //else give response
+              if(!parDetected){
+
+                  if(groups[2].assigned && !assignKeyword){
+                      groups[2].response = 1;
+                      repeat = 1;
+                      this.giveResponse(2, assignKeyword, parDetected);
+                      step4_index--;
+                  }
+                  else {
+                      repeat = 0;
+                      groups[2].assigned_to.push(calling_units[index].name);
+                      groups[2].assigned = 1;
+                      this.giveResponse(2, assignKeyword, parDetected);
+                      // userAssignTranscript();
+                  }
+              }
+
+              else {
+                  console.log('I am in par fnction to call response')
+                  repeat = 1;
+                  this.giveResponse(2, assignKeyword, parDetected);
+                  step4_index--;
+              }
+          }
+      }
   }
-  // calling_units_length, Alarm2
-  // onCallingAlarm = () => {
-  //   var { checkUserSpeech, assignKeyword, parDetected, nameDetected, assigned, simpleAssignment, alarm2KeywordDictionary,
-  //     alarm2_called } = this.props;
-  //   alarm2_called = 1;      //Don't add alarm 2 units again to calling_unit array
-  //   calling_units_length = calling_units_length + alarm2_units.length;  //for step 4
-  //   var alarm2_index = calling_units.length;
-  //   // alert(step4_index);
-  //   // step4_index--;
-  //   repeat = 1;
-  //   alarm2_names = "";
-  //   alarm2_units.forEach(unit2 => {             //Adding alarm 2 units to calling unit
-  //       alarm2_names += unit2.name + ", ";
-  //       calling_units[alarm2_index] = [];
-  //       calling_units[alarm2_index].name = unit2.name;
-  //       calling_units[alarm2_index].voice = getRandomInt(max);
-  //       alarm2_index++;
-  //   });
-  //   console.log('Alarm has been added to calling units');
-  //   console.log(alarm2_names);
-  //   var bingClientTTS = new BingSpeech.TTSClient(key);
-  //   bingClientTTS.synthesize("Dispatch Copies: " + alarm2_names, BingSpeech.SupportedLocales.enUS_Female,
-  //   () => {
-  //       speakUp();
-  //   });
-  //   fullTranscript();
-  // }
+  // ====================== VENTILATION GROUP ====================== //
+
+  // ====================== RIC GROUP ====================== //
+  if(!checkUserSpeech){
+      console.log('In rick');
+
+    rickGroupDictionary.forEach(function (elem) {
+        var re = new RegExp(elem, "gi");
+        if (user_speech.match(re)) {
+            checkUserSpeech = 1;
+        }
+    });
+    if(checkUserSpeech)   //Check if it is not already assigned to someone
+    {
+        if(!groups[3].assigned && !parDetected){
+            repeat = 0;
+            calling_units[index].group = 'RIC';
+            groups[3].assigned_to.push(calling_units[index].name);
+            groups[3].assigned = 1;
+            // userAssignTranscript();
+            simpleAssignment = 1;
+            this.changeKeywords(user_speech);
+            user_speech = userSpeechChanged;
+            console.log('RIC group has been assigned to ' + calling_units[step4_index]);
+            this.giveResponse(4, assignKeyword, parDetected, simpleAssignment);
+        }
+
+        else {      //else give response
+            if(!parDetected){
+                if(groups[3].assigned && !assignKeyword){
+                    groups[3].response = 1;
+                    repeat = 1;
+                    this.giveResponse(3, assignKeyword, parDetected);
+                    step4_index--;
+                }
+                else {
+                    repeat = 0;
+                    this.giveResponse(3, assignKeyword, parDetected);
+                    groups[3].assigned_to.push(calling_units[index].name);
+                    groups[3].assigned = 1;
+                    // userAssignTranscript();
+                }
+            }
+
+            else {
+                console.log('I am in par fnction to call response')
+                repeat = 1;
+                this.giveResponse(3, assignKeyword, parDetected);
+                step4_index--;
+            }
+        }
+    }
+  }
+  // ====================== RIC GROUP ====================== //
+
+  // ====================== NAME DETECTION ====================== //
+  if(!checkUserSpeech){
+    console.log('Inside name function')
+    groups.forEach(function (elem, index) {
+        nameIndex = index;
+        if(elem.assigned){
+            var assignedName = elem.assigned_to;
+            assignedName.forEach(function (name, index2) {
+                var re = new RegExp(name, "gi");
+                if (user_speech.match(re)) {
+                    checkUserSpeech = 1;
+                    console.log('Name detected');
+                }
+            });
+        }
+    });
+    if(checkUserSpeech)   //Check if it is not already assigned to someone
+    {
+        this.giveResponse(nameIndex, assignKeyword, parDetected);
+        groups[nameIndex].response = 1;
+        repeat = 1;
+        step4_index--;
+    }
+  }
+  // ====================== NAME DETECTION ====================== //
+
+  // ====================== NOTHING ====================== //
+  if(!checkUserSpeech){
+      console.log('nothing detected');
+  }
+  // ====================== NOTHING ====================== //
+
+  } //onDecision
+
+  giveResponse = (id, assignKeyword, parDetected, simpleAssignment) => {
+    const {userSpeechChanged} = this.state;
+    const {calling_units, step4_index} = this.props;
+    if(parDetected){
+      var phrase = 'All personnel are present and accounted for';
+      this.props.handleSpeak(phrase, 'enUS_Female', 5000);
+      this.props.handleTranscriptReset();
+    }
+    else if(assignKeyword){
+        console.log('In assign keyword response function')
+        var phrase = calling_units[step4_index].name + 'copies' + userSpeechChanged;
+        this.props.handleSpeak(phrase, 'enUS_Female', 5000);
+        this.props.handleTranscriptReset();
+        // fullTranscript();
+    }
+    else if(simpleAssignment){
+        var phrase = calling_units[step4_index].name + 'copies' + userSpeechChanged;
+        this.props.handleSpeak(phrase, 'enUS_Female', 5000);
+        this.props.handleTranscriptReset();
+        // fullTranscript();
+    }
+    else{  //0= Fire Attack     1=Exposure Group    2=Vent Group   3:Rick Group     4: Simple Response
+        if(id == 0)
+            var phrase = 'The building is withstanding the insult, we are advancing and we do not need any additional resources at this time.';
+        if(id == 1)
+            var phrase = 'The exposure is withstanding the insult, we are protecting the exposures and we do not need any additional resources at this time.';
+        if(id == 2)
+            var phrase = 'The building is withstanding the insult, we are ventilating and we could use additional resources.';
+        if(id == 3)
+            var phrase = 'We are in position and are softening the building. All IDLH resources are located, we do not need any additional resources.';
+
+        this.props.handleSpeak(phrase, 'enUS_Female', 5000);
+        this.props.handleTranscriptReset();
+        // fullTranscript();
+        // console.log('In response for '+ group_names[id]);
+    }
+
+  }
+
+  changeKeywords = (user_speech) => {
+    var {userSpeechChanged} = this.state;
+    var mapObj = {
+        'You will': "I will",
+        'you will': "I will",
+        'You are': "I am",
+        'you are': "I am",
+        'Your': "my",
+        'your': "my",
+        'we have': 'there are',
+        'We have': 'there are',
+        'Let me know': 'Ok I will let you know',
+        'let me know': 'Ok I will let you know'
+    };
+    userSpeechChanged = user_speech.replace(/you will|you are|your|we have/gi, function (matched) {
+        this.setState({userSpeechChanged: mapObj[matched]});
+        //return mapObj[matched];
+    });
+  }
+
+  
 }
