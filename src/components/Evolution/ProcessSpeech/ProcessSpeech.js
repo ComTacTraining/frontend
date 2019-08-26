@@ -2,20 +2,20 @@ import React, { Component } from 'react';
 
 export default class ProcessSpeech extends Component {
   state = {
-    userSpeechChanged : ''
+    userSpeechChanged : '',
   };
   componentDidMount() {
-    console.log('Process Speech componentDidMount()')
+    console.log('componentDidMount()')
     const {step, transcript} = this.props;
     this.processTranscript();
   }
 
   componentDidUpdate(prevProps) {
-    const {transcript} = this.props;
+    const {transcript, step, assignmentCheck} = this.props;
     console.log(`componenetDidUpdate(${prevProps.step});`);
-    if (prevProps.step !== this.props.step) {
+    if (prevProps.step === this.props.step && !assignmentCheck) {
+      console.log('Going to call process transcript');
       this.processTranscript();
-      console.log(transcript);
     }
   }
 
@@ -54,23 +54,6 @@ export default class ProcessSpeech extends Component {
   }
   ////////STEP 3//////////////
 
-  ////////STEP 4//////////////
-  processArrivals() {
-    console.log('Process Arrival()');
-    var { firstAlarm, calling_units, calling_units_length, step4_index, step, transcript, assignmentCheck } = this.props;
-    if(assignmentCheck === 0){
-      const phrase = `${firstAlarm[step4_index]} staged and awaiting assignment.`;
-      this.props.handleSpeak(phrase, 'enUS_Female', 5000);
-      this.props.handleTranscriptReset();
-      assignmentCheck = 1;
-      step4_index++;
-      this.props.speechCallback(firstAlarm, calling_units, calling_units_length, step4_index, assignmentCheck);
-    }
-    else {
-      this.decisionOnSpeech(transcript, step4_index);
-    }
-  }
-
   processReport() {
     const { transcript } = this.props;
     //const updatedStep = step + 1;
@@ -86,21 +69,44 @@ export default class ProcessSpeech extends Component {
     return `${dispatchCenter} copies ${transcript}`;
   }
 
+  ////////STEP 4//////////////
+  processArrivals = async () => {
+    console.log('Process Arrival()');
+    var { firstAlarm, calling_units, calling_units_length, step4_index, step, transcript, assignmentCheck } = this.props;
+    console.log('In process arrival function assignmentCheck is : '+ assignmentCheck);
+    if(assignmentCheck === 0){
+      const phrase = `${firstAlarm[step4_index]} staged and awaiting assignment.`;
+      this.props.handleSpeak(phrase, 'enUS_Female', 5000);
+      this.props.handleTranscriptReset();
+      //step4_index++;
+      assignmentCheck = 1;
+      this.props.speechCallback(calling_units, calling_units_length, step4_index, assignmentCheck);
+      console.log('STEP 4 Index is '+ step);
+    }
+    else {
+      console.log(transcript);
+      if(transcript !== '')
+        this.decisionOnSpeech(transcript, step4_index);
+    }
+  }
+
+
+
   render() {
     return <div />;
   }
 
-  
+  //Changing variables
+  //checkUserSpeech, assignKeyword, parDetected, nameDetected, assigned, simpleAssignment, alarm2_called, assignmentCheck
+  //parDetected, parKeyword, parSpeech, parSpeechIndex, repeat, calling_units
   decisionOnSpeech = (user_speech, index) => {
     var {userSpeechChanged} = this.state;
-    //Changing variables
-    //checkUserSpeech, assignKeyword, parDetected, nameDetected, assigned, simpleAssignment, alarm2_called, assignmentCheck
-    //parDetected, parKeyword, parSpeech, parSpeechIndex, repeat, calling_units
     var { checkUserSpeech, assignKeyword, nameDetected, assigned, simpleAssignment,
       alarm2_called, firstAlarm, calling_units, calling_units_length, step4_index, secondAlarm, assignmentCheck,
       groups, repeat,
       alarm2KeywordDictionary,assignKeywordDictionary,parKeywordDictionary,fireAttackDictionary,exposureGroupDictionary,ventGroupDictionary,rickGroupDictionary,
       parDetected, parKeyword, parSpeech, parSpeechIndex  } = this.props;
+    console.dir(groups);
     console.log('decision on speech is called');
     checkUserSpeech = 0;    //if it is matched
     assignKeyword = 0;      //Check if assigned keyword is detected
@@ -132,14 +138,108 @@ export default class ProcessSpeech extends Component {
           });
           this.props.handleSpeak(phrase, 'enUS_Female', 5000);
           assignmentCheck = 1;
-          this.props.speechCallback(firstAlarm, calling_units, calling_units_length, step4_index, assignmentCheck, assignKeyword, parKeyword, parDetected, parSpeech, parSpeechIndex);
+          step4_index--;
+          //this.props.speechCallback(firstAlarm, calling_units, calling_units_length, step4_index, assignmentCheck, assignKeyword, parKeyword, parDetected, parSpeech, parSpeechIndex);
 
         }
     }
     // ====================== ALARM 2 ====================== //
 
+    // ====================== MULTIPLE GROUPS ====================== //
+    //Check if it doesn't have assignKeyword
+    calling_units.forEach((element, index) => {
+      groups[index].found = 0;
+      groups[index].index = 0;
+      groups[index].count = 0;
+    });
+    assignKeywordDictionary.forEach(function (elem) {
+        var re = new RegExp(elem, "gi");
+        if (user_speech.match(re)) {
+            assignKeywordFound = 1;
+        }
+    });
+
+    //If not assign keyword
+    if(!assignKeywordFound){
+        //fireattack check
+        for(i=0; i<fireAttackDictionary.length; i++){
+            var re = new RegExp(fireAttackDictionary[i], "gi");
+            if (user_speech.match(re)) {
+            groups[0].found = 1;
+            groups[0].count = fireAttackDictionary[i].length;
+            groups[0].index = user_speech.indexOf(fireAttackDictionary[i]);
+            i = fireAttackDictionary.length;
+            }
+        }
+        i = 0;
+        //exposure group check
+        for(i=0; i<exposureGroupDictionary.length; i++){
+            var re = new RegExp(exposureGroupDictionary[i], "gi");
+            if (user_speech.match(re)) {
+            groups[1].found = 1;
+            groups[1].count = exposureGroupDictionary[i].length;
+            groups[1].index = user_speech.indexOf(exposureGroupDictionary[i]);
+            i = exposureGroupDictionary.length;
+            }
+        }
+        i = 0;
+        //vent group check
+        for(i=0; i<ventGroupDictionary.length; i++){
+            var re = new RegExp(ventGroupDictionary[i], "gi");
+            if (user_speech.match(re)) {
+            groups[2].found = 1;
+            groups[2].count = ventGroupDictionary[i].length;
+            groups[2].index = user_speech.indexOf(ventGroupDictionary[i]);
+            i = ventGroupDictionary.length;
+            }
+        }
+        i = 0;
+        //Rick Group check
+        for(i=0; i<rickGroupDictionary.length; i++){
+            var re = new RegExp(rickGroupDictionary[i], "gi");
+            if (user_speech.match(re)) {
+            groups[3].found = 1;
+            groups[3].count = rickGroupDictionary[i].length;
+
+            groups[3].index = user_speech.indexOf(rickGroupDictionary[i]);
+            i = rickGroupDictionary.length;
+            }
+        }
+    }
+
+    var keyWordLength = 10000;
+    var indexOfKeyword = 1000;
+    var indexofGroup = 5;
+    var countKeywords = 0;
+    i=0;
+    groups.forEach((elem)=>{
+    if(indexOfKeyword>elem.index && elem.found == 1){
+        keyWordLength = elem.count;
+        indexOfKeyword = elem.index;
+        console.log(elem.index);
+        indexofGroup = i;
+    }
+    i++;
+    if(elem.found)
+        countKeywords++;
+        console.log('Keyword counted');
+    });
+
+    if(countKeywords>1){
+        var sub = user_speech.substring(0, indexOfKeyword+keyWordLength);
+        user_speech = sub;
+        console.log('If keyword is greater than 1');
+        if(!groups[indexofGroup].assigned){
+
+            //Dont go to assignment
+            goAssignment = 1;
+            console.log('User speech is '+ user_speech);
+        }
+    }
+    // ====================== MULTIPLE GROUPS ====================== //
+
     // ====================== ASSIGN ====================== //
-    if(!checkUserSpeech){
+    if(!checkUserSpeech && !goAssignment){
       assignKeywordDictionary.forEach(function (elem) {
           var re = new RegExp(elem, "gi");
           if (user_speech.match(re)) {
@@ -156,7 +256,6 @@ export default class ProcessSpeech extends Component {
     // ====================== PAR REPORT ====================== //
     if(!checkUserSpeech){
       parKeywordDictionary.forEach(function (elem) {
-          console.log('Inside PAR');
           var re = new RegExp(elem, "gi");
           if (user_speech.match(re)) {
               console.log('PAR SEARCHING')
@@ -166,7 +265,6 @@ export default class ProcessSpeech extends Component {
               parSpeech[parSpeechIndex] = user_speech;
               parSpeechIndex++;
           }
-          console.log('PAR DETECTED : ' + parDetected);
       });
       if(parDetected)   //Check if it is not already assigned to someone
       {
@@ -419,48 +517,78 @@ export default class ProcessSpeech extends Component {
   // ====================== NOTHING ====================== //
   if(!checkUserSpeech){
       console.log('nothing detected');
+      step4_index++;
+      assignmentCheck =  0;
+      this.props.speechCallback(calling_units, calling_units_length, step4_index, assignmentCheck);
+      this.props.handleStep4Assignment();
   }
   // ====================== NOTHING ====================== //
 
   } //onDecision
 
-  giveResponse = (id, assignKeyword, parDetected, simpleAssignment) => {
+  giveResponse = async (id, assignKeyword, parDetected, simpleAssignment) => {
+    //let {step4_index} = this.props;
+    console.log('giveReponse(${id}, $assignKeyword, $parDetected, $simpleAssignment)');
     const {userSpeechChanged} = this.state;
-    const {calling_units, step4_index} = this.props;
+    let {calling_units, step4_index, transcript, firstAlarm, calling_units_length, assignmentCheck} = this.props;
     if(parDetected){
       var phrase = 'All personnel are present and accounted for';
       this.props.handleSpeak(phrase, 'enUS_Female', 5000);
       this.props.handleTranscriptReset();
+      assignmentCheck =  1;
+      setTimeout(()=>{
+        this.props.speechCallback(calling_units, calling_units_length, step4_index, assignmentCheck);
+        this.props.handleStep4Assignment();
+      }, 5000);
     }
     else if(assignKeyword){
         console.log('In assign keyword response function')
         var phrase = calling_units[step4_index].name + 'copies' + userSpeechChanged;
+        phrase = "Assigned keyword detected";
         this.props.handleSpeak(phrase, 'enUS_Female', 5000);
         this.props.handleTranscriptReset();
+        step4_index++;
+        assignmentCheck =  0;
+        setTimeout(()=>{
+          this.props.speechCallback(calling_units, calling_units_length, step4_index, assignmentCheck);
+          this.props.handleStep4Assignment();
+        }, 5000);
         // fullTranscript();
     }
     else if(simpleAssignment){
         var phrase = calling_units[step4_index].name + 'copies' + userSpeechChanged;
-        this.props.handleSpeak(phrase, 'enUS_Female', 5000);
+        console.log(phrase);
+        this.props.handleSpeak(transcript, 'enUS_Female', 5000);
         this.props.handleTranscriptReset();
+        step4_index++;
+        assignmentCheck =  0;
+        setTimeout(()=>{
+          this.props.speechCallback(calling_units, calling_units_length, step4_index, assignmentCheck);
+          this.props.handleStep4Assignment();
+        }, 5000);
         // fullTranscript();
     }
     else{  //0= Fire Attack     1=Exposure Group    2=Vent Group   3:Rick Group     4: Simple Response
+      var phrase;
         if(id == 0)
-            var phrase = 'The building is withstanding the insult, we are advancing and we do not need any additional resources at this time.';
+            phrase = 'The building is withstanding the insult, we are advancing and we do not need any additional resources at this time.';
         if(id == 1)
-            var phrase = 'The exposure is withstanding the insult, we are protecting the exposures and we do not need any additional resources at this time.';
+            phrase = 'The exposure is withstanding the insult, we are protecting the exposures and we do not need any additional resources at this time.';
         if(id == 2)
-            var phrase = 'The building is withstanding the insult, we are ventilating and we could use additional resources.';
+            phrase = 'The building is withstanding the insult, we are ventilating and we could use additional resources.';
         if(id == 3)
-            var phrase = 'We are in position and are softening the building. All IDLH resources are located, we do not need any additional resources.';
-
+            phrase = 'We are in position and are softening the building. All IDLH resources are located, we do not need any additional resources.';
         this.props.handleSpeak(phrase, 'enUS_Female', 5000);
         this.props.handleTranscriptReset();
+        assignmentCheck =  1;
+        setTimeout(()=>{
+          this.props.speechCallback(calling_units, calling_units_length, step4_index, assignmentCheck);
+          this.props.handleStep4Assignment();
+        }, 5000);
         // fullTranscript();
         // console.log('In response for '+ group_names[id]);
     }
-
+    
   }
 
   changeKeywords = (user_speech) => {
@@ -477,7 +605,7 @@ export default class ProcessSpeech extends Component {
         'Let me know': 'Ok I will let you know',
         'let me know': 'Ok I will let you know'
     };
-    userSpeechChanged = user_speech.replace(/you will|you are|your|we have/gi, function (matched) {
+    userSpeechChanged = user_speech.replace(/you will|you are|your|we have/gi, (matched) => {
         this.setState({userSpeechChanged: mapObj[matched]});
         //return mapObj[matched];
     });

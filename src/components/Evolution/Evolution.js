@@ -31,7 +31,7 @@ export default class Evolution extends Component {
     speakPhrases: [],
     speakVoice: 'enUS_Male',
     speakTimeout: 0,
-    step: 1,
+    step: 3,
     transcript: '',
     recognition: null,
     speechRecognitionResult: '',
@@ -47,7 +47,7 @@ export default class Evolution extends Component {
     fireAttackDictionary : ['fire attach', 'fire attack', 'far attack'],
     exposureGroupDictionary : ['exposure'],
     ventGroupDictionary : ['whent', 'went', 'vent', 'when', 'Ventilacion', 'Ventilation'],
-    rickGroupDictionary : ['rick', 'R I C', 'R.I.C', 'Rick', 'R I C'],
+    rickGroupDictionary : ['rick', 'R I C', 'R.I.C', 'Rick', 'R I C', 'Ric', 'ric'],
     assignKeywordDictionary : ['Assign', 'assign', 'Sign', 'Sign', 'Assigned'],
     parKeywordDictionary : ['Par', 'par', 'per', 'bar'],
     ////Dictionary
@@ -82,7 +82,8 @@ export default class Evolution extends Component {
     calling_units :[],
     calling_units_length : 0,
     step4_index : 0,
-    checkUserSpeech: 0, alarm2_called: 0
+    checkUserSpeech: 0, alarm2_called: 0,
+    step4Speak: false
     // group_names : ['Fire Attack', 'Exposure Group', 'Ventilation Group', 'RIC Group'],
     // groups : [{
     //   "name": "Fire Attack", "assigned": 0, "assigned_to": [], "response": 0
@@ -134,7 +135,8 @@ export default class Evolution extends Component {
   }
 
   loadVariables() {
-    const {group_names, groups, firstAlarm, calling_units, calling_units_length} = this.state;
+    console.log('Load Variables');
+    var {group_names, groups, firstAlarm, calling_units} = this.state;
     group_names.forEach((element, index) => {
       groups[index] = [];
       groups[index].name = element;
@@ -147,12 +149,14 @@ export default class Evolution extends Component {
       groups[index].count = 0;
     });
     var index = 0;
-    firstAlarm.forEach(elem => {
+    firstAlarm.forEach((elem, index) => {
       calling_units[index] = [];
       calling_units[index].name = elem;
-      index++;
+      calling_units[index].group='';
     });
-    this.setState({groups: groups, calling_units: calling_units, calling_units_length: index});
+    this.setState({groups: groups, calling_units: calling_units, calling_units_length: index}, ()=>{
+      console.dir(calling_units);
+    });
   }
 
   async componentDidMount() {
@@ -166,12 +170,12 @@ export default class Evolution extends Component {
         const evolution = await this.getEvolution(this.props.match.params.id);
         this.setState(
           { evolution: evolution, isLoadingEvolution: false },
-          () => {
+          async () => {
             // this.getVideos();
             
             //this.setDispatchText();
-            this.setupAlarms();
-            
+            await this.setupAlarms();
+            await this.loadVariables();
           }
         );
       } catch (e) {
@@ -264,18 +268,24 @@ export default class Evolution extends Component {
     });
   };
 
+  handleStep4Assignment = () => {
+    console.log('handleStep4Assignment()')
+    this.setState({isSpeaking: false});
+  }
+
   handleStepUpdate = step => {
     console.log(`handleStepUpdate(${step});`);
     this.setState({ step: step });
   };
 
   handleSpeak = (phrases, voice = 'enUS_Male', timeout = 0) => {
-    console.log('handleSpeak()')
-    console.log(`handleSpeak(${phrases}, ${voice}, ${timeout});`);
+    // console.log('handleSpeak()')
+    // console.log(`handleSpeak(${phrases}, ${voice}, ${timeout});`);
     this.setState({
       speakPhrases: phrases,
       speakVoice: voice,
-      speakTimeout: timeout
+      speakTimeout: timeout,
+      isSpeaking: true
     });
   };
 
@@ -288,10 +298,11 @@ export default class Evolution extends Component {
     }
 
     if(step === 4){
-      this.setState({assignmentCheck: 1});
+      console.log('Evolution Assignment check is ' + this.state.assignmentCheck);
+      this.setState({isSpeaking: false});
     }
 
-    this.setState({ speakPhrases: [], step: newStep });
+    this.setState({ speakPhrases: [], step: newStep, isSpeaking: false });
   };
 
   handleTranscriptReset = () => {
@@ -300,12 +311,15 @@ export default class Evolution extends Component {
   };
 
   handleListenComplete = () => {
-    console.log('handleListenComplete()')
+    // console.log('handleListenComplete()')
     const { speechRecognitionResult, step } = this.state;
-    console.log(speechRecognitionResult);
+    // console.log(speechRecognitionResult);
     this.setState({
       transcript: speechRecognitionResult,
-      speechRecognitionResult: ''
+      speechRecognitionResult: '',
+      step4Speak: true,
+      speakPhrases: speechRecognitionResult,
+      isSpeaking: false
     });
     if (step === 1) {
       this.handleStepUpdate(2);
@@ -317,13 +331,16 @@ export default class Evolution extends Component {
     console.log(`handleListenResponse(${response});`);
     const { speechRecognitionResult } = this.state;
     const newResult = `${speechRecognitionResult} ${response}`.trim();
-    this.setState({ speechRecognitionResult: newResult, isSpeaking: false });
+    this.setState({ speechRecognitionResult: newResult, isSpeaking: true, step4Speak: false});
+    this.setState({ speechRecognitionResult: newResult});
+
   };
 
   handleKeyDown = event => {
-    const { speakPhrases, recognition, isSpeaking, canTalk } = this.state;
+    const { speakPhrases, recognition, isSpeaking, canTalk, step4Speak } = this.state;
     if (event.code === 'Space' && canTalk) {
       event.preventDefault();
+
       if (!event.repeat) {
         // Only allow microphone when not speaking
         if (speakPhrases.length === 0 && recognition === null) {
@@ -335,12 +352,15 @@ export default class Evolution extends Component {
             this.handleListenResponse(results[0][0].transcript);
           };
           recognition.start();
-          this.setState({ recognition: recognition, isSpeaking: true });
+          this.setState({ recognition: recognition});
+          this.setState({ recognition: recognition, isSpeaking: true, step4Speak: false });
+          // this.setState({ recognition: recognition, isSpeaking: false });
         }
       }
-      if (event.repeat && !isSpeaking) {
+      if (event.repeat && !step4Speak) {
         recognition.start();
-        this.setState({ isSpeaking: true });
+        this.setState({ isSpeaking: true, step4Speak: true });
+
       }
     }
   };
@@ -350,7 +370,7 @@ export default class Evolution extends Component {
     if (event.code === 'Space' && canTalk) {
       setTimeout(() => {
         recognition.stop();
-        this.setState({ recognition: null, isSpeaking: false });
+        this.setState({ recognition: null, isSpeaking: true });
         this.handleListenComplete();
       }, 1000);
     }
@@ -358,23 +378,23 @@ export default class Evolution extends Component {
 
   speakCallback = (checkUserSpeech1, assignKeyword1, parDetected1, nameDetected1, assigned1, simpleAssignment1, alarm2KeywordDictionary1,
     alarm2_called1) => {
-      console.log('Speak callback called');
+      // console.log('Speak callback called');
       this.setState({checkUserSpeech: checkUserSpeech1, assignKeyword: assignKeyword1, parDetected: parDetected1, nameDetected: nameDetected1, 
       assigned: assigned1, simpleAssignment: simpleAssignment1, alarm2KeywordDictionary: alarm2KeywordDictionary1,alarm2_called: alarm2_called1});
   }
 
-  speechCallback = (firstAlarm1, calling_units1, calling_units_length1, step4_index1, assignmentCheck1) => {
-    const {firstAlarm, calling_units, calling_units_length, step4_index} = this.state;
-    this.setState({firstAlarm: firstAlarm1, calling_units:calling_units1, calling_units_length: calling_units_length1, step4_index: step4_index1,
-      assignmentCheck: assignmentCheck1}, ()=>{
-      console.log(this.state.calling);
+  speechCallback = (calling_units, calling_units_length, step4_index, assignmentCheck) => {
+    // console.log('Speech callback with assignment check ' + assignmentCheck);
+    this.setState({calling_units:calling_units, calling_units_length: calling_units_length, step4_index: step4_index,
+      assignmentCheck: assignmentCheck}, ()=>{
+      //console.log(this.state.calling);
     });
     
    };
 
    startSimulation = async () => {
     await this.loadVariables();
-    this.setDispatchText();
+    //this.setDispatchText();
    };
 
   render() {
@@ -414,6 +434,7 @@ export default class Evolution extends Component {
       !isLoadingEvolution && (
         <div>
           <button onClick={this.startSimulation}>Start Simulation</button>
+          <p>{transcript}</p>
           {speakPhrases.length > 0 && (
             <Speak
               phrases={speakPhrases}
@@ -434,6 +455,7 @@ export default class Evolution extends Component {
               handleSpeak={this.handleSpeak}
               handleTranscriptReset={this.handleTranscriptReset}
               speechCallback={this.speechCallback}
+              handleStep4Assignment = {this.handleStep4Assignment}
               //Alarms
               firstAlarm={firstAlarm}
               secondAlarm={secondAlarm}

@@ -63,6 +63,7 @@ class Speak extends Component {
     const timeout = parseInt(this.props.timeout) || 0;
     const voiceString = this.props.voice || 'enUS_Male';
     const voice = this.getVoice(voiceString);
+    console.log('Phrases inside speak file is '+ phrases);
     phrases.forEach(phrase => {
       setTimeout(function() {
         console.log('Phrase is '+ phrase);
