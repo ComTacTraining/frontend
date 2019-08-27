@@ -31,7 +31,7 @@ export default class Evolution extends Component {
     speakPhrases: [],
     speakVoice: 'enUS_Male',
     speakTimeout: 0,
-    step: 3,
+    step: 1,
     transcript: '',
     recognition: null,
     speechRecognitionResult: '',
@@ -39,81 +39,17 @@ export default class Evolution extends Component {
     canTalk: true,
     videosLoaded: 0,
     preloadPercentage: 0,
-    /////////////////////CJ VARIABLES////////////////////
+    //// CJ VARIABLES ////
     flag : true,
     assignmentCheck: 0,
-    ////Dictionary
-    alarm2KeywordDictionary : ['Alarm 2:00', 'Alarm 2', 'alarm 2:00', 'alarm 2', 'alarm two', 'Alarm two'],
-    fireAttackDictionary : ['fire attach', 'fire attack', 'far attack'],
-    exposureGroupDictionary : ['exposure'],
-    ventGroupDictionary : ['whent', 'went', 'vent', 'when', 'Ventilacion', 'Ventilation'],
-    rickGroupDictionary : ['rick', 'R I C', 'R.I.C', 'Rick', 'R I C', 'Ric', 'ric'],
-    assignKeywordDictionary : ['Assign', 'assign', 'Sign', 'Sign', 'Assigned'],
-    parKeywordDictionary : ['Par', 'par', 'per', 'bar'],
-    ////Dictionary
     finalJsonOutput : [],
     finalJsonOutputIndex : 0,
-    comp_speakup_allowed : 1,
-    repeat : 0,
-    simpleAssignment : 0,
-    assignKeyword : 0,
-  
-    nameDetected : 0,
-    user_speech: '',
-    all_user_speech : [],
-    user_speech_index : 0,
-    user_speech_end_detected : 0,
-    assigned : 0,
-    assignedSpeech : [],
-    assignedSpeechIndex : 0,
-    parDetected : 0,
     parSpeech : [],
-    parKeyword : 0,
     parSpeechIndex : 0,
-    userSpeech : [],
-    userSpeechIndex : 0,
-    initial_report: '',
-    secondary_report: '',
-    user_speech_changed: '',
-    commanding_unit_report : '',
     groups : [],
-    group_names : ['Fire Attack', 'Exposure Group', 'Ventilation Group', 'RIC Group'],
-    alarm1_units : [],
-    calling_units :[],
-    calling_units_length : 0,
-    step4_index : 0,
-    checkUserSpeech: 0, alarm2_called: 0,
+    callingUnits :[],
+    step4Index : 0,
     step4Speak: false
-    // group_names : ['Fire Attack', 'Exposure Group', 'Ventilation Group', 'RIC Group'],
-    // groups : [{
-    //   "name": "Fire Attack", "assigned": 0, "assigned_to": [], "response": 0
-    // }, {
-    //   "name": "Exposure Group", "assigned": 0, "assigned_to": [], "response": 0
-    // }, {
-    //   "name": "Ventilation Group", "assigned": 0, "assigned_to": [], "response": 0
-    // }, {
-    //   "name": "RIC Group", "assigned": 0, "assigned_to": [], "response": 0
-    // }],
-    // x: '',
-    // y: null,
-    // alarm1_temp: null,
-    // alarm2_temp: null,
-    // unit1_names: null,
-    // unit2_names: null,
-    // alarm1_units : [],
-    // alarm2_units : [],
-    // alarm1_index : 0,
-    // alarm2_index : 0,
-    // step4_index : 0,
-    // initial_report: null,
-    // secondary_report: null,
-    // calling_units : [],
-    // calling_units_length : 0,
-    // alarm2_names: null,
-    // alarm2_called : 0,
-    // wait : 0,
-    // alarms: null,
-    // wait: false
   };
 
   constructor(props) {
@@ -136,8 +72,9 @@ export default class Evolution extends Component {
 
   loadVariables() {
     console.log('Load Variables');
-    var {group_names, groups, firstAlarm, calling_units} = this.state;
-    group_names.forEach((element, index) => {
+    const groupNames = ['Fire Attack', 'Exposure Group', 'Ventilation Group', 'RIC Group'];
+    const { groups, firstAlarm, callingUnits} = this.state;
+    groupNames.forEach((element, index) => {
       groups[index] = [];
       groups[index].name = element;
       groups[index].response = 0;
@@ -148,14 +85,14 @@ export default class Evolution extends Component {
       groups[index].index = 0;
       groups[index].count = 0;
     });
-    var index = 0;
     firstAlarm.forEach((elem, index) => {
-      calling_units[index] = [];
-      calling_units[index].name = elem;
-      calling_units[index].group='';
+      callingUnits[index] = [];
+      callingUnits[index].name = elem;
+      callingUnits[index].group='';
     });
-    this.setState({groups: groups, calling_units: calling_units, calling_units_length: index}, ()=>{
-      console.dir(calling_units);
+    this.setState({groups: groups, callingUnits: callingUnits}, ()=>{
+      console.dir(this.state.callingUnits);
+      console.dir(this.state.groups);
     });
   }
 
@@ -171,11 +108,11 @@ export default class Evolution extends Component {
         this.setState(
           { evolution: evolution, isLoadingEvolution: false },
           async () => {
-            // this.getVideos();
-            
+            // this.getVideos(); 
             //this.setDispatchText();
             await this.setupAlarms();
             await this.loadVariables();
+            this.setDispatchText();
           }
         );
       } catch (e) {
@@ -244,8 +181,8 @@ export default class Evolution extends Component {
 
   handleDispatchLoopComplete = () => {
     console.log('handleDispatchLoopComplete()')
-    const dispatchLoop = this.dispatchLoop.current;
-    const approach = this.approach.current;
+    // const dispatchLoop = this.dispatchLoop.current;
+    // const approach = this.approach.current;
     this.setState(
       { currentVideo: 'approach', scrollText: [], speakPhrases: [] },
       () => {
@@ -302,6 +239,11 @@ export default class Evolution extends Component {
       this.setState({isSpeaking: false});
     }
 
+    if(step === 5){
+      console.log('Inside step 5 statement');
+      this.setState({isSpeaking: false});
+    }
+
     this.setState({ speakPhrases: [], step: newStep, isSpeaking: false });
   };
 
@@ -324,7 +266,6 @@ export default class Evolution extends Component {
     if (step === 1) {
       this.handleStepUpdate(2);
     }
-
   };
 
   handleListenResponse = response => {
@@ -333,7 +274,6 @@ export default class Evolution extends Component {
     const newResult = `${speechRecognitionResult} ${response}`.trim();
     this.setState({ speechRecognitionResult: newResult, isSpeaking: true, step4Speak: false});
     this.setState({ speechRecognitionResult: newResult});
-
   };
 
   handleKeyDown = event => {
@@ -360,7 +300,6 @@ export default class Evolution extends Component {
       if (event.repeat && !step4Speak) {
         recognition.start();
         this.setState({ isSpeaking: true, step4Speak: true });
-
       }
     }
   };
@@ -376,26 +315,15 @@ export default class Evolution extends Component {
     }
   };
 
-  speakCallback = (checkUserSpeech1, assignKeyword1, parDetected1, nameDetected1, assigned1, simpleAssignment1, alarm2KeywordDictionary1,
-    alarm2_called1) => {
-      // console.log('Speak callback called');
-      this.setState({checkUserSpeech: checkUserSpeech1, assignKeyword: assignKeyword1, parDetected: parDetected1, nameDetected: nameDetected1, 
-      assigned: assigned1, simpleAssignment: simpleAssignment1, alarm2KeywordDictionary: alarm2KeywordDictionary1,alarm2_called: alarm2_called1});
-  }
+  speechCallback = (step4Index, assignmentCheck, step, groups, parSpeech, parSpeechIndex) => {
+    this.setState({step4Index: step4Index, assignmentCheck: assignmentCheck, step: step, groups: groups,
+    parSpeech: parSpeech, parSpeechIndex});
+  };
 
-  speechCallback = (calling_units, calling_units_length, step4_index, assignmentCheck) => {
-    // console.log('Speech callback with assignment check ' + assignmentCheck);
-    this.setState({calling_units:calling_units, calling_units_length: calling_units_length, step4_index: step4_index,
-      assignmentCheck: assignmentCheck}, ()=>{
-      //console.log(this.state.calling);
-    });
-    
-   };
-
-   startSimulation = async () => {
-    await this.loadVariables();
-    //this.setDispatchText();
-   };
+  startSimulation = async () => {
+  await this.loadVariables();
+  //this.setDispatchText();
+  };
 
   render() {
     const {
@@ -414,17 +342,13 @@ export default class Evolution extends Component {
       transcript,
       isSpeaking,
       preloadPercentage,
-      assignmentCheck,
-      parDetected,
-      parSpeech,
-      parKeyword,
-      parSpeechIndex,
       //CJ
-      alarm2KeywordDictionary,assignKeywordDictionary,parKeywordDictionary,fireAttackDictionary,exposureGroupDictionary,ventGroupDictionary,rickGroupDictionary,
-      calling_units, calling_units_length, step4_index,
-      checkUserSpeech, assignKeyword, nameDetected, assigned, simpleAssignment,
-      alarm2_called,
-      groups, repeat,
+      assignmentCheck,
+      parSpeech,
+      parSpeechIndex,
+      callingUnits, 
+      step4Index,
+      groups
     } = this.state;
     let handleCallback = this.handleDispatchLoopComplete;
     if (currentVideo === 'alphaLoop') {
@@ -433,7 +357,6 @@ export default class Evolution extends Component {
     return (
       !isLoadingEvolution && (
         <div>
-          <button onClick={this.startSimulation}>Start Simulation</button>
           <p>{transcript}</p>
           {speakPhrases.length > 0 && (
             <Speak
@@ -443,7 +366,7 @@ export default class Evolution extends Component {
               handleSpeechComplete={this.handleSpeechComplete}
               callbackForSpeak={this.speakCallBack}
               step = {step}
-              step4_index = {step4_index}
+              step4Index = {step4Index}
             />
           )}
           {(transcript !== '' || step >= 4) && !isSpeaking && (
@@ -456,36 +379,15 @@ export default class Evolution extends Component {
               handleTranscriptReset={this.handleTranscriptReset}
               speechCallback={this.speechCallback}
               handleStep4Assignment = {this.handleStep4Assignment}
-              //Alarms
+              //CJ
               firstAlarm={firstAlarm}
               secondAlarm={secondAlarm}
-              // Dictionary
-              alarm2KeywordDictionary={alarm2KeywordDictionary}
-              assignKeywordDictionary={assignKeywordDictionary}
-              parKeywordDictionary = {parKeywordDictionary}
-              fireAttackDictionary={fireAttackDictionary}
-              exposureGroupDictionary={exposureGroupDictionary}
-              ventGroupDictionary={ventGroupDictionary}
-              rickGroupDictionary={rickGroupDictionary}
-              // parVariables
-              parDetected = {parDetected}
-              parKeyword = {parKeyword}
               parSpeech = {parSpeech}
               parSpeechIndex = {parSpeechIndex}
-              //Other
-              checkUserSpeech = {checkUserSpeech}
-              assignKeyword = {assignKeyword}
-              assignKeyword = {assignKeyword}
-              assigned = {assigned}
-              simpleAssignment = {simpleAssignment}
-              alarm2_called = {alarm2_called}
-              calling_units = {calling_units}
-              calling_units_length = {calling_units_length}
-              step4_index = {step4_index}
+              callingUnits = {callingUnits}
+              step4Index = {step4Index}
               assignmentCheck = {assignmentCheck}
               groups = {groups}
-              repeat = {repeat}
-              
             />
           )}
           {/* <Listen

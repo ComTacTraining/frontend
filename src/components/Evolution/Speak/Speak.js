@@ -11,7 +11,6 @@ class Speak extends Component {
   componentDidMount() {
     this.setupClient();
     console.log('Inside speak');
-    let firstAlarm = ['This is test'];
   }
 
   setupClient() {
