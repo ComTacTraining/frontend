@@ -393,6 +393,7 @@ export default class Evolution extends Component {
 
   handleTranscriptReset = () => {
     this.setState({ transcript: '' });
+    console.log('Handle Transcript Reset');
   };
 
   handleListenComplete = () => {
