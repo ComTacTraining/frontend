@@ -54,7 +54,7 @@ export default ({ childProps }) => (
       component={Demo}
       props={childProps}
     />
-    <MemberRoute
+    <AuthenticatedRoute
       path='/dashboard'
       exact
       component={Dashboard}
