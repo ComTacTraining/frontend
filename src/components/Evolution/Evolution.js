@@ -31,7 +31,7 @@ export default class Evolution extends Component {
     speakPhrases: [],
     speakVoice: 'enUS_Male',
     speakTimeout: 0,
-    step: 1,
+    step: 3,
     transcript: '',
     recognition: null,
     speechRecognitionResult: '',
@@ -112,7 +112,6 @@ export default class Evolution extends Component {
             //this.setDispatchText();
             await this.setupAlarms();
             await this.loadVariables();
-            this.setDispatchText();
           }
         );
       } catch (e) {
@@ -215,14 +214,20 @@ export default class Evolution extends Component {
     this.setState({ step: step });
   };
 
+  speakCallback = () => {
+    console.log('SPEAKCALLBACK')
+    this.setState({isSpeaking: true});
+  };
+
   handleSpeak = (phrases, voice = 'enUS_Male', timeout = 0) => {
+    console.log(this.state.isSpeaking)
     // console.log('handleSpeak()')
     // console.log(`handleSpeak(${phrases}, ${voice}, ${timeout});`);
     this.setState({
       speakPhrases: phrases,
       speakVoice: voice,
       speakTimeout: timeout,
-      isSpeaking: true
+      // isSpeaking: true
     });
   };
 
@@ -253,9 +258,9 @@ export default class Evolution extends Component {
   };
 
   handleListenComplete = () => {
-    // console.log('handleListenComplete()')
-    const { speechRecognitionResult, step } = this.state;
-    // console.log(speechRecognitionResult);
+    console.log('handleListenComplete()')
+    const { speechRecognitionResult, step, transcript } = this.state;
+    console.log('Transcript in handleListenComplete is '+ transcript);
     this.setState({
       transcript: speechRecognitionResult,
       speechRecognitionResult: '',
@@ -272,8 +277,9 @@ export default class Evolution extends Component {
     console.log(`handleListenResponse(${response});`);
     const { speechRecognitionResult } = this.state;
     const newResult = `${speechRecognitionResult} ${response}`.trim();
-    this.setState({ speechRecognitionResult: newResult, isSpeaking: true, step4Speak: false});
-    this.setState({ speechRecognitionResult: newResult});
+    console.log('handleListenResponse transcript is : '+ newResult)
+    this.setState({ speechRecognitionResult: response, isSpeaking: true, step4Speak: false});
+    //this.setState({ speechRecognitionResult: newResult});
   };
 
   handleKeyDown = event => {
@@ -290,6 +296,7 @@ export default class Evolution extends Component {
           recognition.lang = 'en-US';
           recognition.onresult = ({ results }) => {
             this.handleListenResponse(results[0][0].transcript);
+            console.log('HandleKeydown transcript is ' + results[0][0].transcript);
           };
           recognition.start();
           this.setState({ recognition: recognition});
@@ -364,9 +371,10 @@ export default class Evolution extends Component {
               voice={speakVoice}
               timeout={speakTimeout}
               handleSpeechComplete={this.handleSpeechComplete}
-              callbackForSpeak={this.speakCallBack}
+
               step = {step}
               step4Index = {step4Index}
+              speakCallback = {this.speakCallback}
             />
           )}
           {(transcript !== '' || step >= 4) && !isSpeaking && (

@@ -13,6 +13,7 @@ export default class ProcessSpeech extends Component {
   };
   componentDidMount() {
     console.log('componentDidMount()')
+    console.log('STEP is : '+this.props.step);
     this.processTranscript();
   }
 
