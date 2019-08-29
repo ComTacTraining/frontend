@@ -12,7 +12,6 @@ export default class ProcessSpeech extends Component {
     parKeywordDictionary : ['Par', 'par', 'per', 'bar'],
   };
   componentDidMount() {
-    console.dir(this.props.callingUnits);
     console.log('componentDidMount()')
     console.log('STEP is : '+this.props.step);
     this.processTranscript();
@@ -20,7 +19,6 @@ export default class ProcessSpeech extends Component {
 
   componentDidUpdate(prevProps) {
     // const {transcript, step, assignmentCheck} = this.props;
-    console.dir(this.props.callingUnits);
     //console.log('CallingUnits are '+ this.props.callingUnits);
     const {assignmentCheck} = this.props;
     console.log(`componenetDidUpdate(${prevProps.step});`);
@@ -577,7 +575,7 @@ export default class ProcessSpeech extends Component {
       // fullTranscript();
     }
     else {  //0: Fire Attack     1: Exposure Group    2: Vent Group   3: Rick Group     4: Simple Response
-      var phrase;
+      // var phrase;
       if(id === 0)
           phrase = 'The building is withstanding the insult, we are advancing and we do not need any additional resources at this time.';
       if(id === 1)
@@ -599,22 +597,21 @@ export default class ProcessSpeech extends Component {
   }
 
   changeKeywords = (userSpeech) => {
-    var {userSpeechChanged} = this.state;
     var mapObj = {
-        'You will': "I will",
-        'you will': "I will",
-        'You are': "I am",
-        'you are': "I am",
-        'Your': "my",
-        'your': "my",
-        'we have': 'there are',
-        'We have': 'there are',
-        'Let me know': 'Ok I will let you know',
-        'let me know': 'Ok I will let you know'
+      'You will': "I will",
+      'you will': "I will",
+      'You are': "I am",
+      'you are': "I am",
+      'Your': "my",
+      'your': "my",
+      'we have': 'there are',
+      'We have': 'there are',
+      'Let me know': 'Ok I will let you know',
+      'let me know': 'Ok I will let you know'
     };
-    userSpeechChanged = userSpeech.replace(/you will|you are|your|we have/gi, (matched) => {
-        this.setState({userSpeechChanged: mapObj[matched]});
-        //return mapObj[matched];
+    userSpeech.replace(/you will|you are|your|we have/gi, (matched) => {
+      this.setState({userSpeechChanged: mapObj[matched]});
+      //return mapObj[matched];
     });
   }
 
