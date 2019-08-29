@@ -431,7 +431,7 @@ export default class Evolution extends Component {
           recognition.lang = 'en-US';
           recognition.onresult = ({ results }) => {
             this.handleListenResponse(results[0][0].transcript);
-            console.log('HandleKeydown transcript is ' + results[0][0].transcript);
+            // console.log('HandleKeydown transcript is ' + results[0][0].transcript);
           };
           recognition.start();
           this.setState({ recognition: recognition, isSpeaking: true, step4Speak: false });
