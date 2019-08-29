@@ -60,7 +60,7 @@ export default ({ childProps }) => (
       component={Dashboard}
       props={childProps}
     />
-    <AuthenticatedRoute
+    <MemberRoute
       path='/evolutions/:id'
       component={Evolution}
       props={childProps}

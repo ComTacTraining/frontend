@@ -84,6 +84,37 @@ export default class Evolution extends Component {
     document.addEventListener('keyup', this.handleKeyUp.bind(this));
   }
 
+  loadVariables() {
+    console.log('Load Variables');
+    const groupNames = [
+      'Fire Attack',
+      'Exposure Group',
+      'Ventilation Group',
+      'RIC Group'
+    ];
+    const { groups, firstAlarm, callingUnits } = this.state;
+    groupNames.forEach((element, index) => {
+      groups[index] = [];
+      groups[index].name = element;
+      groups[index].response = 0;
+      groups[index].assigned = 0;
+      groups[index].assigned_to = [];
+      //For double assignment
+      groups[index].found = 0;
+      groups[index].index = 0;
+      groups[index].count = 0;
+    });
+    firstAlarm.forEach((elem, index) => {
+      callingUnits[index] = [];
+      callingUnits[index].name = elem;
+      callingUnits[index].group = '';
+    });
+    this.setState({ groups: groups, callingUnits: callingUnits }, () => {
+      console.dir(this.state.callingUnits);
+      console.dir(this.state.groups);
+    });
+  }
+
   async setupAlarms() {
     try {
       const alarms = await this.getAlarms();
@@ -352,7 +383,10 @@ export default class Evolution extends Component {
     const { speechRecognitionResult, step } = this.state;
     this.setState({
       transcript: speechRecognitionResult,
-      speechRecognitionResult: ''
+      speechRecognitionResult: '',
+      step4Speak: true,
+      speakPhrases: speechRecognitionResult,
+      isSpeaking: false
     });
     if (step === 0) {
       this.handleStepUpdate(1);
@@ -374,9 +408,10 @@ export default class Evolution extends Component {
   };
 
   handleKeyDown = event => {
-    const { speakPhrases, recognition, isSpeaking, canTalk } = this.state;
+    const { speakPhrases, recognition, canTalk, step4Speak } = this.state;
     if (event.code === 'Space' && canTalk) {
       event.preventDefault();
+
       if (!event.repeat) {
         // Only allow microphone when not speaking
         if (speakPhrases.length === 0 && recognition === null) {
@@ -386,14 +421,20 @@ export default class Evolution extends Component {
           recognition.lang = 'en-US';
           recognition.onresult = ({ results }) => {
             this.handleListenResponse(results[0][0].transcript);
+            // console.log('HandleKeydown transcript is ' + results[0][0].transcript);
           };
           recognition.start();
-          this.setState({ recognition: recognition, isSpeaking: true });
+          this.setState({
+            recognition: recognition,
+            isSpeaking: true,
+            step4Speak: false
+          });
+          // this.setState({ recognition: recognition, isSpeaking: false });
         }
       }
-      if (event.repeat && !isSpeaking) {
+      if (event.repeat && !step4Speak) {
         recognition.start();
-        this.setState({ isSpeaking: true });
+        this.setState({ isSpeaking: true, step4Speak: true });
       }
     }
   };
@@ -403,7 +444,7 @@ export default class Evolution extends Component {
     if (event.code === 'Space' && canTalk) {
       setTimeout(() => {
         recognition.stop();
-        this.setState({ recognition: null, isSpeaking: false });
+        this.setState({ recognition: null, isSpeaking: true });
         this.handleListenComplete();
       }, 1000);
     }
