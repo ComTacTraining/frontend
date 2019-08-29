@@ -13,7 +13,7 @@ class TextCanvas extends Component {
   constructor(props) {
     super(props);
     this.textCanvas = React.createRef();
-    this.padding = 40;
+    this.padding = 220;
     this.leading = 10;
     this.fontSize = 32;
     this.font = `${this.fontSize}px Anton`;
@@ -45,7 +45,7 @@ class TextCanvas extends Component {
 
       while (words.length > 0) {
         let word = words.shift();
-        let width = ctx.measureText(line + space + word + this.padding).width;
+        let width = ctx.measureText(line + space + word).width + this.padding;
         if (width < canvas.width) {
           line += space + word;
           space = ' ';

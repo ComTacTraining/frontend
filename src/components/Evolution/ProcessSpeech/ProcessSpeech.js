@@ -1,95 +1,89 @@
 import React, { Component } from 'react';
 
 export default class ProcessSpeech extends Component {
-  state = {
-    userSpeechChanged : ''
-  };
   componentDidMount() {
-    console.log('Process Speech componentDidMount()')
-    const {step, transcript} = this.props;
     this.processTranscript();
   }
 
   componentDidUpdate(prevProps) {
-    const {transcript} = this.props;
-    console.log(`componenetDidUpdate(${prevProps.step});`);
-    if (prevProps.step !== this.props.step) {
+    if (prevProps.childProps.transcript !== this.props.childProps.transcript) {
       this.processTranscript();
-      console.log(transcript);
     }
   }
 
   processTranscript() {
-    const { step } = this.props;
-    console.log(step);
-    switch (step) {
-      case 2:
-        this.processInitialReport();
-        break;
-      case 3:
-        this.processSecondaryReport();
-        break;
-      case 4:
-        this.processArrivals();
-        break;
-      default:
-        break;
+    const { initialReportComplete, threeSixtyComplete } = this.props.childProps;
+    if (this.includesAnyText(['2nd alarm', 'second alarm'])) {
+      this.processSecondAlarm();
+    } else if (!initialReportComplete) {
+      this.processInitialReport();
+    } else if (!threeSixtyComplete) {
+      this.processThreeSixtyAssessment();
+    } else if (this.includesText('face')) {
+      this.processFaceToFace();
     }
   }
 
-  /////////STEP 1////////////
-  //Step 1 in evolution.js setDispatchText
-
-  /////////STEP 2/////////////
   processInitialReport() {
-    console.log('Process Initial');
-    this.processReport();
-  }
-  /////////STEP 2/////////////
-
-  ////////STEP 3//////////////
-  processSecondaryReport() {
-    console.log('Secondary Report');
-    this.processReport();
-  }
-  ////////STEP 3//////////////
-
-  ////////STEP 4//////////////
-  processArrivals() {
-    console.log('Process Arrival()');
-    var { firstAlarm, calling_units, calling_units_length, step4_index, step, transcript, assignmentCheck } = this.props;
-    if(assignmentCheck === 0){
-      const phrase = `${firstAlarm[step4_index]} staged and awaiting assignment.`;
-      this.props.handleSpeak(phrase, 'enUS_Female', 5000);
-      this.props.handleTranscriptReset();
-      assignmentCheck = 1;
-      step4_index++;
-      this.props.speechCallback(firstAlarm, calling_units, calling_units_length, step4_index, assignmentCheck);
-    }
-    else {
-      this.decisionOnSpeech(transcript, step4_index);
-    }
+    const { transcript, dispatchCenter } = this.props.childProps;
+    const phrase = `${dispatchCenter} copies ${transcript}`;
+    this.props.childProps.handleSpeak(phrase);
+    const updates = { initialReportComplete: true, transcript: '' };
+    this.props.childProps.handleProcessSpeechComplete(updates);
   }
 
-  processReport() {
-    const { transcript } = this.props;
-    //const updatedStep = step + 1;
-    const phrase = this.dispatchCenterCopies();
-    this.props.handleSpeak(phrase);
-    //this.props.handleStepUpdate(updatedStep);
-    this.props.handleTranscriptReset();
-      
+  processThreeSixtyAssessment() {
+    const { transcript, dispatchCenter } = this.props.childProps;
+    const phrase = `${dispatchCenter} copies ${transcript}`;
+    this.props.childProps.handleSpeak(phrase);
+    const updates = { threeSixtyComplete: true, transcript: '' };
+    this.props.childProps.handleProcessSpeechComplete(updates);
   }
 
-  dispatchCenterCopies() {
-    const { transcript, dispatchCenter } = this.props;
-    return `${dispatchCenter} copies ${transcript}`;
+  processSecondAlarm() {
+    const { incidentCommander, dispatchCenter, alarms } = this.props.childProps;
+    const phrase = `${incidentCommander} from ${dispatchCenter}, your second alarm units are: ${alarms.alarm2}`;
+    this.props.childProps.handleSpeak(phrase);
+    this.props.childProps.handleProcessSpeechComplete({ transcript: '' });
+  }
+
+  processFaceToFace() {
+    const { transcript, dispatchCenter } = this.props.childProps;
+    const phrase = `${dispatchCenter} copies ${transcript}`;
+    this.props.childProps.handleSpeak(phrase);
+    const updates = { faceToFaceComplete: true, transcript: '' };
+    this.props.childProps.handleProcessSpeechComplete(updates);
+  }
+
+  includesText(text) {
+    const { transcript } = this.props.childProps;
+    return transcript.toUpperCase().includes(text.toUpperCase());
+  }
+
+  includesAnyText(texts) {
+    let foundAny = false;
+    texts.forEach(text => {
+      if (this.includesText(text)) {
+        foundAny = true;
+      }
+    });
+    return foundAny;
+  }
+
+  includesAllText(texts) {
+    let foundAll = true;
+    texts.forEach(text => {
+      if (!this.includesText(text)) {
+        foundAll = false;
+      }
+    });
+    return foundAll;
   }
 
   render() {
     return <div />;
   }
-
+  /*
   
   decisionOnSpeech = (user_speech, index) => {
     var {userSpeechChanged} = this.state;
@@ -483,5 +477,5 @@ export default class ProcessSpeech extends Component {
     });
   }
 
-  
+  */
 }
