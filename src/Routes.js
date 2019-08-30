@@ -1,7 +1,7 @@
 import React from 'react';
 import { Route, Switch } from 'react-router-dom';
 import AppliedRoute from './components/AppliedRoute/AppliedRoute';
-// import MemberRoute from './components/MemberRouter/MemberRoute';
+import MemberRoute from './components/MemberRouter/MemberRoute';
 import AuthenticatedRoute from './components/AuthenticatedRoute/AuthenticatedRoute';
 import UnauthenticatedRoute from './components/UnauthenticatedRoute/UnauthenticatedRoute';
 import Home from './containers/Home/Home';
@@ -54,13 +54,13 @@ export default ({ childProps }) => (
       component={Demo}
       props={childProps}
     />
-    <AuthenticatedRoute
+    <MemberRoute
       path='/dashboard'
       exact
       component={Dashboard}
       props={childProps}
     />
-    <AuthenticatedRoute
+    <MemberRoute
       path='/evolutions/:id'
       component={Evolution}
       props={childProps}
