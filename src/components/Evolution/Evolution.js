@@ -39,7 +39,7 @@ export default class Evolution extends Component {
     canTalk: false,
     videosLoaded: 0,
     preloadPercentage: 0,
-        //// CJ VARIABLES ////
+    //// CJ VARIABLES ////
     flag : true,
     assignmentCheck: 0,
     finalJsonOutput : [],
@@ -116,10 +116,7 @@ export default class Evolution extends Component {
       callingUnits[index].name = elem;
       callingUnits[index].group='';
     });
-    this.setState({groups: groups, callingUnits: callingUnits}, ()=>{
-      console.dir(this.state.callingUnits);
-      console.dir(this.state.groups);
-    });
+    this.setState({groups: groups, callingUnits: callingUnits});
   }
 
   async setupAlarms() {
@@ -313,8 +310,16 @@ export default class Evolution extends Component {
   };
 
   setDispatchText() {
+    console.log("setDispatchText()");
     const { alarms, evolution } = this.state;
-    const phrase = `Structure fire, ${alarms.alarm1} at ${evolution.street}.`;
+    const simulationName = evolution.category.toLowerCase();
+    let type = "";
+    if (simulationName.includes("family")) {
+      type = "Residential";
+    } else {
+      type = "Commercial";
+    }
+    const phrase = `${type} Structure fire, ${alarms.alarm1} at ${evolution.street}.`;
     const scrollText = [phrase, `Repeating. ${phrase}`];
     this.setState({ scrollText: scrollText, speakPhrases: scrollText });
   }
@@ -353,12 +358,10 @@ export default class Evolution extends Component {
   }
 
   handleStepUpdate = step => {
-    console.log(`handleStepUpdate(${step});`);
     this.setState({ step: step });
   };
 
   speakCallback = () => {
-    console.log('SPEAKCALLBACK')
     this.setState({isSpeaking: true});
   };
 
@@ -379,12 +382,10 @@ export default class Evolution extends Component {
     }
 
     if(step === 4){
-      console.log('Evolution Assignment check is ' + this.state.assignmentCheck);
       this.setState({isSpeaking: false});
     }
 
     if(step === 5){
-      console.log('Inside step 5 statement');
       this.setState({isSpeaking: false});
     }
 
@@ -393,33 +394,47 @@ export default class Evolution extends Component {
 
   handleTranscriptReset = () => {
     this.setState({ transcript: '' });
-    console.log('Handle Transcript Reset');
   };
 
   handleListenComplete = () => {
-    const { speechRecognitionResult, step } = this.state;
-    this.setState({
-      transcript: speechRecognitionResult,
-      speechRecognitionResult: '',
-      step4Speak: true,
-      speakPhrases: speechRecognitionResult,
-      isSpeaking: false
-    });
+    console.log("handleListenComplete()");
+    const { speechRecognitionResult, step, transcript } = this.state;
+    console.log("Transcript in handleListenComplete is " + transcript);
+    if (step < 4) {
+      this.setState({
+        transcript: speechRecognitionResult,
+        speechRecognitionResult: "",
+        speakPhrases: speechRecognitionResult
+      });
+    } else {
+      this.setState({
+        transcript: speechRecognitionResult,
+        step4Speak: true,
+        isSpeaking: false
+      });
+    }
     if (step === 1) {
       this.handleStepUpdate(2);
     }
   };
 
   handleListenResponse = response => {
-    console.log(`handleListenResponse(${response});`);
-    // const { speechRecognitionResult } = this.state;      //CJ Comment
-    // const newResult = `${speechRecognitionResult} ${response}`.trim(); //CJ Comment
-    this.setState({ speechRecognitionResult: response, isSpeaking: true, step4Speak: false});    
-    //this.setState({ speechRecognitionResult: newResult, isSpeaking: false });
+    const { speechRecognitionResult } = this.state;
+    const newResult = `${speechRecognitionResult} ${response}`.trim();
+    this.setState({
+      speechRecognitionResult: response,
+      isSpeaking: true,
+      step4Speak: false
+    });
   };
 
   handleKeyDown = event => {
-    const { speakPhrases, recognition, canTalk, step4Speak } = this.state;
+    const { 
+      speakPhrases, 
+      recognition, 
+      canTalk, 
+      step4Speak 
+    } = this.state;
     if (event.code === 'Space' && canTalk) {
       event.preventDefault();
 
@@ -435,13 +450,19 @@ export default class Evolution extends Component {
             // console.log('HandleKeydown transcript is ' + results[0][0].transcript);
           };
           recognition.start();
-          this.setState({ recognition: recognition, isSpeaking: true, step4Speak: false });
-          // this.setState({ recognition: recognition, isSpeaking: false });
+          this.setState({
+            recognition: recognition,
+            isSpeaking: true,
+            step4Speak: false
+          });
         }
       }
       if (event.repeat && !step4Speak) {
         recognition.start();
-        this.setState({ isSpeaking: true, step4Speak: true });
+        this.setState({ 
+          isSpeaking: true, 
+          step4Speak: true 
+        });
       }
     }
   };
@@ -457,9 +478,22 @@ export default class Evolution extends Component {
     }
   };
 
-  speechCallback = (step4Index, assignmentCheck, step, groups, parSpeech, parSpeechIndex) => {
-    this.setState({step4Index: step4Index, assignmentCheck: assignmentCheck, step: step, groups: groups,
-    parSpeech: parSpeech, parSpeechIndex});
+  speechCallback = (
+    step4Index, 
+    assignmentCheck, 
+    step, 
+    groups, 
+    parSpeech, 
+    parSpeechIndex
+    ) => {
+      this.setState({
+        step4Index: step4Index, 
+        assignmentCheck: assignmentCheck, 
+        step: step, 
+        groups: groups,
+        parSpeech: parSpeech, 
+        parSpeechIndex: parSpeechIndex
+      });
   };
 
   render() {
