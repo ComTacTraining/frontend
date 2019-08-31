@@ -176,7 +176,6 @@ export default class ProcessSpeech extends Component {
     const { secondAlarm, callingUnits } = this.props.childProps;
     let {
       groups,
-      step,
       parSpeech,
       parSpeechIndex,
       step4Index
@@ -518,10 +517,7 @@ export default class ProcessSpeech extends Component {
       callingUnits,
       transcript,
       step4Index,
-      step,
-      groups,
-      parSpeech,
-      parSpeechIndex
+      parSpeech
     } = this.props.childProps;
 
     if (parDetected) {
@@ -533,7 +529,6 @@ export default class ProcessSpeech extends Component {
         callingUnits[step4Index].voice,
         5000
       );
-      const newAssignmentCheck = 1;
       setTimeout(() => {
         const updates = {
           assignmentCheck: 1,
