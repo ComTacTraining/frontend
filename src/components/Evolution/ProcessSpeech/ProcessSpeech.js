@@ -45,14 +45,27 @@ export default class ProcessSpeech extends Component {
   }
 
   processTranscript() {
-    const { initialReportComplete, threeSixtyComplete } = this.props.childProps;
+    const {
+      initialReportComplete,
+      threeSixtyComplete,
+      arrivalsComplete,
+      assignmentsComplete,
+      faceToFaceRequestComplete,
+      faceToFaceComplete
+    } = this.props.childProps;
     if (this.includesAnyText(['2nd alarm', 'second alarm'])) {
       this.processSecondAlarm();
     } else if (!initialReportComplete) {
       this.processInitialReport();
     } else if (!threeSixtyComplete) {
       this.processThreeSixtyAssessment();
-    } else if (this.includesText('face')) {
+    } else if (!arrivalsComplete) {
+      this.processArrivals();
+    } else if (!assignmentsComplete) {
+      this.processAssignments();
+    } else if (!faceToFaceRequestComplete) {
+      this.processFaceToFaceRequest();
+    } else if (!faceToFaceComplete) {
       this.processFaceToFace();
     }
   }
@@ -80,12 +93,19 @@ export default class ProcessSpeech extends Component {
     this.props.childProps.handleProcessSpeechComplete({ transcript: '' });
   }
 
-  processFaceToFace() {
-    const { transcript, dispatchCenter } = this.props.childProps;
-    const phrase = `${dispatchCenter} copies ${transcript}`;
-    this.props.childProps.handleSpeak(phrase);
-    const updates = { faceToFaceComplete: true, transcript: '' };
+  processFaceToFaceRequest() {
+    const { chief } = this.props.childProps;
+    const phrase = `${chief} requesting face to face`;
+    this.props.childProps.handleSpeak(phrase, 'enUS_Male', 5000);
+    const updates = { faceToFaceRequestComplete: true, transcript: '' };
     this.props.childProps.handleProcessSpeechComplete(updates);
+  }
+
+  processFaceToFace() {
+    this.props.childProps.handleProcessSpeechComplete({
+      faceToFaceComplete: true,
+      transcript: ''
+    });
   }
 
   includesText(text) {
@@ -147,19 +167,6 @@ export default class ProcessSpeech extends Component {
       };
       this.props.childProps.handleProcessSpeechComplete(updates);
     }
-  }
-
-  faceToFace() {
-    const { firstAlarm, step } = this.props.childProps;
-    const phrase = firstAlarm[0] + ' requesting face to face';
-    this.props.childProps.handleSpeak(phrase);
-    const newStep = step + 1;
-    const updates = {
-      step: newStep,
-      transcript: ''
-    };
-    this.props.childProps.handleProcessSpeechComplete(updates);
-    setTimeout(() => {}, 5000);
   }
 
   async decisionOnSpeech(userSpeech, index) {
