@@ -113,7 +113,7 @@ export default class ProcessSpeech extends Component {
     return foundAll;
   }
 
-  processArrivals = async () => {
+  async processArrivals() {
     const {
       firstAlarm,
       step4Index,
@@ -147,7 +147,7 @@ export default class ProcessSpeech extends Component {
       };
       this.props.childProps.handleProcessSpeechComplete(updates);
     }
-  };
+  }
 
   faceToFace() {
     const { firstAlarm, step } = this.props.childProps;
@@ -162,7 +162,7 @@ export default class ProcessSpeech extends Component {
     setTimeout(() => {}, 5000);
   }
 
-  decisionOnSpeech = async (userSpeech, index) => {
+  async decisionOnSpeech(userSpeech, index) {
     console.log('decisionOnSpeech()');
     const {
       alarm2KeywordDictionary,
@@ -509,9 +509,9 @@ export default class ProcessSpeech extends Component {
         this.props.childProps.handleStep4Assignment();
       }, 5000);
     }
-  };
+  }
 
-  giveResponse = async (id, assignKeyword, parDetected, simpleAssignment) => {
+  async giveResponse(id, assignKeyword, parDetected, simpleAssignment) {
     const { userSpeechChanged } = this.state;
     const {
       callingUnits,
@@ -615,10 +615,9 @@ export default class ProcessSpeech extends Component {
       }, 5000);
       // fullTranscript();
     }
-  };
+  }
 
-  changeKeywords = userSpeech => {
-    // var {userSpeechChanged} = this.state;
+  changeKeywords(userSpeech) {
     var mapObj = {
       'You will': 'I will',
       'you will': 'I will',
@@ -638,9 +637,9 @@ export default class ProcessSpeech extends Component {
       }
     );
     this.setState({ userSpeechChanged: changeSpeech });
-  };
+  }
 
-  groupMatching = (checkUserSpeech, groupDictionary, userSpeech) => {
+  groupMatching(checkUserSpeech, groupDictionary, userSpeech) {
     groupDictionary.forEach(function(elem) {
       var re = new RegExp(elem, 'gi');
       if (userSpeech.match(re)) {
@@ -648,9 +647,9 @@ export default class ProcessSpeech extends Component {
       }
     });
     return checkUserSpeech;
-  };
+  }
 
-  groupAssignment = (
+  groupAssignment(
     checkUserSpeech,
     groups,
     groupId,
@@ -660,7 +659,7 @@ export default class ProcessSpeech extends Component {
     simpleAssignment,
     assignKeyword,
     step4Index
-  ) => {
+  ) {
     if (checkUserSpeech) {
       //Check if it is not already assigned to someone
       if (!groups[groupId].assigned && !parDetected) {
@@ -709,7 +708,7 @@ export default class ProcessSpeech extends Component {
       parDetected,
       step4Index
     };
-  };
+  }
 
   render() {
     return <div />;
