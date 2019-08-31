@@ -413,10 +413,6 @@ export default class Evolution extends Component {
     this.setState({ speakPhrases: [], step: newStep, isSpeaking: false });
   };
 
-  handleTranscriptReset = () => {
-    this.setState({ transcript: '' });
-  };
-
   handleListenComplete = () => {
     const { speechRecognitionResult, step } = this.state;
     if (step < 4) {
@@ -497,24 +493,6 @@ export default class Evolution extends Component {
         this.handleListenComplete();
       }, 1000);
     }
-  };
-
-  speechCallback = (
-    step4Index,
-    assignmentCheck,
-    step,
-    groups,
-    parSpeech,
-    parSpeechIndex
-  ) => {
-    this.setState({
-      step4Index: step4Index,
-      assignmentCheck: assignmentCheck,
-      step: step,
-      groups: groups,
-      parSpeech: parSpeech,
-      parSpeechIndex: parSpeechIndex
-    });
   };
 
   render() {

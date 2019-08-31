@@ -120,9 +120,6 @@ export default class ProcessSpeech extends Component {
       step,
       transcript,
       assignmentCheck,
-      groups,
-      parSpeech,
-      parSpeechIndex,
       callingUnits
     } = this.props.childProps;
     if (firstAlarm.length > step4Index) {
@@ -133,63 +130,38 @@ export default class ProcessSpeech extends Component {
           callingUnits[step4Index].voice,
           5000
         );
-        this.props.childProps.handleTranscriptReset();
-        const newAssignmentCheck = 1;
-        this.props.childProps.speechCallback(
-          step4Index,
-          newAssignmentCheck,
-          step,
-          groups,
-          parSpeech,
-          parSpeechIndex
-        );
+        const updates = {
+          assignmentCheck: 1,
+          step: step,
+          transcript: ''
+        };
+        this.props.childProps.handleProcessSpeechComplete(updates);
       } else {
         if (transcript !== '') this.decisionOnSpeech(transcript, step4Index);
       }
     } else {
       const newStep = step + 1;
-      this.props.childProps.speechCallback(
-        step4Index,
-        assignmentCheck,
-        newStep,
-        groups,
-        parSpeech,
-        parSpeechIndex
-      );
+      const updates = {
+        step: newStep,
+        transcript: ''
+      };
+      this.props.childProps.handleProcessSpeechComplete(updates);
     }
   };
 
   faceToFace() {
-    console.log('faceToFace()');
-    console.dir(this.props.childProps.parSpeech);
-    const {
-      firstAlarm,
-      step4Index,
-      step,
-      assignmentCheck,
-      groups,
-      parSpeech,
-      parSpeechIndex
-    } = this.props.childProps;
+    const { firstAlarm, step } = this.props.childProps;
     const phrase = firstAlarm[0] + ' requesting face to face';
-    const newStep = step + 1;
-    this.props.childProps.speechCallback(
-      step4Index,
-      assignmentCheck,
-      newStep,
-      groups,
-      parSpeech,
-      parSpeechIndex
-    );
     this.props.childProps.handleSpeak(phrase);
-    this.props.childProps.handleTranscriptReset();
+    const newStep = step + 1;
+    const updates = {
+      step: newStep,
+      transcript: ''
+    };
+    this.props.childProps.handleProcessSpeechComplete(updates);
     setTimeout(() => {}, 5000);
   }
-  //######## STEP 5 ###########//
 
-  //Changing variables
-  //checkUserSpeech, assignKeyword, parDetected, nameDetected, assigned, simpleAssignment, alarm2_called, assignmentCheck
-  //parDetected, parKeyword, parSpeech, parSpeechIndex, callingUnits
   decisionOnSpeech = async (userSpeech, index) => {
     console.log('decisionOnSpeech()');
     const {
@@ -202,7 +174,7 @@ export default class ProcessSpeech extends Component {
       rickGroupDictionary
     } = this.state;
     const { secondAlarm, callingUnits } = this.props.childProps;
-    var {
+    let {
       groups,
       step,
       parSpeech,
@@ -242,18 +214,13 @@ export default class ProcessSpeech extends Component {
           callingUnits[step4Index].voice,
           5000
         );
-        this.props.childProps.handleTranscriptReset();
-        const newAssignmentCheck = 1;
         setTimeout(() => {
-          this.props.childProps.speechCallback(
-            step4Index,
-            newAssignmentCheck,
-            step,
-            groups,
-            parSpeech,
-            parSpeechIndex
-          );
           this.props.childProps.handleStep4Assignment();
+          const updates = {
+            assignmentCheck: 1,
+            transcript: ''
+          };
+          this.props.childProps.handleProcessSpeechComplete(updates);
         }, 5000);
       }
     }
@@ -530,19 +497,16 @@ export default class ProcessSpeech extends Component {
         callingUnits[step4Index].voice,
         5000
       );
-      this.props.childProps.handleTranscriptReset();
 
       const newStep4Index = step4Index + 1;
-      const newAssignmentCheck = 0;
       setTimeout(() => {
-        this.props.childProps.speechCallback(
-          newStep4Index,
-          newAssignmentCheck,
-          step,
-          groups,
-          parSpeech,
-          parSpeechIndex
-        );
+        const updates = {
+          step4Index: newStep4Index,
+          assignmentCheck: 0,
+          transcript: ''
+        };
+        this.props.childProps.handleProcessSpeechComplete(updates);
+
         this.props.childProps.handleStep4Assignment();
       }, 5000);
     }
@@ -569,17 +533,14 @@ export default class ProcessSpeech extends Component {
         callingUnits[step4Index].voice,
         5000
       );
-      this.props.childProps.handleTranscriptReset();
       const newAssignmentCheck = 1;
       setTimeout(() => {
-        this.props.childProps.speechCallback(
-          step4Index,
-          newAssignmentCheck,
-          step,
-          groups,
-          parSpeech,
-          parSpeechIndex
-        );
+        const updates = {
+          assignmentCheck: 1,
+          parSpeech: newParSpeech,
+          transcript: ''
+        };
+        this.props.childProps.handleProcessSpeechComplete(updates);
         this.props.childProps.handleStep4Assignment();
       }, 5000);
     } else if (assignKeyword) {
@@ -595,18 +556,14 @@ export default class ProcessSpeech extends Component {
         callingUnits[step4Index].voice,
         5000
       );
-      this.props.childProps.handleTranscriptReset();
       const newStep4Index = step4Index + 1;
-      const newAssignmentCheck = 0;
       setTimeout(() => {
-        this.props.childProps.speechCallback(
-          newStep4Index,
-          newAssignmentCheck,
-          step,
-          groups,
-          parSpeech,
-          parSpeechIndex
-        );
+        const updates = {
+          step4Index: newStep4Index,
+          assignmentCheck: 0,
+          transcript: ''
+        };
+        this.props.childProps.handleProcessSpeechComplete(updates);
         this.props.childProps.handleStep4Assignment();
       }, 5000);
       // fullTranscript();
@@ -621,18 +578,14 @@ export default class ProcessSpeech extends Component {
         callingUnits[step4Index].voice,
         5000
       );
-      this.props.childProps.handleTranscriptReset();
       const newStep4Index = step4Index + 1;
-      const newAssignmentCheck = 0;
       setTimeout(() => {
-        this.props.childProps.speechCallback(
-          newStep4Index,
-          newAssignmentCheck,
-          step,
-          groups,
-          parSpeech,
-          parSpeechIndex
-        );
+        const updates = {
+          step4Index: newStep4Index,
+          assignmentCheck: 0,
+          transcript: ''
+        };
+        this.props.childProps.handleProcessSpeechComplete(updates);
         this.props.childProps.handleStep4Assignment();
       }, 5000);
       // fullTranscript();
@@ -657,17 +610,12 @@ export default class ProcessSpeech extends Component {
         callingUnits[step4Index].voice,
         5000
       );
-      this.props.childProps.handleTranscriptReset();
-      const newAssignmentCheck = 1;
       setTimeout(() => {
-        this.props.childProps.speechCallback(
-          step4Index,
-          newAssignmentCheck,
-          step,
-          groups,
-          parSpeech,
-          parSpeechIndex
-        );
+        const updates = {
+          assignmentCheck: 1,
+          transcript: ''
+        };
+        this.props.childProps.handleProcessSpeechComplete(updates);
         this.props.childProps.handleStep4Assignment();
       }, 5000);
       // fullTranscript();
