@@ -7,6 +7,7 @@ import App from './containers/App/App';
 import * as serviceWorker from './serviceWorker';
 //import axios from 'axios';
 import Amplify from 'aws-amplify';
+import { AmazonAIPredictionsProvider } from '@aws-amplify/predictions';
 import config from './config';
 
 /*axios.interceptors.request.use(
@@ -40,6 +41,34 @@ Amplify.configure({
     userPoolId: config.cognito.USER_POOL_ID,
     userPoolWebClientId: config.cognito.APP_CLIENT_ID
   },
+  predictions: {
+    convert: {
+      speechGenerator: {
+        region: config.polly.REGION,
+        proxy: config.polly.PROXY,
+        defaults: {
+          VoiceId: config.polly.DEFAULT_VOICE_ID,
+          LanguageCode: config.polly.LANGUAGE_CODE
+        }
+      },
+      transciption: {
+        region: config.transcribe.REGION,
+        proxy: config.transcribe.PROXY,
+        defaults: {
+          language: config.transcribe.LANGUAGE_CODE
+        }
+      }
+    },
+    interpret: {
+      interpretText: {
+        region: config.comprehend.REGION,
+        proxy: config.comprehend.PROXY,
+        defaults: {
+          type: config.comprehend.TYPE
+        }
+      }
+    }
+  },
   /*Storage: {
     AWSS3: {
       region: config.s3.REGION,
@@ -56,6 +85,7 @@ Amplify.configure({
     ]
   }
 });
+Amplify.addPluggable(new AmazonAIPredictionsProvider());
 
 ReactDOM.render(
   <Router>
