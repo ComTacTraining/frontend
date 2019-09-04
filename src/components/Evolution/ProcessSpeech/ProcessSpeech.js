@@ -1,41 +1,41 @@
-import React, { Component } from "react";
+import React, { Component } from 'react';
 
 export default class ProcessSpeech extends Component {
   state = {
-    userSpeechChanged: "",
+    userSpeechChanged: '',
     alarm2KeywordDictionary: [
-      "Alarm 2:00",
-      "Alarm 2",
-      "alarm 2:00",
-      "alarm 2",
-      "alarm two",
-      "Alarm two"
+      'Alarm 2:00',
+      'Alarm 2',
+      'alarm 2:00',
+      'alarm 2',
+      'alarm two',
+      'Alarm two'
     ],
-    fireAttackDictionary: ["fire attach", "fire attack", "far attack"],
-    exposureGroupDictionary: ["exposure"],
+    fireAttackDictionary: ['fire attach', 'fire attack', 'far attack'],
+    exposureGroupDictionary: ['exposure'],
     ventGroupDictionary: [
-      "whent",
-      "went",
-      "vent",
-      "when",
-      "Ventilacion",
-      "Ventilation"
+      'whent',
+      'went',
+      'vent',
+      'when',
+      'Ventilacion',
+      'Ventilation'
     ],
     rickGroupDictionary: [
-      "rick",
-      "R I C",
-      "R.I.C",
-      "Rick",
-      "R I C",
-      "Ric",
-      "ric"
+      'rick',
+      'R I C',
+      'R.I.C',
+      'Rick',
+      'R I C',
+      'Ric',
+      'ric'
     ],
-    assignKeywordDictionary: ["Assign", "assign", "Sign", "Sign", "Assigned"],
-    parKeywordDictionary: ["Par", "par", "per", "bar"]
+    assignKeywordDictionary: ['Assign', 'assign', 'Sign', 'Sign', 'Assigned'],
+    parKeywordDictionary: ['Par', 'par', 'per', 'bar']
   };
 
   componentDidMount() {
-    console.log("PROCESS SPEECH");
+    console.log('PROCESS SPEECH');
     this.processTranscript();
   }
 
@@ -61,13 +61,13 @@ export default class ProcessSpeech extends Component {
     if (this.includesAnyText(alarm2KeywordDictionary)) {
       this.processSecondAlarm();
     } else if (!initialReportComplete) {
-      console.log("Initial Report");
+      console.log('Initial Report');
       this.processInitialReport();
     } else if (!threeSixtyComplete) {
-      console.log("processThreeSixtyAssessment()");
+      console.log('processThreeSixtyAssessment()');
       this.processThreeSixtyAssessment();
     } else if (!arrivalsComplete) {
-      console.log("CALL DECISION");
+      console.log('CALL DECISION');
       // this.processArrivals();
       this.decisionOnSpeech(transcript, step4Index);
     }
@@ -80,11 +80,11 @@ export default class ProcessSpeech extends Component {
   processInitialReport() {
     const { transcript, dispatchCenter } = this.props.childProps;
     const phrase = `${dispatchCenter} copies ${transcript}`;
-    console.log("Inside intital");
-    const updates = { initialReportComplete: true, transcript: "" };
+    console.log('Inside intital');
+    const updates = { initialReportComplete: true, transcript: '' };
     this.props.childProps.handleProcessSpeechComplete(updates);
     setTimeout(() => {
-      this.props.childProps.handleSpeak(phrase, "enUS_Male");
+      this.props.childProps.handleSpeak(phrase, 'enUS_Male');
     }, 1000);
     // const updates = { initialReportComplete: true, transcript: "" };
     // this.props.childProps.handleProcessSpeechComplete(updates);
@@ -96,7 +96,7 @@ export default class ProcessSpeech extends Component {
     this.props.childProps.handleSpeak(phrase);
     const updates = {
       threeSixtyComplete: true,
-      transcript: "",
+      transcript: '',
       startArrival: true
     };
     this.props.childProps.handleProcessSpeechComplete(updates);
@@ -106,7 +106,7 @@ export default class ProcessSpeech extends Component {
     const { incidentCommander, dispatchCenter, alarms } = this.props.childProps;
     const phrase = `${incidentCommander} from ${dispatchCenter}, your second alarm units are: ${alarms.alarm2}`;
     this.props.childProps.handleSpeak(phrase);
-    this.props.childProps.handleProcessSpeechComplete({ transcript: "" });
+    this.props.childProps.handleProcessSpeechComplete({ transcript: '' });
   }
 
   processFaceToFaceRequest() {
@@ -115,7 +115,7 @@ export default class ProcessSpeech extends Component {
     this.props.childProps.handleSpeak(phrase);
     const updates = {
       faceToFaceRequestComplete: true,
-      transcript: ""
+      transcript: ''
     };
     this.props.childProps.handleProcessSpeechComplete(updates);
     this.props.childProps.handleSpeak(phrase);
@@ -124,7 +124,7 @@ export default class ProcessSpeech extends Component {
   processFaceToFace() {
     this.props.childProps.handleProcessSpeechComplete({
       faceToFaceComplete: true,
-      transcript: ""
+      transcript: ''
     });
   }
 
@@ -154,8 +154,8 @@ export default class ProcessSpeech extends Component {
   }
 
   async decisionOnSpeech(userSpeech, index) {
-    console.log("STEP4INDEX : " + this.props.childProps.step4Index);
-    console.log("decisionOnSpeech()");
+    console.log('STEP4INDEX : ' + this.props.childProps.step4Index);
+    console.log('decisionOnSpeech()');
     const {
       alarm2KeywordDictionary,
       assignKeywordDictionary,
@@ -195,14 +195,14 @@ export default class ProcessSpeech extends Component {
         userSpeech
       );
       if (checkUserSpeech) {
-        console.log("Alarm 2 Response");
-        var phrase = "Dispatch copies ";
+        console.log('Alarm 2 Response');
+        var phrase = 'Dispatch copies ';
         secondAlarm.forEach(elem => {
-          phrase += elem + " ";
+          phrase += elem + ' ';
         });
         this.props.childProps.handleSpeak(
           phrase,
-          "enUS_Male",
+          'enUS_Male',
           // callingUnits[step4Index].voice,
           5000
         );
@@ -210,7 +210,7 @@ export default class ProcessSpeech extends Component {
           this.props.childProps.handleStep4Assignment();
           const updates = {
             assignmentCheck: 1,
-            transcript: ""
+            transcript: ''
           };
           this.props.childProps.handleProcessSpeechComplete(updates);
         }, 5000);
@@ -226,7 +226,7 @@ export default class ProcessSpeech extends Component {
       groups[index].count = 0;
     });
     assignKeywordDictionary.forEach(function(elem) {
-      var re = new RegExp(elem, "gi");
+      var re = new RegExp(elem, 'gi');
       if (userSpeech.match(re)) {
         assignKeywordFound = 1;
       }
@@ -236,7 +236,7 @@ export default class ProcessSpeech extends Component {
     if (!assignKeywordFound) {
       //fireattack check
       for (i = 0; i < fireAttackDictionary.length; i++) {
-        var re = new RegExp(fireAttackDictionary[i], "gi");
+        var re = new RegExp(fireAttackDictionary[i], 'gi');
         if (userSpeech.match(re)) {
           groups[0].found = 1;
           groups[0].count = fireAttackDictionary[i].length;
@@ -247,7 +247,7 @@ export default class ProcessSpeech extends Component {
       i = 0;
       //exposure group check
       for (i = 0; i < exposureGroupDictionary.length; i++) {
-        re = new RegExp(exposureGroupDictionary[i], "gi");
+        re = new RegExp(exposureGroupDictionary[i], 'gi');
         if (userSpeech.match(re)) {
           groups[1].found = 1;
           groups[1].count = exposureGroupDictionary[i].length;
@@ -258,7 +258,7 @@ export default class ProcessSpeech extends Component {
       i = 0;
       //vent group check
       for (i = 0; i < ventGroupDictionary.length; i++) {
-        re = new RegExp(ventGroupDictionary[i], "gi");
+        re = new RegExp(ventGroupDictionary[i], 'gi');
         if (userSpeech.match(re)) {
           groups[2].found = 1;
           groups[2].count = ventGroupDictionary[i].length;
@@ -269,7 +269,7 @@ export default class ProcessSpeech extends Component {
       i = 0;
       //Rick Group check
       for (i = 0; i < rickGroupDictionary.length; i++) {
-        re = new RegExp(rickGroupDictionary[i], "gi");
+        re = new RegExp(rickGroupDictionary[i], 'gi');
         if (userSpeech.match(re)) {
           groups[3].found = 1;
           groups[3].count = rickGroupDictionary[i].length;
@@ -293,17 +293,17 @@ export default class ProcessSpeech extends Component {
       }
       i++;
       if (elem.found) countKeywords++;
-      console.log("Keyword counted");
+      console.log('Keyword counted');
     });
 
     if (countKeywords > 1) {
       var sub = userSpeech.substring(0, indexOfKeyword + keyWordLength);
       userSpeech = sub;
-      console.log("If keyword is greater than 1");
+      console.log('If keyword is greater than 1');
       if (!groups[indexofGroup].assigned) {
         //Dont go to assignment
         goAssignment = 1;
-        console.log("User speech is " + userSpeech);
+        console.log('User speech is ' + userSpeech);
       }
     }
     // ====================== MULTIPLE GROUPS ====================== //
@@ -311,14 +311,14 @@ export default class ProcessSpeech extends Component {
     // ====================== ASSIGN ====================== //
     if (!checkUserSpeech && !goAssignment) {
       assignKeywordDictionary.forEach(function(elem) {
-        var re = new RegExp(elem, "gi");
+        var re = new RegExp(elem, 'gi');
         if (userSpeech.match(re)) {
           checkUserSpeech = 0; //Because not to break condition if found
           assignKeyword = 1;
         }
       });
       if (assignKeyword) {
-        console.log("Assign keyword detected");
+        console.log('Assign keyword detected');
       }
     }
     // ====================== ASSIGN ====================== //
@@ -326,9 +326,9 @@ export default class ProcessSpeech extends Component {
     // ====================== PAR REPORT ====================== //
     if (!checkUserSpeech) {
       parKeywordDictionary.forEach(function(elem) {
-        var re = new RegExp(elem, "gi");
+        var re = new RegExp(elem, 'gi');
         if (userSpeech.match(re)) {
-          console.log("PAR SEARCHING");
+          console.log('PAR SEARCHING');
           checkUserSpeech = 0;
           parDetected = 1;
           //parKeyword = 1;
@@ -338,7 +338,7 @@ export default class ProcessSpeech extends Component {
       });
       if (parDetected) {
         //Check if it is not already assigned to someone
-        console.log("PAR keyword detected");
+        console.log('PAR keyword detected');
       }
     }
     // ====================== PAR REPORT ====================== //
@@ -401,7 +401,7 @@ export default class ProcessSpeech extends Component {
 
     // ====================== VENTILATION GROUP ====================== //
     if (!checkUserSpeech) {
-      console.log("In vent");
+      console.log('In vent');
       checkUserSpeech = await this.groupMatching(
         checkUserSpeech,
         ventGroupDictionary,
@@ -463,10 +463,10 @@ export default class ProcessSpeech extends Component {
         if (elem.assigned) {
           var assignedName = elem.assigned_to;
           assignedName.forEach(function(name, index2) {
-            var re = new RegExp(name, "gi");
+            var re = new RegExp(name, 'gi');
             if (userSpeech.match(re)) {
               checkUserSpeech = 1;
-              console.log("Name detected");
+              console.log('Name detected');
             }
           });
         }
@@ -482,13 +482,13 @@ export default class ProcessSpeech extends Component {
 
     // ====================== NOTHING ====================== //
     if (!checkUserSpeech) {
-      console.log("nothing detected");
+      console.log('nothing detected');
       await this.changeKeywords(this.props.childProps.transcript);
       const newStep4Index = step4Index + 1;
       const updates = {
         step4Index: newStep4Index,
         assignmentCheck: 0,
-        transcript: "",
+        transcript: '',
         wait: 0
       };
       this.props.childProps.handleProcessSpeechComplete(updates);
@@ -496,7 +496,7 @@ export default class ProcessSpeech extends Component {
       this.props.childProps.handleStep4Assignment();
       this.props.childProps.handleSpeak(
         this.state.userSpeechChanged,
-        "enUS_Male",
+        'enUS_Male',
         // callingUnits[step4Index].voice,
         5000
       );
@@ -513,37 +513,37 @@ export default class ProcessSpeech extends Component {
     } = this.props.childProps;
 
     if (parDetected) {
-      var phrase = "All personnel are present and accounted for";
+      var phrase = 'All personnel are present and accounted for';
       var newParSpeech = parSpeech;
       newParSpeech.push(transcript);
 
       const updates = {
         assignmentCheck: 1,
         parSpeech: newParSpeech,
-        transcript: "",
+        transcript: '',
         wait: 1
       };
       this.props.childProps.handleProcessSpeechComplete(updates);
       this.props.childProps.handleStep4Assignment();
       this.props.childProps.handleSpeak(
         phrase,
-        "enUS_Male",
+        'enUS_Male',
         // callingUnits[step4Index].voice,
         5000
       );
     } else if (assignKeyword) {
-      console.log("In assign keyword response function");
+      console.log('In assign keyword response function');
       await this.changeKeywords(transcript);
 
       phrase =
-        callingUnits[step4Index].name + "copies" + this.state.userSpeechChanged;
+        callingUnits[step4Index].name + 'copies' + this.state.userSpeechChanged;
       //phrase = "Assigned keyword detected";
       console.log(this.state.userSpeechChanged);
       const newStep4Index = step4Index + 1;
       const updates = {
         step4Index: newStep4Index,
         assignmentCheck: 0,
-        transcript: "",
+        transcript: '',
         wait: 0
       };
       this.props.childProps.handleProcessSpeechComplete(updates);
@@ -551,18 +551,18 @@ export default class ProcessSpeech extends Component {
       this.props.childProps.handleSpeak(
         this.state.userSpeechChanged,
         // callingUnits[step4Index].voice,
-        "enUS_Male",
+        'enUS_Male',
         5000
       );
     } else if (simpleAssignment) {
-      phrase = callingUnits[step4Index].name + "copies" + userSpeechChanged;
+      phrase = callingUnits[step4Index].name + 'copies' + userSpeechChanged;
       await this.changeKeywords(transcript);
       const newStep4Index = step4Index + 1;
 
       const updates = {
         step4Index: newStep4Index,
         assignmentCheck: 0,
-        transcript: "",
+        transcript: '',
         wait: 0
       };
       this.props.childProps.handleProcessSpeechComplete(updates);
@@ -570,7 +570,7 @@ export default class ProcessSpeech extends Component {
         this.props.childProps.handleSpeak(
           this.state.userSpeechChanged,
           // callingUnits[step4Index].voice,
-          "enUS_Male",
+          'enUS_Male',
           5000
         );
       }, 1000);
@@ -579,20 +579,20 @@ export default class ProcessSpeech extends Component {
       //var phrase;
       if (id === 0)
         phrase =
-          "The building is withstanding the insult, we are advancing and we do not need any additional resources at this time.";
+          'The building is withstanding the insult, we are advancing and we do not need any additional resources at this time.';
       if (id === 1)
         phrase =
-          "The exposure is withstanding the insult, we are protecting the exposures and we do not need any additional resources at this time.";
+          'The exposure is withstanding the insult, we are protecting the exposures and we do not need any additional resources at this time.';
       if (id === 2)
         phrase =
-          "The building is withstanding the insult, we are ventilating and we could use additional resources.";
+          'The building is withstanding the insult, we are ventilating and we could use additional resources.';
       if (id === 3)
         phrase =
-          "We are in position and are softening the building. All IDLH resources are located, we do not need any additional resources.";
+          'We are in position and are softening the building. All IDLH resources are located, we do not need any additional resources.';
 
       const updates = {
         assignmentCheck: 1,
-        transcript: "",
+        transcript: '',
         wait: 1
       };
       this.props.childProps.handleProcessSpeechComplete(updates);
@@ -600,7 +600,7 @@ export default class ProcessSpeech extends Component {
       this.props.childProps.handleSpeak(
         phrase,
         // callingUnits[step4Index].voice,
-        "enUS_Male",
+        'enUS_Male',
         5000
       );
     }
@@ -608,16 +608,16 @@ export default class ProcessSpeech extends Component {
 
   changeKeywords(userSpeech) {
     var mapObj = {
-      "You will": "I will",
-      "you will": "I will",
-      "You are": "I am",
-      "you are": "I am",
-      Your: "my",
-      your: "my",
-      "we have": "there are",
-      "We have": "there are",
-      "Let me know": "Ok I will let you know",
-      "let me know": "Ok I will let you know"
+      'You will': 'I will',
+      'you will': 'I will',
+      'You are': 'I am',
+      'you are': 'I am',
+      Your: 'my',
+      your: 'my',
+      'we have': 'there are',
+      'We have': 'there are',
+      'Let me know': 'Ok I will let you know',
+      'let me know': 'Ok I will let you know'
     };
     var changeSpeech = userSpeech.replace(
       /you will|you are|your|we have/gi,
@@ -630,7 +630,7 @@ export default class ProcessSpeech extends Component {
 
   groupMatching(checkUserSpeech, groupDictionary, userSpeech) {
     groupDictionary.forEach(function(elem) {
-      var re = new RegExp(elem, "gi");
+      var re = new RegExp(elem, 'gi');
       if (userSpeech.match(re)) {
         checkUserSpeech = 1;
       }
@@ -653,7 +653,7 @@ export default class ProcessSpeech extends Component {
       //Check if it is not already assigned to someone
       if (!groups[groupId].assigned && !parDetected) {
         // Simple assignment
-        callingUnits[index].group = "Fire attack";
+        callingUnits[index].group = 'Fire attack';
         groups[groupId].assigned_to.push(callingUnits[index].name);
         groups[groupId].assigned = 1;
         // userAssignTranscript();
@@ -682,7 +682,7 @@ export default class ProcessSpeech extends Component {
           }
         } else {
           //GROUP PAR
-          console.log("I am in par function to call response");
+          console.log('I am in par function to call response');
           this.giveResponse(groupId, assignKeyword, parDetected);
           step4Index--;
         }
