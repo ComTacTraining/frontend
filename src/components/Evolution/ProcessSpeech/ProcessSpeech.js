@@ -52,9 +52,6 @@ export default class ProcessSpeech extends Component {
       initialReportComplete,
       threeSixtyComplete,
       arrivalsComplete,
-      assignmentsComplete,
-      faceToFaceRequestComplete,
-      faceToFaceComplete,
       transcript,
       step4Index
     } = this.props.childProps;

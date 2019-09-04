@@ -467,13 +467,7 @@ export default class Evolution extends Component {
   };
 
   processArrivals() {
-    const {
-      firstAlarm,
-      step4Index,
-      step,
-      assignmentCheck,
-      callingUnits
-    } = this.state;
+    const { firstAlarm, step4Index, step, assignmentCheck } = this.state;
     if (assignmentCheck === 0) {
       const phrase = `${firstAlarm[step4Index]} staged and awaiting assignment.`;
       this.setState({ speakPhrases: phrase });
