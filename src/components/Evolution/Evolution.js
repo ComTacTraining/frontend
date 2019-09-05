@@ -8,6 +8,7 @@ import ProgressBar from 'react-bootstrap/ProgressBar';
 import Speak from './Speak/Speak';
 import ProcessSpeech from './ProcessSpeech/ProcessSpeech';
 import { education } from './Education/Education';
+import { Evaluation } from './Evaluation/Evaluation';
 import config from '../../config';
 
 export default class Evolution extends Component {
@@ -27,12 +28,12 @@ export default class Evolution extends Component {
     speakPhrases: [],
     speakVoice: 'enUS_Male',
     speakTimeout: 0,
-    step: 1,
+    step: 2,
     transcript: '',
     recognition: null,
     speechRecognitionResult: '',
     isSpeaking: true,
-    canTalk: false,
+    canTalk: true,
     videosLoaded: 0,
     preloadPercentage: 0,
     initialReportComplete: false,
@@ -54,7 +55,11 @@ export default class Evolution extends Component {
     callingUnits: [],
     step4Index: 0,
     step4Speak: false,
-    wait: false
+    wait: false,
+    initialMatched: [],
+    secondaryMatched: [],
+    slicerMatched: [],
+    rectoMatched: []
   };
 
   constructor(props) {
@@ -87,7 +92,7 @@ export default class Evolution extends Component {
         this.setState(
           { evolution: evolution, isLoadingEvolution: false },
           async () => {
-            this.getVideos();
+            // this.getVideos();
             await this.setupAlarms();
             await this.loadVariables();
             this.setupIncidentCommander();
@@ -133,7 +138,7 @@ export default class Evolution extends Component {
       callingUnits[index].group = '';
       callingUnits[index].voice = this.assignRandomVoices(7); //7 because we have 7 voices
     });
-    this.setState({ groups: groups, callingUnits: callingUnits }, ()=>{
+    this.setState({ groups: groups, callingUnits: callingUnits }, () => {
       console.log(this.state.callingUnits);
     });
   }
@@ -373,22 +378,21 @@ export default class Evolution extends Component {
   }
 
   handleDispatchLoopComplete = () => {
-    //this.setState({ isSpeaking: false });
-    const dispatchLoop = this.dispatchLoop.current;
-    const approach = this.approach.current;
-    this.setState(
-      {
-        currentVideo: 'approach',
-        scrollText: [],
-        speakPhrases: [],
-        canTalk: true
-      },
-      () => {
-        this.stopTimer();
-        dispatchLoop.pause();
-        approach.play();
-      }
-    );
+    // const dispatchLoop = this.dispatchLoop.current;
+    // const approach = this.approach.current;
+    // this.setState(
+    //   {
+    //     currentVideo: 'approach',
+    //     scrollText: [],
+    //     speakPhrases: [],
+    //     canTalk: true
+    //   },
+    //   () => {
+    //     this.stopTimer();
+    //     dispatchLoop.pause();
+    //     approach.play();
+    //   }
+    // );
   };
 
   handleAlphaLoopComplete = () => {
@@ -484,7 +488,13 @@ export default class Evolution extends Component {
   };
 
   processArrivals() {
-    const { firstAlarm, step4Index, step, assignmentCheck, callingUnits } = this.state;
+    const {
+      firstAlarm,
+      step4Index,
+      step,
+      assignmentCheck,
+      callingUnits
+    } = this.state;
     if (assignmentCheck === 0) {
       const phrase = `${firstAlarm[step4Index]} staged and awaiting assignment.`;
       this.setState({ speakPhrases: phrase });
@@ -518,12 +528,12 @@ export default class Evolution extends Component {
       this.setState(
         {
           transcript: speechRecognitionResult,
-          speechRecognitionResult: '',
+          //speechRecognitionResult: '',
           speakPhrases: speechRecognitionResult
         },
 
         () => {
-          console.log(this.state.transcript);
+          console.log(this.state.speakPhrases);
           this.setState({ isSpeaking: false });
         }
       );
@@ -551,11 +561,16 @@ export default class Evolution extends Component {
   handleListenResponse = response => {
     // const { speechRecognitionResult } = this.state;
     // const newResult = `${speechRecognitionResult} ${response}`.trim();
-    this.setState({
-      speechRecognitionResult: response,
-      // isSpeaking: false,
-      step4Speak: false
-    });
+    this.setState(
+      {
+        speechRecognitionResult: response,
+        // isSpeaking: false,
+        step4Speak: false
+      },
+      () => {
+        console.log(this.state.speechRecognitionResult);
+      }
+    );
   };
 
   handleKeyDown = event => {
@@ -603,6 +618,10 @@ export default class Evolution extends Component {
     }
   };
 
+  handleEvaluationComplete = updates => {
+    this.setState(updates);
+  };
+
   render() {
     const {
       isLoadingEvolution,
@@ -636,7 +655,11 @@ export default class Evolution extends Component {
       assignmentCheck,
       groups,
       wait,
-      commadingUnitComplete
+      commadingUnitComplete,
+      initialMatched,
+      secondaryMatched,
+      slicerMatched,
+      rectoMatched
     } = this.state;
     let handleCallback = this.handleDispatchLoopComplete;
     if (currentVideo === 'alphaLoop') {
@@ -690,6 +713,18 @@ export default class Evolution extends Component {
           )}
           {(transcript !== '' || step >= 1) && !isSpeaking && (
             <ProcessSpeech childProps={processSpeechChildProps} />
+          )}
+          {(transcript !== '' || step >= 1) && !isSpeaking && (
+            <Evaluation
+              initialReportComplete={initialReportComplete}
+              threeSixtyComplete={threeSixtyComplete}
+              initialMatched={initialMatched}
+              secondaryMatched={secondaryMatched}
+              slicerMatched={slicerMatched}
+              rectoMatched={rectoMatched}
+              handleEvaluationComplete={this.handleEvaluationComplete}
+              transcript={transcript}
+            />
           )}
           {videos.map(video => (
             <video

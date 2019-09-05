@@ -72,8 +72,8 @@ export default class ProcessSpeech extends Component {
   processInitialReport() {
     const { transcript, dispatchCenter } = this.props.childProps;
     const phrase = `${dispatchCenter} copies ${transcript}`;
-    this.props.childProps.handleSpeak(phrase, 'enUS_Male');
-    const updates = { 
+    this.props.childProps.handleSpeak(phrase);
+    const updates = {
       initialReportComplete: true,
       transcript: ''
     };
@@ -519,7 +519,7 @@ export default class ProcessSpeech extends Component {
 
       phrase =
         callingUnits[step4Index].name + 'copies' + this.state.userSpeechChanged;
-      //phrase = "Assigned keyword detected";
+      //phrase = 'Assigned keyword detected';
       console.log(this.state.userSpeechChanged);
       const newStep4Index = step4Index + 1;
       const updates = {
@@ -591,8 +591,8 @@ export default class ProcessSpeech extends Component {
       'you will': 'I will',
       'You are': 'I am',
       'you are': 'I am',
-      'Your': 'my',
-      'your': 'my',
+      Your: 'my',
+      your: 'my',
       'we have': 'there are',
       'We have': 'there are',
       'Let me know': 'Ok I will let you know',
