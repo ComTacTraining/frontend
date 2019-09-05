@@ -89,8 +89,8 @@ export default class Evolution extends Component {
           async () => {
             this.getVideos();
             await this.setupAlarms();
-            this.setupIncidentCommander();
             await this.loadVariables();
+            this.setupIncidentCommander();
             // this.setDispatchText();
           }
         );
@@ -426,7 +426,7 @@ export default class Evolution extends Component {
       console.log('if step is less than 4 and increment');
       newStep++;
     }
-    if (step4Index > firstAlarm.length) {
+    if (step4Index >= firstAlarm.length) {
       newStep++;
       console.log('STEP INCREMENT');
       this.setState({ step: newStep }, () => {
