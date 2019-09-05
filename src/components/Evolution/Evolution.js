@@ -32,7 +32,7 @@ export default class Evolution extends Component {
     recognition: null,
     speechRecognitionResult: '',
     isSpeaking: true,
-    canTalk: true,
+    canTalk: false,
     videosLoaded: 0,
     preloadPercentage: 0,
     initialReportComplete: false,
@@ -131,9 +131,26 @@ export default class Evolution extends Component {
       callingUnits[index] = [];
       callingUnits[index].name = elem;
       callingUnits[index].group = '';
+      callingUnits[index].voice = this.assignRandomVoices(7); //7 because we have 7 voices
     });
-    this.setState({ groups: groups, callingUnits: callingUnits });
+    this.setState({ groups: groups, callingUnits: callingUnits }, ()=>{
+      console.log(this.state.callingUnits);
+    });
   }
+
+  assignRandomVoices = max => {
+    const voices = [
+      'enAU_Female',
+      'enCA_Female',
+      'enGB_Female',
+      'enGB_Male',
+      'enIN_Male',
+      'enUS_Female',
+      'enUS_Male'
+    ];
+    const random = Math.floor(Math.random() * Math.floor(max));
+    return voices[random];
+  };
 
   async setupAlarms() {
     try {
@@ -397,7 +414,7 @@ export default class Evolution extends Component {
     this.setState({ isSpeaking: true });
   };
 
-  handleSpeak = (phrases, voice = 'enUS_Male', timeout = 0) => {
+  handleSpeak = (phrases, voice, timeout = 0) => {
     console.log('INSIDE HANDLESPEAK');
     this.setState({
       speakPhrases: phrases,
@@ -467,12 +484,12 @@ export default class Evolution extends Component {
   };
 
   processArrivals() {
-    const { firstAlarm, step4Index, step, assignmentCheck } = this.state;
+    const { firstAlarm, step4Index, step, assignmentCheck, callingUnits } = this.state;
     if (assignmentCheck === 0) {
       const phrase = `${firstAlarm[step4Index]} staged and awaiting assignment.`;
       this.setState({ speakPhrases: phrase });
       setTimeout(() => {
-        this.handleSpeak(phrase, 'enUS_Male', 5000);
+        this.handleSpeak(phrase, callingUnits[step4Index].voice, 5000);
         this.setState({
           // assignmentCheck: 1,
           step: step,

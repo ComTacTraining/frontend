@@ -1,7 +1,7 @@
-import { Component } from 'react';
-import CognitiveSpeech from './CognitiveSpeech/CognitiveSpeech';
-import { isArray } from 'util';
-import config from '../../../config';
+import { Component } from "react";
+import CognitiveSpeech from "./CognitiveSpeech/CognitiveSpeech";
+import { isArray } from "util";
+import config from "../../../config";
 
 class Speak extends Component {
   state = {
@@ -10,7 +10,7 @@ class Speak extends Component {
 
   componentDidMount() {
     this.setupClient();
-    console.log('INSIDE SPEAK');
+    console.log("INSIDE SPEAK");
   }
 
   setupClient() {
@@ -22,24 +22,24 @@ class Speak extends Component {
   setupVoices() {
     const voices = [
       {
-        id: 'enAU_Female',
+        id: "enAU_Female",
         voice: CognitiveSpeech.SupportedLocales.enAU_Female
       },
       {
-        id: 'enCA_Female',
+        id: "enCA_Female",
         voice: CognitiveSpeech.SupportedLocales.enCA_Female
       },
       {
-        id: 'enGB_Female',
+        id: "enGB_Female",
         voice: CognitiveSpeech.SupportedLocales.enGB_Female
       },
-      { id: 'enGB_Male', voice: CognitiveSpeech.SupportedLocales.enGB_Male },
-      { id: 'enIN_Male', voice: CognitiveSpeech.SupportedLocales.enIN_Male },
+      { id: "enGB_Male", voice: CognitiveSpeech.SupportedLocales.enGB_Male },
+      { id: "enIN_Male", voice: CognitiveSpeech.SupportedLocales.enIN_Male },
       {
-        id: 'enUS_Female',
+        id: "enUS_Female",
         voice: CognitiveSpeech.SupportedLocales.enUS_Female
       },
-      { id: 'enUS_Male', voice: CognitiveSpeech.SupportedLocales.enUS_Male }
+      { id: "enUS_Male", voice: CognitiveSpeech.SupportedLocales.enUS_Male }
     ];
     this.setState({ voices: voices }, async () => {
       await this.handleVoicePlay();
@@ -53,16 +53,16 @@ class Speak extends Component {
   }
 
   handleVoicePlay = () => {
-    console.log('Inside Speak');
+    console.log("Inside Speak");
     const { client } = this.state;
     const phrases = isArray(this.props.phrases)
       ? this.props.phrases
       : [this.props.phrases];
     // const timeout = parseInt(this.props.timeout) || 0;
-    const voiceString = this.props.voice || 'enUS_Male';
+    const voiceString = this.props.voice || "enUS_Male";
     const voice = this.getVoice(voiceString);
-    const phrase = phrases.join(' ').trim();
-    console.log('SPEAK PHRASE IS ' + phrase);
+    const phrase = phrases.join(" ").trim();
+    console.log("SPEAK PHRASE IS " + phrase);
     client.synthesize(phrase, voice, () => {
       this.props.handleSpeechComplete();
     });
