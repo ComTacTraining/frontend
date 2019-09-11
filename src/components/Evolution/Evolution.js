@@ -28,12 +28,12 @@ export default class Evolution extends Component {
     speakPhrases: [],
     speakVoice: 'enUS_Male',
     speakTimeout: 0,
-    step: 2,
+    step: 1,
     transcript: '',
     recognition: null,
     speechRecognitionResult: '',
     isSpeaking: true,
-    canTalk: true,
+    canTalk: false,
     videosLoaded: 0,
     preloadPercentage: 0,
     initialReportComplete: false,
@@ -94,7 +94,7 @@ export default class Evolution extends Component {
         this.setState(
           { evolution: evolution, isLoadingEvolution: false },
           async () => {
-            // this.getVideos();
+            this.getVideos();
             await this.setupAlarms();
             await this.loadVariables();
             this.setupIncidentCommander();
@@ -114,8 +114,7 @@ export default class Evolution extends Component {
     this.stopTimer();
   }
 
-  loadVariables() {
-    console.log('Load Variables');
+  async loadVariables() {
     const groupNames = [
       'Fire Attack',
       'Exposure Group',
@@ -140,7 +139,12 @@ export default class Evolution extends Component {
       callingUnits[index].group = '';
       callingUnits[index].voice = this.assignRandomVoices(7); //7 because we have 7 voices
     });
-    const { initialMatched, secondaryMatched, slicerMatched, rectoMatched } = this.state;
+    const {
+      initialMatched,
+      secondaryMatched,
+      slicerMatched,
+      rectoMatched
+    } = this.state;
     for (var i = 0; i < 8; i++) {
       initialMatched[i] = {};
       initialMatched[i].matched = 0;
@@ -408,21 +412,21 @@ export default class Evolution extends Component {
   }
 
   handleDispatchLoopComplete = () => {
-    // const dispatchLoop = this.dispatchLoop.current;
-    // const approach = this.approach.current;
-    // this.setState(
-    //   {
-    //     currentVideo: 'approach',
-    //     scrollText: [],
-    //     speakPhrases: [],
-    //     canTalk: true
-    //   },
-    //   () => {
-    //     this.stopTimer();
-    //     dispatchLoop.pause();
-    //     approach.play();
-    //   }
-    // );
+    const dispatchLoop = this.dispatchLoop.current;
+    const approach = this.approach.current;
+    this.setState(
+      {
+        currentVideo: 'approach',
+        scrollText: [],
+        speakPhrases: [],
+        canTalk: true
+      },
+      () => {
+        this.stopTimer();
+        dispatchLoop.pause();
+        approach.play();
+      }
+    );
   };
 
   handleAlphaLoopComplete = () => {
@@ -449,7 +453,6 @@ export default class Evolution extends Component {
   };
 
   handleSpeak = (phrases, voice, timeout = 0) => {
-    console.log('INSIDE HANDLESPEAK');
     this.setState({
       speakPhrases: phrases,
       speakVoice: voice,
@@ -458,7 +461,6 @@ export default class Evolution extends Component {
   };
 
   handleSpeechComplete = () => {
-    console.log('handleSpeechComplete');
     const {
       step,
       assignmentCheck,
@@ -474,25 +476,19 @@ export default class Evolution extends Component {
     console.log('STEP 4 Index is ' + step4Index);
     this.setState({ isSpeaking: true });
     if (step < 4 && step !== 1) {
-      console.log('if step is less than 4 and increment');
       newStep++;
     }
     if (step4Index >= firstAlarm.length) {
       newStep++;
-      console.log('STEP INCREMENT');
-      this.setState({ step: newStep }, () => {
-        console.log('State is set');
-      });
+      this.setState({ step: newStep });
     }
     console.log(step);
     if (newStep === 5) {
-      console.log('Inside step 5');
       this.setState({ isSpeaking: true, arrivalsComplete: true });
       this.faceToFace();
     }
 
     if (!this.state.startArrival) {
-      console.log('NOT START ARRIVAL');
       this.setState({ isSpeaking: true });
     }
 
@@ -542,7 +538,6 @@ export default class Evolution extends Component {
   }
 
   faceToFace() {
-    console.log('Insdei face to face');
     setTimeout(() => {
       const { chief } = this.state;
       const phrase = `${chief} requesting face to face`;
@@ -563,7 +558,6 @@ export default class Evolution extends Component {
         },
 
         () => {
-          console.log(this.state.speakPhrases);
           this.setState({ isSpeaking: false });
         }
       );

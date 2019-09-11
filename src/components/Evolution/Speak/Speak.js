@@ -10,7 +10,6 @@ class Speak extends Component {
 
   componentDidMount() {
     this.setupClient();
-    console.log('INSIDE SPEAK');
   }
 
   setupClient() {
@@ -53,7 +52,6 @@ class Speak extends Component {
   }
 
   handleVoicePlay = () => {
-    console.log('Inside Speak');
     const { client } = this.state;
     const phrases = isArray(this.props.phrases)
       ? this.props.phrases
@@ -62,20 +60,11 @@ class Speak extends Component {
     const voiceString = this.props.voice || 'enUS_Male';
     const voice = this.getVoice(voiceString);
     const phrase = phrases.join(' ').trim();
-    console.log('SPEAK PHRASE IS ' + phrase);
+    console.log('Speak Phrase : ' + phrase);
     client.synthesize(phrase, voice, () => {
       this.props.handleSpeechComplete();
     });
-    // setTimeout(function() {
-    //   client.synthesize(phrase, voice, () => {
-    //     this.callSpeechComplete();
-    //   });
-    // }, timeout);
   };
-
-  callSpeechComplete() {
-    this.props.handleSpeechComplete();
-  }
 
   render() {
     return null;
