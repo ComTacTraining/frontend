@@ -73,6 +73,7 @@ export default class ProcessSpeech extends Component {
     const { transcript, dispatchCenter } = this.props.childProps;
     const phrase = `${dispatchCenter} copies ${transcript}`;
     this.props.childProps.handleSpeak(phrase);
+    this.processInitialEvaluation(transcript);
     const updates = {
       initialReportComplete: true,
       transcript: ''
@@ -80,16 +81,322 @@ export default class ProcessSpeech extends Component {
     this.props.childProps.handleProcessSpeechComplete(updates);
   }
 
+  processInitialEvaluation(transcript) {
+    let { initialMatched, slicerMatched, rectoMatched } = this.props.childProps;
+
+    initialMatched = initialMatched.initialMatched;
+    slicerMatched = slicerMatched.slicerMatched;
+    rectoMatched = rectoMatched.rectoMatched;
+
+    if (transcript !== undefined) {
+      let initialDictionary = [];
+      initialDictionary[0] = [
+        'Small',
+        'small',
+        'Medium',
+        'Large',
+        'Extra Large',
+        'Mega',
+        'Square Feet',
+        'Dimentions 50 by 120'
+      ];
+      initialDictionary[1] = [
+        'Single Story',
+        'single Storey',
+        '2 Story',
+        'two-story',
+        'two story',
+        'two storey',
+        'double story',
+        'double-story',
+        'double storey',
+        'Three story',
+        'Three-story',
+        'three storey',
+        '3 Story',
+        'Mid Rise',
+        'High Rise',
+        'High-rise'
+      ];
+      initialDictionary[2] = [
+        'Residential',
+        'single-family dwelling',
+        'single family dwelling',
+        'single families',
+        'multi family dwelling',
+        'garden apartment',
+        'call apartment',
+        'townhome',
+        'town home',
+        'condominium',
+        'duplex',
+        'business office',
+        'warehouse',
+        'medical office',
+        'retail',
+        'Apartment',
+        'House',
+        'Single Family Dwelling',
+        'Townhome',
+        'Center Hall',
+        'Commercial',
+        'Office',
+        'Taxpayer',
+        'Condo',
+        'Condominium',
+        'Industrial',
+        'Metal building',
+        'Warehouse',
+        'Tiltup',
+        'Home',
+        'Retail'
+      ];
+      initialDictionary[3] = [
+        'Smoke',
+        'Smoke showing',
+        'fire showing',
+        'smoke and fire showing',
+        'nothing showing',
+        'Fire',
+        'Nothing'
+      ];
+      initialDictionary[4] = [
+        'Laying a supply line',
+        'establishing water supply',
+        'entering the rescue mode',
+        'quick attack',
+        'command',
+        'investigation',
+        'Water Supply',
+        'Laying Lines',
+        'Investigating',
+        'Command',
+        'Rescue',
+        'attack lines'
+      ];
+      initialDictionary[5] = [
+        'Second alarm',
+        'third alarm',
+        'police',
+        'PD',
+        'ambulance',
+        'public works',
+        '2nd Alarm',
+        'Police',
+        'Ambulance',
+        'EMS',
+        'Officers'
+      ];
+      initialDictionary[6] = [
+        'Main Street command',
+        'Main Street incident',
+        'main street IC',
+        'men straight incident',
+        'men straight',
+        'usually bear is the name of the street that the incident is on',
+        'Consistent with the address'
+      ];
+      initialDictionary[7] = [
+        'Typical light weight construction',
+        'lightweight',
+        'ordinary construction',
+        'cut and stack construction',
+        'poured in place',
+        '360 degree assessment',
+        '360 degree ',
+        '360',
+        'concrete tilt up',
+        'metal clad building',
+        'stack conception'
+      ];
+      const rescueDictionary = ['Rescue', 'search'];
+      const salvageDictionary = [
+        'salvage',
+        'recovery',
+        'property',
+        'property conservation'
+      ];
+      console.log('TRANSCRIPT EVALUATION + ' + transcript);
+
+      // for (var i = 0; i < initialDictionary.length; i++) {
+      //   initialMatched[i] = {};
+      //   initialMatched[i].keywords = [];
+      //   initialMatched[i].keywords = initialDictionary[i];
+      //   initialMatched[i].matched = 0;
+      //   initialMatched[i].matchKeyword = '';
+      // }
+      console.log('TRANS is' + transcript);
+
+      initialDictionary.forEach((elem, index) => {
+        elem.forEach(item => {
+          var re = new RegExp(item, 'gi');
+          if (transcript.match(re)) {
+            initialMatched[index].matched = 1;
+            initialMatched[index].matchKeyword = item;
+          }
+        });
+      });
+
+      // for (var i = 0; i <= 6; i++) {
+      //   slicerMatched[i] = {};
+      //   slicerMatched[i].matched = 0;
+      //   slicerMatched[i].matchKeyword = '';
+
+      //   rectoMatched[i] = {};
+      //   rectoMatched[i].matched = 0;
+      //   rectoMatched[i].matchKeyword = '';
+      // } //Initialize SLICER and RECTO-VS array
+
+      rescueDictionary.forEach(item => {
+        var re = new RegExp(item, 'gi');
+        if (transcript.match(re)) {
+          slicerMatched[5].matched = 1;
+          slicerMatched[5].matchKeyword = item;
+
+          rectoMatched[0].matched = 1;
+          rectoMatched[0].matchKeyword = item;
+          rectoMatched[4].matched = 1;
+          rectoMatched[4].matchKeyword = item;
+        }
+      });
+
+      salvageDictionary.forEach(item => {
+        var re = new RegExp(item, 'gi');
+        if (transcript.match(re)) {
+          slicerMatched[6].matched = 1;
+          slicerMatched[6].matchKeyword = item;
+
+          rectoMatched[5].matched = 1;
+          rectoMatched[5].matchKeyword = item;
+        }
+      });
+      const updates = {
+        initialMatched: initialMatched,
+        rectoMatched: rectoMatched,
+        slicerMatched: slicerMatched
+      };
+      this.props.childProps.handleEvaluationComplete(updates);
+    }
+  }
+
   processThreeSixtyAssessment() {
     const { transcript, dispatchCenter } = this.props.childProps;
     const phrase = `${dispatchCenter} copies ${transcript}`;
     this.props.childProps.handleSpeak(phrase);
+    this.processThreeSixtyEvaluation(transcript);
     const updates = {
       threeSixtyComplete: true,
       transcript: '',
       startArrival: true
     };
     this.props.childProps.handleProcessSpeechComplete(updates);
+  }
+
+  processThreeSixtyEvaluation(transcript) {
+    console.log('processThreeSixtyEvaluation()');
+    let {
+      slicerMatched,
+      secondaryMatched,
+      initialMatched
+    } = this.props.childProps;
+    initialMatched = initialMatched.initialMatched;
+    secondaryMatched = secondaryMatched.secondaryMatched;
+    slicerMatched = slicerMatched.slicerMatched;
+
+    if (transcript !== undefined) {
+      let secondaryDictionary = [];
+      secondaryDictionary[0] = ['Alpha', 'bravo', 'Charlie', 'Delta'];
+      secondaryDictionary[1] = [
+        'Structure fire',
+        'room and contents fire',
+        'room and contents. fire',
+        'room and contents',
+        'attic fire',
+        'basement fire'
+      ];
+      secondaryDictionary[2] = [
+        'Bidirectional',
+        'unidirectional',
+        'exhaust on Alpha',
+        'bravo',
+        'Charlie',
+        'Delta',
+        'intake',
+        'on Alpha',
+        'bravo',
+        'Charlie',
+        'Delta'
+      ];
+      secondaryDictionary[3] = [
+        'survivability profile',
+        'Survivability profile',
+        'Positive',
+        'marginal',
+        'negative'
+      ];
+      // for (var i = 0; i < secondaryDictionary.length; i++) {
+      //   secondaryMatched[i] = {};
+      //   secondaryMatched[i].keywords = [];
+      //   secondaryMatched[i].keywords = secondaryDictionary[i];
+      //   secondaryMatched[i].matched = 0;
+      //   secondaryMatched[i].matchKeyword = '';
+      // }
+
+      secondaryDictionary.forEach((elem, index) => {
+        elem.forEach(item => {
+          var re = new RegExp(item, 'gi');
+          if (transcript.match(re)) {
+            secondaryMatched[index].matched = 1;
+            secondaryMatched[index].matchKeyword = item;
+          }
+        });
+      });
+
+      //S in SLICER
+      if (
+        initialMatched[0].matched &&
+        initialMatched[1].matched &&
+        initialMatched[2].matched &&
+        secondaryMatched[0].matched
+      ) {
+        slicerMatched[0].matched = 1;
+        slicerMatched[0].matchKeyword =
+          slicerMatched[0].matchKeyword + initialMatched[0].matchKeyword + ', ';
+        slicerMatched[0].matchKeyword =
+          slicerMatched[0].matchKeyword + initialMatched[1].matchKeyword + ', ';
+        slicerMatched[0].matchKeyword =
+          slicerMatched[0].matchKeyword + initialMatched[2].matchKeyword + ', ';
+        slicerMatched[0].matchKeyword =
+          slicerMatched[0].matchKeyword +
+          secondaryMatched[0].matchKeyword +
+          ', ';
+      }
+      // L
+      if (initialMatched[4].matched && secondaryMatched[0].matched) {
+        slicerMatched[1].matched = 1;
+        slicerMatched[1].matchKeyword =
+          slicerMatched[1].matchKeyword + initialMatched[4].matchKeyword + ', ';
+        slicerMatched[1].matchKeyword =
+          slicerMatched[1].matchKeyword +
+          secondaryMatched[0].matchKeyword +
+          ', ';
+      }
+      // I
+      if (secondaryMatched[1].matched) {
+        slicerMatched[2].matched = 1;
+        slicerMatched[2].matchKeyword =
+          slicerMatched[2].matchKeyword +
+          secondaryMatched[2].matchKeyword +
+          ', ';
+      }
+
+      const updates = {
+        initialMatched: initialMatched.initialMatched,
+        slicerMatched: slicerMatched,
+        secondaryMatched: secondaryMatched
+      };
+      this.props.childProps.handleEvaluationComplete(updates);
+    }
   }
 
   processSecondAlarm() {
@@ -539,6 +846,17 @@ export default class ProcessSpeech extends Component {
       phrase = callingUnits[step4Index].name + 'copies' + userSpeechChanged;
       await this.changeKeywords(transcript);
       const newStep4Index = step4Index + 1;
+      let { slicerMatched, rectoMatched } = this.props.childProps;
+      if (id === 0) {
+        slicerMatched[3].matched = 1;
+        slicerMatched[3].matchKeyword = 'Fire Attack';
+        slicerMatched[4].matched = 1;
+        slicerMatched[4].matchKeyword = 'Fire Attack';
+        rectoMatched[2].matched = 1;
+        rectoMatched[2].matchKeyword = 'Fire Attack';
+        rectoMatched[3].matched = 1;
+        rectoMatched[3].matchKeyword = 'Fire Attack';
+      }
 
       const updates = {
         step4Index: newStep4Index,
@@ -637,8 +955,41 @@ export default class ProcessSpeech extends Component {
         groups[groupId].assigned = 1;
         // userAssignTranscript();
         simpleAssignment = 1;
-        // userSpeechChanged = this.changeKeywords(userSpeech);
-        // userSpeech = userSpeechChanged;
+
+        //EVALUATION//
+        let { slicerMatched, rectoMatched } = this.props.childProps;
+        slicerMatched = slicerMatched.slicerMatched;
+        rectoMatched = rectoMatched.rectoMatched;
+
+        if (groupId === 0) {
+          slicerMatched[3].matched = 1;
+          slicerMatched[3].matchKeyword = 'Fire Attack';
+          slicerMatched[4].matched = 1;
+          slicerMatched[4].matchKeyword = 'Fire Attack';
+          rectoMatched[2].matched = 1;
+          rectoMatched[2].matchKeyword = 'Fire Attack';
+          rectoMatched[3].matched = 1;
+          rectoMatched[3].matchKeyword = 'Fire Attack';
+        }
+
+        if (groupId === 1) {
+          rectoMatched[1].matched = 1;
+          rectoMatched[1].matchKeyword = 'Exposure Group';
+        }
+
+        if (groupId === 2) {
+          rectoMatched[5].matched = 1;
+          rectoMatched[5].matchKeyword = 'Ventilation Group';
+        }
+
+        const { evaluationUpdate } = {
+          slicerMatched,
+          rectoMatched
+        };
+
+        this.props.childProps.handleEvaluationComplete(evaluationUpdate);
+        //EVALUATION//
+
         console.log(
           `${groups[groupId]} assigned to ${callingUnits[step4Index].name}`
         );
@@ -662,6 +1013,20 @@ export default class ProcessSpeech extends Component {
         } else {
           //GROUP PAR
           console.log('I am in par function to call response');
+          //EVALUATION//
+          let { processArrivalMatched, transcript } = this.props.childProps;
+          console.log(processArrivalMatched);
+          processArrivalMatched = processArrivalMatched.processArrivalMatched;
+          console.log(processArrivalMatched);
+
+          processArrivalMatched[0] = {};
+          processArrivalMatched[0].matched = 1;
+          processArrivalMatched[0].matchKeyword = transcript;
+          const evaluationUpdate = {
+            processArrivalMatched: processArrivalMatched
+          };
+          this.props.childProps.handleEvaluationComplete(evaluationUpdate);
+          //EVALUATION//
           this.giveResponse(groupId, assignKeyword, parDetected);
           step4Index--;
         }
@@ -676,6 +1041,40 @@ export default class ProcessSpeech extends Component {
       parDetected,
       step4Index
     };
+  }
+
+  arrivalEvaluation() {
+    console.log('approachUnitsEvaluation()');
+    const { groups } = this.props;
+    let { slicerMatched, rectoMatched } = this.props;
+    console.dir(groups);
+    if (groups[0].assigned === 1) {
+      console.log('Fire attack matched evaluation');
+      slicerMatched[3].matched = 1;
+      slicerMatched[3].matchKeyword = 'Fire Attack';
+      slicerMatched[4].matched = 1;
+      slicerMatched[4].matchKeyword = 'Fire Attack';
+      rectoMatched[2].matched = 1;
+      rectoMatched[2].matchKeyword = 'Fire Attack';
+      rectoMatched[3].matched = 1;
+      rectoMatched[3].matchKeyword = 'Fire Attack';
+    }
+
+    if (groups[1].assigned) {
+      rectoMatched[1].matched = 1;
+      rectoMatched[1].matchKeyword = 'Exposure Group';
+    }
+
+    if (groups[2].assigned) {
+      rectoMatched[5].matched = 1;
+      rectoMatched[5].matchKeyword = 'Ventilation Group';
+    }
+
+    const updates = {
+      rectoMatched: rectoMatched,
+      slicerMatched: slicerMatched
+    };
+    this.props.handleEvaluationComplete(updates);
   }
 
   render() {

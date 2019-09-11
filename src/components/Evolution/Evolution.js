@@ -8,7 +8,7 @@ import ProgressBar from 'react-bootstrap/ProgressBar';
 import Speak from './Speak/Speak';
 import ProcessSpeech from './ProcessSpeech/ProcessSpeech';
 import { education } from './Education/Education';
-import { Evaluation } from './Evaluation/Evaluation';
+// import Evaluation from './Evaluation/Evaluation';
 import config from '../../config';
 
 export default class Evolution extends Component {
@@ -56,10 +56,12 @@ export default class Evolution extends Component {
     step4Index: 0,
     step4Speak: false,
     wait: false,
-    initialMatched: [],
-    secondaryMatched: [],
-    slicerMatched: [],
-    rectoMatched: []
+    initialMatched: [], //QUESTION 1-8
+    secondaryMatched: [], //QUESTION 9-12
+    processArrivalMatched: [], //QUESTION 18
+    slicerMatched: [], //QUESTION 14
+    rectoMatched: [], //QUESTION 15
+    isEvaluation: false
   };
 
   constructor(props) {
@@ -138,8 +140,36 @@ export default class Evolution extends Component {
       callingUnits[index].group = '';
       callingUnits[index].voice = this.assignRandomVoices(7); //7 because we have 7 voices
     });
-    this.setState({ groups: groups, callingUnits: callingUnits }, () => {
-      console.log(this.state.callingUnits);
+    const { initialMatched, secondaryMatched, slicerMatched, rectoMatched } = this.state;
+    for (var i = 0; i < 8; i++) {
+      initialMatched[i] = {};
+      initialMatched[i].matched = 0;
+      initialMatched[i].matchKeyword = '';
+    }
+
+    for (i = 0; i < 4; i++) {
+      secondaryMatched[i] = {};
+      secondaryMatched[i].matched = 0;
+      secondaryMatched[i].matchKeyword = '';
+    }
+
+    for (i = 0; i <= 6; i++) {
+      slicerMatched[i] = {};
+      slicerMatched[i].matched = 0;
+      slicerMatched[i].matchKeyword = '';
+
+      rectoMatched[i] = {};
+      rectoMatched[i].matched = 0;
+      rectoMatched[i].matchKeyword = '';
+    } //Initialize SLICER and RECTO-VS array
+
+    this.setState({
+      groups: groups,
+      callingUnits: callingUnits,
+      secondaryMatched: secondaryMatched,
+      initialMatched: initialMatched,
+      slicerMatched: slicerMatched,
+      rectoMatched: rectoMatched
     });
   }
 
@@ -556,6 +586,7 @@ export default class Evolution extends Component {
     }
     this.setState(updates);
     console.log(updates);
+    this.setState({ isEvaluation: true });
   };
 
   handleListenResponse = response => {
@@ -612,14 +643,22 @@ export default class Evolution extends Component {
     if (event.code === 'Space' && canTalk) {
       setTimeout(() => {
         recognition.stop();
-        this.setState({ recognition: null, isSpeaking: true });
-        this.handleListenComplete();
-      }, 1000);
+        this.setState({ recognition: null, isSpeaking: true }, () => {
+          this.handleListenComplete();
+        });
+      }, 2000);
     }
   };
 
   handleEvaluationComplete = updates => {
-    this.setState(updates);
+    this.setState({ isEvaluation: false });
+    this.setState({ updates }, () => {
+      console.log(this.state.initialMatched);
+      console.log(this.state.secondaryMatched);
+      console.log(this.state.rectoMatched);
+      console.log(this.state.slicerMatched);
+      console.log(this.state.processArrivalMatched);
+    });
   };
 
   render() {
@@ -659,7 +698,8 @@ export default class Evolution extends Component {
       initialMatched,
       secondaryMatched,
       slicerMatched,
-      rectoMatched
+      rectoMatched,
+      processArrivalMatched
     } = this.state;
     let handleCallback = this.handleDispatchLoopComplete;
     if (currentVideo === 'alphaLoop') {
@@ -690,10 +730,16 @@ export default class Evolution extends Component {
         groups: groups,
         handleSpeak: this.handleSpeak,
         handleProcessSpeechComplete: this.handleProcessSpeechComplete,
+        handleEvaluationComplete: this.handleEvaluationComplete,
         handleStep4Assignment: this.handleStep4Assignment,
         step: step,
         wait: wait,
-        commadingUnitComplete: commadingUnitComplete
+        commadingUnitComplete: commadingUnitComplete,
+        initialMatched: { initialMatched },
+        secondaryMatched: { secondaryMatched },
+        processArrivalMatched: { processArrivalMatched },
+        slicerMatched: { slicerMatched },
+        rectoMatched: { rectoMatched }
       };
     }
 
@@ -714,18 +760,21 @@ export default class Evolution extends Component {
           {(transcript !== '' || step >= 1) && !isSpeaking && (
             <ProcessSpeech childProps={processSpeechChildProps} />
           )}
-          {(transcript !== '' || step >= 1) && !isSpeaking && (
+          {/* {isEvaluation &&  (
             <Evaluation
               initialReportComplete={initialReportComplete}
               threeSixtyComplete={threeSixtyComplete}
+              arrivalsComplete={arrivalsComplete}
               initialMatched={initialMatched}
               secondaryMatched={secondaryMatched}
               slicerMatched={slicerMatched}
               rectoMatched={rectoMatched}
               handleEvaluationComplete={this.handleEvaluationComplete}
               transcript={transcript}
+              isEvaluation={isEvaluation}
+              groups={groups}
             />
-          )}
+          )} */}
           {videos.map(video => (
             <video
               ref={this[video.id]}

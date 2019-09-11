@@ -1,22 +1,62 @@
 import React, { Component } from 'react';
 
-export class Evaluation extends Component {
+export default class Evaluation extends Component {
   state = {
     voices: []
   };
 
   componentDidMount() {
+    console.log('EVALUATION');
     this.evaluate();
   }
 
   evaluate() {
-    const { initialReportComplete, threeSixtyComplete } = this.props;
+    const {
+      initialReportComplete,
+      threeSixtyComplete,
+      arrivalsComplete
+    } = this.props;
     if (!initialReportComplete) {
       this.initialReportEvaluation();
     } else if (!threeSixtyComplete) {
-      console.log('Secondary Report()');
       this.threeSixtyEvaluation();
+    } else if (!arrivalsComplete) {
+      this.approachUnitsEvaluation();
     }
+  }
+
+  approachUnitsEvaluation() {
+    console.log('approachUnitsEvaluation()');
+    const { groups } = this.props;
+    let { slicerMatched, rectoMatched } = this.props;
+    console.dir(groups);
+    if (groups[0].assigned === 1) {
+      console.log('Fire attack matched evaluation');
+      slicerMatched[3].matched = 1;
+      slicerMatched[3].matchKeyword = 'Fire Attack';
+      slicerMatched[4].matched = 1;
+      slicerMatched[4].matchKeyword = 'Fire Attack';
+      rectoMatched[2].matched = 1;
+      rectoMatched[2].matchKeyword = 'Fire Attack';
+      rectoMatched[3].matched = 1;
+      rectoMatched[3].matchKeyword = 'Fire Attack';
+    }
+
+    if (groups[1].assigned) {
+      rectoMatched[1].matched = 1;
+      rectoMatched[1].matchKeyword = 'Exposure Group';
+    }
+
+    if (groups[2].assigned) {
+      rectoMatched[5].matched = 1;
+      rectoMatched[5].matchKeyword = 'Ventilation Group';
+    }
+
+    const updates = {
+      rectoMatched: rectoMatched,
+      slicerMatched: slicerMatched
+    };
+    this.props.handleEvaluationComplete(updates);
   }
 
   initialReportEvaluation() {
@@ -307,10 +347,6 @@ export class Evaluation extends Component {
         secondaryMatched: secondaryMatched
       };
       this.props.handleEvaluationComplete(updates);
-      console.dir(initialMatched);
-      console.dir(secondaryMatched);
-      console.dir(slicerMatched);
-      console.dir(rectoMatched);
     }
   }
 
