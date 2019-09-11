@@ -211,16 +211,16 @@ export default class Evolution extends Component {
       let firstAlarm = alarms.alarm1.split(',').map(alarm => alarm.trim());
       let secondAlarm = alarms.alarm2.split(',').map(alarm => alarm.trim());
       firstAlarm.shift();
-      // const chief = firstAlarm.pop();
+      const chief = firstAlarm.pop();
       this.setState(
         {
           alarms: alarms,
           firstAlarm: firstAlarm,
-          secondAlarm: secondAlarm
-          // chief: chief
+          secondAlarm: secondAlarm,
+          chief: chief
         },
         () => {
-          // this.shuffleFirstAlarm();
+          this.shuffleFirstAlarm();
         }
       );
     } catch (e) {
