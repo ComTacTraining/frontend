@@ -43,7 +43,7 @@ export default class Evolution extends Component {
     assignmentsComplete: false,
     faceToFaceRequestComplete: false,
     faceToFaceComplete: false,
-    commadingUnitComplete: false,
+    commandingUnitComplete: false,
     flag: true,
     assignmentCheck: 0,
     initialCheck: 0,
@@ -61,6 +61,7 @@ export default class Evolution extends Component {
     processArrivalMatched: [], //QUESTION 18
     slicerMatched: [], //QUESTION 14
     rectoMatched: [], //QUESTION 15
+    commandingUnitMatched: [], //QUESTION 17,19
     isEvaluation: false
   };
 
@@ -121,7 +122,17 @@ export default class Evolution extends Component {
       'Ventilation Group',
       'RIC Group'
     ];
-    const { groups, firstAlarm, callingUnits } = this.state;
+    const {
+      groups,
+      firstAlarm,
+      callingUnits,
+      initialMatched,
+      secondaryMatched,
+      slicerMatched,
+      rectoMatched,
+      commandingUnitMatched
+    } = this.state;
+
     groupNames.forEach((element, index) => {
       groups[index] = [];
       groups[index].name = element;
@@ -139,12 +150,7 @@ export default class Evolution extends Component {
       callingUnits[index].group = '';
       callingUnits[index].voice = this.assignRandomVoices(7); //7 because we have 7 voices
     });
-    const {
-      initialMatched,
-      secondaryMatched,
-      slicerMatched,
-      rectoMatched
-    } = this.state;
+    /////////////////EVALUATION VARIABLES/////////////////
     for (var i = 0; i < 8; i++) {
       initialMatched[i] = {};
       initialMatched[i].matched = 0;
@@ -167,13 +173,21 @@ export default class Evolution extends Component {
       rectoMatched[i].matchKeyword = '';
     } //Initialize SLICER and RECTO-VS array
 
+    for (i = 0; i <= 1; i++) {
+      commandingUnitMatched[i] = {};
+      commandingUnitMatched.matched = 0;
+      commandingUnitMatched[i].matchKeyword = '';
+    }
+    /////////////////EVALUATION VARIABLES/////////////////
+
     this.setState({
       groups: groups,
       callingUnits: callingUnits,
       secondaryMatched: secondaryMatched,
       initialMatched: initialMatched,
       slicerMatched: slicerMatched,
-      rectoMatched: rectoMatched
+      rectoMatched: rectoMatched,
+      commandingUnitMatched: commandingUnitMatched
     });
   }
 
@@ -197,16 +211,16 @@ export default class Evolution extends Component {
       let firstAlarm = alarms.alarm1.split(',').map(alarm => alarm.trim());
       let secondAlarm = alarms.alarm2.split(',').map(alarm => alarm.trim());
       firstAlarm.shift();
-      const chief = firstAlarm.pop();
+      // const chief = firstAlarm.pop();
       this.setState(
         {
           alarms: alarms,
           firstAlarm: firstAlarm,
-          secondAlarm: secondAlarm,
-          chief: chief
+          secondAlarm: secondAlarm
+          // chief: chief
         },
         () => {
-          this.shuffleFirstAlarm();
+          // this.shuffleFirstAlarm();
         }
       );
     } catch (e) {
@@ -469,22 +483,22 @@ export default class Evolution extends Component {
       threeSixtyComplete,
       arrivalsComplete,
       step4Index,
-      firstAlarm
+      firstAlarm,
+      commandingUnitComplete
     } = this.state;
+
     let newStep = step;
-    console.log('CURRENT STEP IS : ' + newStep);
-    console.log('STEP 4 Index is ' + step4Index);
     this.setState({ isSpeaking: true });
     if (step < 4 && step !== 1) {
       newStep++;
     }
     if (step4Index >= firstAlarm.length) {
+      //Call when units are finished
       newStep++;
-      this.setState({ step: newStep });
+      this.setState({ step: newStep, arrivalsComplete: true });
     }
-    console.log(step);
     if (newStep === 5) {
-      this.setState({ isSpeaking: true, arrivalsComplete: true });
+      this.setState({ isSpeaking: true });
       this.faceToFace();
     }
 
@@ -510,7 +524,13 @@ export default class Evolution extends Component {
       this.processArrivals();
     }
 
-    this.setState({ speakPhrases: [], step: newStep, transcript: '' });
+    if (commandingUnitComplete) {
+      // this.setState({ canTalk: false });
+    }
+
+    this.setState({ speakPhrases: [], step: newStep, transcript: '' }, () => {
+      console.log('SpeakPhrases are ' + this.state.transcript);
+    });
   };
 
   processArrivals() {
@@ -539,33 +559,40 @@ export default class Evolution extends Component {
 
   faceToFace() {
     setTimeout(() => {
-      const { chief } = this.state;
+      const { chief, step } = this.state;
       const phrase = `${chief} requesting face to face`;
       this.handleSpeak(phrase);
+      const newStep = step + 1;
+      this.setState({ step: newStep, faceToFaceComplete: true });
     }, 5000);
   }
 
   handleListenComplete = () => {
     console.log('Handle Listen Complete');
-
-    const { speechRecognitionResult, step } = this.state;
+    const {
+      speechRecognitionResult,
+      step,
+      commandingUnitComplete
+    } = this.state;
     if (step < 4) {
       this.setState(
         {
           transcript: speechRecognitionResult,
           //speechRecognitionResult: '',
-          speakPhrases: speechRecognitionResult
+          speakPhrases: speechRecognitionResult,
+          // canTalk: false
         },
-
         () => {
-          this.setState({ isSpeaking: false });
+          this.setState({ isSpeaking: false, speechRecognitionResult: '' });
         }
       );
-    } else {
+    } else if (!commandingUnitComplete) {
       this.setState({
         transcript: speechRecognitionResult,
         step4Speak: true,
-        isSpeaking: false
+        isSpeaking: false,
+        speechRecognitionResult: '',
+        // canTalk: false
       });
     }
     if (step === 1) {
@@ -579,23 +606,17 @@ export default class Evolution extends Component {
       this.setEducationText();
     }
     this.setState(updates);
-    console.log(updates);
     this.setState({ isEvaluation: true });
   };
 
   handleListenResponse = response => {
     // const { speechRecognitionResult } = this.state;
     // const newResult = `${speechRecognitionResult} ${response}`.trim();
-    this.setState(
-      {
-        speechRecognitionResult: response,
-        // isSpeaking: false,
-        step4Speak: false
-      },
-      () => {
-        console.log(this.state.speechRecognitionResult);
-      }
-    );
+    this.setState({
+      speechRecognitionResult: response,
+      // isSpeaking: false,
+      step4Speak: false
+    });
   };
 
   handleKeyDown = event => {
@@ -646,13 +667,7 @@ export default class Evolution extends Component {
 
   handleEvaluationComplete = updates => {
     this.setState({ isEvaluation: false });
-    this.setState({ updates }, () => {
-      console.log(this.state.initialMatched);
-      console.log(this.state.secondaryMatched);
-      console.log(this.state.rectoMatched);
-      console.log(this.state.slicerMatched);
-      console.log(this.state.processArrivalMatched);
-    });
+    this.setState({ updates });
   };
 
   render() {
@@ -681,6 +696,7 @@ export default class Evolution extends Component {
       assignmentsComplete,
       faceToFaceRequestComplete,
       faceToFaceComplete,
+      commandingUnitComplete,
       parSpeech,
       parSpeechIndex,
       callingUnits,
@@ -688,12 +704,13 @@ export default class Evolution extends Component {
       assignmentCheck,
       groups,
       wait,
-      commadingUnitComplete,
+      //Evaluation
       initialMatched,
       secondaryMatched,
       slicerMatched,
       rectoMatched,
-      processArrivalMatched
+      processArrivalMatched,
+      commandingUnitMatched
     } = this.state;
     let handleCallback = this.handleDispatchLoopComplete;
     if (currentVideo === 'alphaLoop') {
@@ -709,6 +726,8 @@ export default class Evolution extends Component {
         assignmentsComplete: assignmentsComplete,
         faceToFaceRequestComplete: faceToFaceRequestComplete,
         faceToFaceComplete: faceToFaceComplete,
+        commandingUnitComplete: commandingUnitComplete,
+
         firstAlarm: firstAlarm,
         chief: chief,
         alarms: alarms,
@@ -728,12 +747,14 @@ export default class Evolution extends Component {
         handleStep4Assignment: this.handleStep4Assignment,
         step: step,
         wait: wait,
-        commadingUnitComplete: commadingUnitComplete,
+
+        //Evaluation Variables
         initialMatched: { initialMatched },
         secondaryMatched: { secondaryMatched },
         processArrivalMatched: { processArrivalMatched },
         slicerMatched: { slicerMatched },
-        rectoMatched: { rectoMatched }
+        rectoMatched: { rectoMatched },
+        commandingUnitMatched: { commandingUnitMatched }
       };
     }
 
