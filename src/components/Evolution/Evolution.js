@@ -28,12 +28,12 @@ export default class Evolution extends Component {
     speakPhrases: [],
     speakVoice: 'enUS_Male',
     speakTimeout: 0,
-    step: 1,
+    step: 0,
     transcript: '',
     recognition: null,
     speechRecognitionResult: '',
     isSpeaking: true,
-    canTalk: false,
+    canTalk: true,
     videosLoaded: 0,
     preloadPercentage: 0,
     initialReportComplete: false,
@@ -44,6 +44,7 @@ export default class Evolution extends Component {
     faceToFaceRequestComplete: false,
     faceToFaceComplete: false,
     commandingUnitComplete: false,
+    smokeReportComplete: false,
     flag: true,
     assignmentCheck: 0,
     initialCheck: 0,
@@ -62,7 +63,9 @@ export default class Evolution extends Component {
     slicerMatched: [], //QUESTION 14
     rectoMatched: [], //QUESTION 15
     commandingUnitMatched: [], //QUESTION 17,19
-    isEvaluation: false
+    isEvaluation: false,
+    alarmTwoIncident: false,
+    incidentReportRequest: false
   };
 
   constructor(props) {
@@ -109,6 +112,7 @@ export default class Evolution extends Component {
     }
     document.addEventListener('keydown', this.handleKeyDown.bind(this));
     document.addEventListener('keyup', this.handleKeyUp.bind(this));
+    this.incidentWithinIncident.bind(this);
   }
 
   componentWillUnmount() {
@@ -356,9 +360,17 @@ export default class Evolution extends Component {
   };
 
   handleEnded = next => event => {
-    const { scrollText } = this.state;
+    const { scrollText, smokeReportComplete, step } = this.state;
     if (scrollText.length === 0 && next === 'dispatchLoop') {
-      this.setDispatchText();
+      setTimeout(() => {
+        if (!smokeReportComplete) {
+          var newStep = step + 1;
+          this.setState({ smokeReportComplete: true, step: newStep }, () => {
+            console.log(this.state.step);
+          });
+        }
+        this.setDispatchText();
+      }, 20000);
     }
     const video = this[next].current;
     this.stopTimer();
@@ -426,6 +438,7 @@ export default class Evolution extends Component {
   }
 
   handleDispatchLoopComplete = () => {
+    console.log('Dispatch loop complete');
     const dispatchLoop = this.dispatchLoop.current;
     const approach = this.approach.current;
     this.setState(
@@ -483,8 +496,8 @@ export default class Evolution extends Component {
       threeSixtyComplete,
       arrivalsComplete,
       step4Index,
-      firstAlarm,
-      commandingUnitComplete
+      firstAlarm
+      // commandingUnitComplete
     } = this.state;
 
     let newStep = step;
@@ -523,15 +536,20 @@ export default class Evolution extends Component {
       console.log('GOING TO CALL PROCESS ARRIVAL');
       this.processArrivals();
     }
-
-    if (commandingUnitComplete) {
-      // this.setState({ canTalk: false });
-    }
-
     this.setState({ speakPhrases: [], step: newStep, transcript: '' }, () => {
       console.log('SpeakPhrases are ' + this.state.transcript);
     });
   };
+
+  incidentWithinIncident() {
+    console.log('speak is called');
+    setTimeout(() => {
+      console.log('Inside speak');
+      var phrase =
+        'Command from (unit on the interior) we have an excessive amount of ammunition discharging Hall around us we are evacuating';
+      this.handleSpeak(phrase);
+    }, 30000);
+  }
 
   processArrivals() {
     const {
@@ -572,26 +590,29 @@ export default class Evolution extends Component {
     const {
       speechRecognitionResult,
       step,
-      commandingUnitComplete
+      commandingUnitComplete,
+      incidentReportRequest
     } = this.state;
     if (step < 4) {
       this.setState(
         {
           transcript: speechRecognitionResult,
-          //speechRecognitionResult: '',
-          speakPhrases: speechRecognitionResult,
-          // canTalk: false
+          speakPhrases: speechRecognitionResult
         },
         () => {
           this.setState({ isSpeaking: false, speechRecognitionResult: '' });
         }
       );
+    } else if (incidentReportRequest) {
+      console.log('Inside incident Report request');
+      this.setState({ incidentReportRequest: false });
     } else if (!commandingUnitComplete) {
+      console.log('If not commanding unit complete');
       this.setState({
         transcript: speechRecognitionResult,
         step4Speak: true,
         isSpeaking: false,
-        speechRecognitionResult: '',
+        speechRecognitionResult: ''
         // canTalk: false
       });
     }
@@ -602,11 +623,22 @@ export default class Evolution extends Component {
   };
 
   handleProcessSpeechComplete = updates => {
+    //const { alarmTwoIncident } = this.state;
+    console.log('handleProcessSpeech');
     if ('faceToFaceComplete' in updates) {
       this.setEducationText();
     }
     this.setState(updates);
-    this.setState({ isEvaluation: true });
+    this.setState({ isEvaluation: true }, () => {
+      if (this.state.alarmTwoIncident) {
+        this.incidentWithinIncident();
+        this.setState({
+          alarmTwoIncident: false,
+          incidentReportRequest: true,
+          canTalk: false
+        });
+      }
+    });
   };
 
   handleListenResponse = response => {
@@ -697,6 +729,7 @@ export default class Evolution extends Component {
       faceToFaceRequestComplete,
       faceToFaceComplete,
       commandingUnitComplete,
+      smokeReportComplete,
       parSpeech,
       parSpeechIndex,
       callingUnits,
@@ -710,7 +743,9 @@ export default class Evolution extends Component {
       slicerMatched,
       rectoMatched,
       processArrivalMatched,
-      commandingUnitMatched
+      commandingUnitMatched,
+
+      alarmTwoIncident
     } = this.state;
     let handleCallback = this.handleDispatchLoopComplete;
     if (currentVideo === 'alphaLoop') {
@@ -727,6 +762,7 @@ export default class Evolution extends Component {
         faceToFaceRequestComplete: faceToFaceRequestComplete,
         faceToFaceComplete: faceToFaceComplete,
         commandingUnitComplete: commandingUnitComplete,
+        smokeReportComplete: smokeReportComplete,
 
         firstAlarm: firstAlarm,
         chief: chief,
@@ -745,8 +781,10 @@ export default class Evolution extends Component {
         handleProcessSpeechComplete: this.handleProcessSpeechComplete,
         handleEvaluationComplete: this.handleEvaluationComplete,
         handleStep4Assignment: this.handleStep4Assignment,
+        incidentWithinIncident: this.incidentWithinIncident,
         step: step,
         wait: wait,
+        alarmTwoIncident: alarmTwoIncident,
 
         //Evaluation Variables
         initialMatched: { initialMatched },

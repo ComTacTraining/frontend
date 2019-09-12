@@ -47,17 +47,22 @@ export default class ProcessSpeech extends Component {
   }
 
   processTranscript() {
-    const { alarm2KeywordDictionary } = this.state;
+    // const { alarm2KeywordDictionary } = this.state;
     const {
       initialReportComplete,
       threeSixtyComplete,
       arrivalsComplete,
       commandingUnitComplete,
+      smokeReportComplete,
       transcript,
       step4Index
     } = this.props.childProps;
-    if (this.includesAnyText(alarm2KeywordDictionary)) {
-      this.processSecondAlarm();
+    // if (this.includesAnyText(alarm2KeywordDictionary)) {
+    //   this.processSecondAlarm();
+    // } else
+    if (!smokeReportComplete) {
+      console.log('SmokeReport()');
+      this.smokeReport();
     } else if (!initialReportComplete) {
       console.log('Initial Report');
       this.processInitialReport();
@@ -70,6 +75,16 @@ export default class ProcessSpeech extends Component {
     } else if (!commandingUnitComplete) {
       this.commandingUnitReport();
     }
+  }
+
+  smokeReport() {
+    const { transcript } = this.props.childProps;
+    this.props.childProps.handleSpeak(transcript);
+    const updates = {
+      smokeReportComplete: true,
+      transcript: ''
+    };
+    this.props.childProps.handleProcessSpeechComplete(updates);
   }
 
   processInitialReport() {
@@ -540,12 +555,15 @@ export default class ProcessSpeech extends Component {
           callingUnits[step4Index].voice,
           5000
         );
+
         setTimeout(() => {
           this.props.childProps.handleStep4Assignment();
           const updates = {
             assignmentCheck: 1,
-            transcript: ''
+            transcript: '',
+            alarmTwoIncident: true
           };
+          this.props.childProps.incidentWithinIncident();
           this.props.childProps.handleProcessSpeechComplete(updates);
         }, 5000);
       }
