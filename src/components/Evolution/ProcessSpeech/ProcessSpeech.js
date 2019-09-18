@@ -228,7 +228,10 @@ export default class ProcessSpeech extends Component {
         'metal clad building',
         'stack conception'
       ];
-      const rescueDictionary = ['Rescue', 'search'];
+      const rescueDictionary = [
+        'Rescue',
+        'search'
+      ];
       const salvageDictionary = [
         'salvage',
         'recovery',
@@ -322,7 +325,12 @@ export default class ProcessSpeech extends Component {
 
     if (transcript !== undefined) {
       let secondaryDictionary = [];
-      secondaryDictionary[0] = ['Alpha', 'bravo', 'Charlie', 'Delta'];
+      secondaryDictionary[0] = [
+        'Alpha',
+        'bravo',
+        'Charlie',
+        'Delta'
+      ];
       secondaryDictionary[1] = [
         'Structure fire',
         'room and contents fire',

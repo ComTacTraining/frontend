@@ -112,7 +112,6 @@ export default class Evolution extends Component {
     }
     document.addEventListener('keydown', this.handleKeyDown.bind(this));
     document.addEventListener('keyup', this.handleKeyUp.bind(this));
-    this.incidentWithinIncident.bind(this);
   }
 
   componentWillUnmount() {
