@@ -480,7 +480,6 @@ export default class Evolution extends Component {
 
   handleSpeak = (phrases, voice, timeout = 0) => {
     console.log('handleSpeak()');
-    console.log(phrases);
     this.setState({
       speakPhrases: phrases,
       speakVoice: voice,
@@ -618,7 +617,6 @@ export default class Evolution extends Component {
         transcript: transcript,
         step4Speak: true,
         isSpeaking: false,
-        transcript: ''
         // canTalk: false
       });
     }

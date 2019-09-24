@@ -506,6 +506,7 @@ export default class ProcessSpeech extends Component {
   }
 
   async decisionOnSpeech(userSpeech, index) {
+    console.log(userSpeech);
     const {
       alarm2KeywordDictionary,
       assignKeywordDictionary,
@@ -840,11 +841,13 @@ export default class ProcessSpeech extends Component {
       };
       this.props.childProps.handleProcessSpeechComplete(updates);
       //this.props.childProps.handleStep4Assignment();
-      this.props.childProps.handleSpeak(
-        this.props.childProps.transcript,
-        callingUnits[step4Index].voice,
-        5000
-      );
+      setTimeout(()=>{
+        this.props.childProps.handleSpeak(
+          this.props.childProps.transcript,
+          callingUnits[step4Index].voice,
+          5000
+        );
+      }, 1500)
     }
   }
 
@@ -958,7 +961,7 @@ export default class ProcessSpeech extends Component {
     }
   }
 
-  changeKeywords(userSpeech) {
+  async changeKeywords(userSpeech) {
     var mapObj = {
       'You will': 'I will',
       'you will': 'I will',
