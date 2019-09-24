@@ -228,10 +228,7 @@ export default class ProcessSpeech extends Component {
         'metal clad building',
         'stack conception'
       ];
-      const rescueDictionary = [
-        'Rescue',
-        'search'
-      ];
+      const rescueDictionary = ['Rescue', 'search'];
       const salvageDictionary = [
         'salvage',
         'recovery',
@@ -325,12 +322,7 @@ export default class ProcessSpeech extends Component {
 
     if (transcript !== undefined) {
       let secondaryDictionary = [];
-      secondaryDictionary[0] = [
-        'Alpha',
-        'bravo',
-        'Charlie',
-        'Delta'
-      ];
+      secondaryDictionary[0] = ['Alpha', 'bravo', 'Charlie', 'Delta'];
       secondaryDictionary[1] = [
         'Structure fire',
         'room and contents fire',
@@ -565,7 +557,7 @@ export default class ProcessSpeech extends Component {
         );
 
         setTimeout(() => {
-          this.props.childProps.handleStep4Assignment();
+          //this.props.childProps.handleStep4Assignment();
           const updates = {
             assignmentCheck: 1,
             transcript: '',
@@ -847,9 +839,9 @@ export default class ProcessSpeech extends Component {
         wait: 0
       };
       this.props.childProps.handleProcessSpeechComplete(updates);
-      this.props.childProps.handleStep4Assignment();
+      //this.props.childProps.handleStep4Assignment();
       this.props.childProps.handleSpeak(
-        this.state.userSpeechChanged,
+        this.props.childProps.transcript,
         callingUnits[step4Index].voice,
         5000
       );
@@ -877,7 +869,7 @@ export default class ProcessSpeech extends Component {
         wait: 1
       };
       this.props.childProps.handleProcessSpeechComplete(updates);
-      this.props.childProps.handleStep4Assignment();
+      //this.props.childProps.handleStep4Assignment();
       this.props.childProps.handleSpeak(
         phrase,
         callingUnits[step4Index].voice,
@@ -899,7 +891,7 @@ export default class ProcessSpeech extends Component {
         wait: 0
       };
       this.props.childProps.handleProcessSpeechComplete(updates);
-      this.props.childProps.handleStep4Assignment();
+      //this.props.childProps.handleStep4Assignment();
       this.props.childProps.handleSpeak(
         this.state.userSpeechChanged,
         callingUnits[step4Index].voice,
@@ -957,7 +949,7 @@ export default class ProcessSpeech extends Component {
         wait: 1
       };
       this.props.childProps.handleProcessSpeechComplete(updates);
-      this.props.childProps.handleStep4Assignment();
+      //this.props.childProps.handleStep4Assignment();
       this.props.childProps.handleSpeak(
         phrase,
         callingUnits[step4Index].voice,

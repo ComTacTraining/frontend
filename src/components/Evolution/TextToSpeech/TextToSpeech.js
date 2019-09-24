@@ -38,16 +38,25 @@ export default class TextToSpeech extends Component {
         console.log({ AudioContext });
         const audioCtx = new AudioContext();
         const source = audioCtx.createBufferSource();
-        audioCtx.decodeAudioData(
-          result.audioStream,
-          buffer => {
-            source.buffer = buffer;
-            source.connect(audioCtx.destination);
-            source.start(0);
-          },
-          err => console.log({ err })
-        );
+        audioCtx
+          .decodeAudioData(
+            result.audioStream,
+            buffer => {
+              console.log(buffer);
+              source.buffer = buffer;
+              source.connect(audioCtx.destination);
+              source.start(0);
+              setTimeout(() => {
+                this.props.handleSpeechComplete();
+              }, (buffer.duration + 1) * 1000);
+            },
+            err => console.log({ err })
+          )
+          .then(() => {
+            console.log('Complted');
+          });
       })
+      .then(() => {})
       .catch(err => console.log(err));
   }
 

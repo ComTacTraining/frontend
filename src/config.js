@@ -32,7 +32,7 @@ export default {
     TYPE: 'ALL'
   },
   sockets: {
-    accessId: 'AKIA5MDQGYL25TE5YTS6',
-    secretKey: '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'
+    accessId: 'AKIA5MDQGYL2SEGWSH5F',
+    secretKey: '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'
   }
 };

@@ -41,6 +41,7 @@ export default class SpeechToText extends Component {
 
   async startRecording() {
     // first we get the microphone input from the browser (as a promise)...
+    this.setState({ response: '' });
     window.navigator.mediaDevices
       .getUserMedia({
         video: false,
@@ -208,7 +209,7 @@ export default class SpeechToText extends Component {
     socket.onclose = closeEvent => {
       console.log('Socket Closed');
       micStream.stop();
-      this.props.handleSpeechToTextComplete(this.state.response);
+      this.props.handleListenComplete(this.state.response);
 
       // the close event immediately follows the error event; only handle one.
       if (!socketError && !transcribeException) {
