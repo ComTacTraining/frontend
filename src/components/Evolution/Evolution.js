@@ -1,22 +1,22 @@
 import React, { Component } from 'react';
 import { API } from 'aws-amplify';
-import createPonyfill from 'web-speech-cognitive-services/lib/SpeechServices';
+//import Videos from './Videos/Videos';
+//import VideoCanvas from './VideoCanvas/VideoCanvas';
 import TextCanvas from './TextCanvas/TextCanvas';
 import './Evolution.css';
 import playButton from './play.svg';
 import ProgressBar from 'react-bootstrap/ProgressBar';
-import Speak from './Speak/Speak';
 import ProcessSpeech from './ProcessSpeech/ProcessSpeech';
 import { education } from './Education/Education';
-// import Evaluation from './Evaluation/Evaluation';
-import config from '../../config';
+import SpeechToText from './SpeechToText/SpeechToText';
+import TextToSpeech from './TextToSpeech/TextToSpeech';
+import TextToInterpret from './TextToInterpret/TextToInterpret';
 
 export default class Evolution extends Component {
   state = {
     isLoadingEvolution: true,
     alarms: null,
     firstAlarm: [],
-    secondAlarm: [],
     chief: '',
     evolution: null,
     videos: [],
@@ -26,46 +26,18 @@ export default class Evolution extends Component {
     currentVideo: null,
     scrollText: [],
     speakPhrases: [],
-    speakVoice: 'enUS_Male',
+    speakVoice: 'Joanna',
     speakTimeout: 0,
     step: 0,
     transcript: '',
     recognition: null,
     speechRecognitionResult: '',
-    isSpeaking: true,
+    isSpeaking: false,
     canTalk: true,
     videosLoaded: 0,
     preloadPercentage: 0,
-    initialReportComplete: false,
-    threeSixtyComplete: false,
-    startArrival: false,
-    arrivalsComplete: false,
-    assignmentsComplete: false,
-    faceToFaceRequestComplete: false,
-    faceToFaceComplete: false,
-    commandingUnitComplete: false,
-    smokeReportComplete: false,
-    flag: true,
-    assignmentCheck: 0,
-    initialCheck: 0,
-    finalJsonOutput: [],
-    finalJsonOutputIndex: 0,
-    parSpeech: [],
-    parSpeechIndex: 0,
-    groups: [],
-    callingUnits: [],
-    step4Index: 0,
-    step4Speak: false,
-    wait: false,
-    initialMatched: [], //QUESTION 1-8
-    secondaryMatched: [], //QUESTION 9-12
-    processArrivalMatched: [], //QUESTION 18
-    slicerMatched: [], //QUESTION 14
-    rectoMatched: [], //QUESTION 15
-    commandingUnitMatched: [], //QUESTION 17,19
-    isEvaluation: false,
-    alarmTwoIncident: false,
-    incidentReportRequest: false
+    isRecording: false,
+    endRecording: false
   };
 
   constructor(props) {
@@ -87,22 +59,14 @@ export default class Evolution extends Component {
   }
 
   async componentDidMount() {
-    const ponyfill = await createPonyfill({
-      region: 'westus',
-      subscriptionKey: config.COGNITIVE_SPEECH_KEY
-    });
-    this.setState(() => ({ ponyfill }));
     if (this.props.match.params.id) {
       try {
         const evolution = await this.getEvolution(this.props.match.params.id);
         this.setState(
           { evolution: evolution, isLoadingEvolution: false },
-          async () => {
+          () => {
             this.getVideos();
-            await this.setupAlarms();
-            await this.loadVariables();
-            this.setupIncidentCommander();
-            // this.setDispatchText();
+            this.setupAlarms();
           }
         );
       } catch (e) {
@@ -118,110 +82,14 @@ export default class Evolution extends Component {
     this.stopTimer();
   }
 
-  async loadVariables() {
-    const groupNames = [
-      'Fire Attack',
-      'Exposure Group',
-      'Ventilation Group',
-      'RIC Group'
-    ];
-    const {
-      groups,
-      firstAlarm,
-      callingUnits,
-      initialMatched,
-      secondaryMatched,
-      slicerMatched,
-      rectoMatched,
-      commandingUnitMatched
-    } = this.state;
-
-    groupNames.forEach((element, index) => {
-      groups[index] = [];
-      groups[index].name = element;
-      groups[index].response = 0;
-      groups[index].assigned = 0;
-      groups[index].assigned_to = [];
-      //For double assignment
-      groups[index].found = 0;
-      groups[index].index = 0;
-      groups[index].count = 0;
-    });
-    firstAlarm.forEach((elem, index) => {
-      callingUnits[index] = [];
-      callingUnits[index].name = elem;
-      callingUnits[index].group = '';
-      callingUnits[index].voice = this.assignRandomVoices(7); //7 because we have 7 voices
-    });
-    /////////////////EVALUATION VARIABLES/////////////////
-    for (var i = 0; i < 8; i++) {
-      initialMatched[i] = {};
-      initialMatched[i].matched = 0;
-      initialMatched[i].matchKeyword = '';
-    }
-
-    for (i = 0; i < 4; i++) {
-      secondaryMatched[i] = {};
-      secondaryMatched[i].matched = 0;
-      secondaryMatched[i].matchKeyword = '';
-    }
-
-    for (i = 0; i <= 6; i++) {
-      slicerMatched[i] = {};
-      slicerMatched[i].matched = 0;
-      slicerMatched[i].matchKeyword = '';
-
-      rectoMatched[i] = {};
-      rectoMatched[i].matched = 0;
-      rectoMatched[i].matchKeyword = '';
-    } //Initialize SLICER and RECTO-VS array
-
-    for (i = 0; i <= 1; i++) {
-      commandingUnitMatched[i] = {};
-      commandingUnitMatched.matched = 0;
-      commandingUnitMatched[i].matchKeyword = '';
-    }
-    /////////////////EVALUATION VARIABLES/////////////////
-
-    this.setState({
-      groups: groups,
-      callingUnits: callingUnits,
-      secondaryMatched: secondaryMatched,
-      initialMatched: initialMatched,
-      slicerMatched: slicerMatched,
-      rectoMatched: rectoMatched,
-      commandingUnitMatched: commandingUnitMatched
-    });
-  }
-
-  assignRandomVoices = max => {
-    const voices = [
-      'enAU_Female',
-      'enCA_Female',
-      'enGB_Female',
-      'enGB_Male',
-      'enIN_Male',
-      'enUS_Female',
-      'enUS_Male'
-    ];
-    const random = Math.floor(Math.random() * Math.floor(max));
-    return voices[random];
-  };
-
   async setupAlarms() {
     try {
       const alarms = await this.getAlarms();
       let firstAlarm = alarms.alarm1.split(',').map(alarm => alarm.trim());
-      let secondAlarm = alarms.alarm2.split(',').map(alarm => alarm.trim());
       firstAlarm.shift();
       const chief = firstAlarm.pop();
       this.setState(
-        {
-          alarms: alarms,
-          firstAlarm: firstAlarm,
-          secondAlarm: secondAlarm,
-          chief: chief
-        },
+        { alarms: alarms, firstAlarm: firstAlarm, chief: chief },
         () => {
           this.shuffleFirstAlarm();
         }
@@ -238,13 +106,6 @@ export default class Evolution extends Component {
       [firstAlarm[i], firstAlarm[j]] = [firstAlarm[j], firstAlarm[i]];
     }
     this.setState({ firstAlarm: firstAlarm });
-  }
-
-  setupIncidentCommander() {
-    const { evolution } = this.state;
-    const street = evolution.street.replace(/[0-9]/g, '').trim();
-    const incidentCommander = `${street} IC`;
-    this.setState({ incidentCommander: incidentCommander });
   }
 
   getEvolution(id) {
@@ -359,17 +220,9 @@ export default class Evolution extends Component {
   };
 
   handleEnded = next => event => {
-    const { scrollText, smokeReportComplete, step } = this.state;
+    const { scrollText } = this.state;
     if (scrollText.length === 0 && next === 'dispatchLoop') {
-      setTimeout(() => {
-        if (!smokeReportComplete) {
-          var newStep = step + 1;
-          this.setState({ smokeReportComplete: true, step: newStep }, () => {
-            console.log(this.state.step);
-          });
-        }
-        this.setDispatchText();
-      }, 20000);
+      this.setDispatchText();
     }
     const video = this[next].current;
     this.stopTimer();
@@ -437,7 +290,6 @@ export default class Evolution extends Component {
   }
 
   handleDispatchLoopComplete = () => {
-    console.log('Dispatch loop complete');
     const dispatchLoop = this.dispatchLoop.current;
     const approach = this.approach.current;
     this.setState(
@@ -465,20 +317,11 @@ export default class Evolution extends Component {
     });
   };
 
-  handleStep4Assignment = () => {
-    // this.handleSpeechComplete();
-    // this.setState({ isSpeaking: false });
-  };
-
   handleStepUpdate = step => {
     this.setState({ step: step });
   };
 
-  speakCallback = () => {
-    this.setState({ isSpeaking: true });
-  };
-
-  handleSpeak = (phrases, voice, timeout = 0) => {
+  handleSpeak = (phrases, voice = 'Ivy', timeout = 0) => {
     this.setState({
       speakPhrases: phrases,
       speakVoice: voice,
@@ -487,218 +330,62 @@ export default class Evolution extends Component {
   };
 
   handleSpeechComplete = () => {
-    const {
-      step,
-      assignmentCheck,
-      startArrival,
-      wait,
-      threeSixtyComplete,
-      arrivalsComplete,
-      step4Index,
-      firstAlarm
-      // commandingUnitComplete
-    } = this.state;
-
+    const { step } = this.state;
     let newStep = step;
-    this.setState({ isSpeaking: true });
-    if (step < 4 && step !== 1) {
+    if (step < 3) {
       newStep++;
     }
-    if (step4Index >= firstAlarm.length) {
-      //Call when units are finished
-      newStep++;
-      this.setState({ step: newStep, arrivalsComplete: true });
-    }
-    if (newStep === 5) {
-      this.setState({ isSpeaking: true });
-      this.faceToFace();
-    }
-
-    if (!this.state.startArrival) {
-      this.setState({ isSpeaking: true });
-    }
-
-    if (threeSixtyComplete && assignmentCheck && !arrivalsComplete && !wait) {
-      console.log('FOR DECISION');
-      this.setState({ isSpeaking: false });
-    } else if (
-      startArrival &&
-      !assignmentCheck &&
-      !wait &&
-      !arrivalsComplete &&
-      newStep !== 5
-    ) {
-      console.log('FOR ARRIVAL');
-      if (newStep === 3) {
-        this.setState({ step: 4 });
-      }
-      console.log('GOING TO CALL PROCESS ARRIVAL');
-      this.processArrivals();
-    }
-    this.setState({ speakPhrases: [], step: newStep, transcript: '' }, () => {
-      console.log('SpeakPhrases are ' + this.state.transcript);
-    });
+    this.setState({ speakPhrases: [], step: newStep });
   };
 
-  incidentWithinIncident() {
-    console.log('speak is called');
-    setTimeout(() => {
-      console.log('Inside speak');
-      var phrase =
-        'Command from (unit on the interior) we have an excessive amount of ammunition discharging Hall around us we are evacuating';
-      this.handleSpeak(phrase);
-    }, 30000);
-  }
-
-  processArrivals() {
-    const {
-      firstAlarm,
-      step4Index,
-      step,
-      assignmentCheck,
-      callingUnits
-    } = this.state;
-    if (assignmentCheck === 0) {
-      const phrase = `${firstAlarm[step4Index]} staged and awaiting assignment.`;
-      this.setState({ speakPhrases: phrase });
-      setTimeout(() => {
-        this.handleSpeak(phrase, callingUnits[step4Index].voice, 5000);
-        this.setState({
-          // assignmentCheck: 1,
-          step: step,
-          transcript: '',
-          wait: 1
-        });
-        // this.handleProcessSpeechComplete(updates);
-      }, 500);
-    }
-  }
-
-  faceToFace() {
-    setTimeout(() => {
-      const { chief, step } = this.state;
-      const phrase = `${chief} requesting face to face`;
-      this.handleSpeak(phrase);
-      const newStep = step + 1;
-      this.setState({ step: newStep, faceToFaceComplete: true });
-    }, 5000);
-  }
+  handleTranscriptReset = () => {
+    this.setState({ transcript: '' });
+  };
 
   handleListenComplete = () => {
-    console.log('Handle Listen Complete');
-    const {
-      speechRecognitionResult,
-      step,
-      commandingUnitComplete,
-      incidentReportRequest
-    } = this.state;
-    if (step < 4) {
-      this.setState(
-        {
-          transcript: speechRecognitionResult,
-          speakPhrases: speechRecognitionResult
-        },
-        () => {
-          this.setState({ isSpeaking: false, speechRecognitionResult: '' });
-        }
-      );
-    } else if (incidentReportRequest) {
-      console.log('Inside incident Report request');
-      this.setState({ incidentReportRequest: false });
-    } else if (!commandingUnitComplete) {
-      console.log('If not commanding unit complete');
-      this.setState({
-        transcript: speechRecognitionResult,
-        step4Speak: true,
-        isSpeaking: false,
-        speechRecognitionResult: ''
-        // canTalk: false
-      });
-    }
-    if (step === 1) {
-      console.log('Step increment');
-      this.handleStepUpdate(2);
-    }
-  };
-
-  handleProcessSpeechComplete = updates => {
-    //const { alarmTwoIncident } = this.state;
-    console.log('handleProcessSpeech');
-    if ('faceToFaceComplete' in updates) {
-      this.setEducationText();
-    }
-    this.setState(updates);
-    this.setState({ isEvaluation: true }, () => {
-      if (this.state.alarmTwoIncident) {
-        this.incidentWithinIncident();
-        this.setState({
-          alarmTwoIncident: false,
-          incidentReportRequest: true,
-          canTalk: false
-        });
-      }
+    const { speechRecognitionResult, step } = this.state;
+    this.setState({
+      transcript: speechRecognitionResult,
+      speechRecognitionResult: ''
     });
+    if (step === 0) {
+      this.handleStepUpdate(1);
+    }
   };
 
   handleListenResponse = response => {
-    // const { speechRecognitionResult } = this.state;
-    // const newResult = `${speechRecognitionResult} ${response}`.trim();
-    this.setState({
-      speechRecognitionResult: response,
-      // isSpeaking: false,
-      step4Speak: false
-    });
+    const { speechRecognitionResult } = this.state;
+    const newResult = `${speechRecognitionResult} ${response}`.trim();
+    this.setState({ speechRecognitionResult: newResult, isSpeaking: false });
   };
 
   handleKeyDown = event => {
-    const { speakPhrases, recognition, canTalk, step4Speak } = this.state;
+    const { canTalk } = this.state;
     if (event.code === 'Space' && canTalk) {
       event.preventDefault();
-
       if (!event.repeat) {
-        // Only allow microphone when not speaking
-        if (speakPhrases.length === 0 && recognition === null) {
-          const { ponyfill } = this.state;
-          const recognition = new ponyfill.SpeechRecognition();
-          recognition.interimResults = false;
-          recognition.lang = 'en-US';
-          recognition.onresult = ({ results }) => {
-            this.handleListenResponse(results[0][0].transcript);
-            // console.log('HandleKeydown transcript is ' + results[0][0].transcript);
-          };
-          recognition.start();
-          this.setState({
-            recognition: recognition,
-            isSpeaking: true,
-            step4Speak: false
-          });
-        }
-      }
-      if (event.repeat && !step4Speak) {
-        recognition.start();
-        this.setState({
-          isSpeaking: true,
-          step4Speak: true
-        });
+        this.setState({ isRecording: true });
       }
     }
   };
 
   handleKeyUp = event => {
-    const { recognition, canTalk } = this.state;
+    const { canTalk } = this.state;
     if (event.code === 'Space' && canTalk) {
-      setTimeout(() => {
-        recognition.stop();
-        this.setState({ recognition: null, isSpeaking: true }, () => {
-          this.handleListenComplete();
-        });
-      }, 2000);
+      event.preventDefault();
+      if (!event.repeat) {
+        this.setState({ endRecording: true });
+      }
     }
   };
 
-  handleEvaluationComplete = updates => {
-    this.setState({ isEvaluation: false });
-    this.setState({ updates });
+  handleSpeechToTextComplete = transcript => {
+    console.log(transcript);
+    this.setState({
+      isRecording: false,
+      endRecording: false,
+      transcript: transcript
+    });
   };
 
   render() {
@@ -713,120 +400,44 @@ export default class Evolution extends Component {
       speakTimeout,
       alarms,
       firstAlarm,
-      chief,
-      incidentCommander,
-      secondAlarm,
       step,
       transcript,
       isSpeaking,
       preloadPercentage,
-      initialReportComplete,
-      threeSixtyComplete,
-      arrivalsComplete,
-      startArrival,
-      assignmentsComplete,
-      faceToFaceRequestComplete,
-      faceToFaceComplete,
-      commandingUnitComplete,
-      smokeReportComplete,
-      parSpeech,
-      parSpeechIndex,
-      callingUnits,
-      step4Index,
-      assignmentCheck,
-      groups,
-      wait,
-      //Evaluation
-      initialMatched,
-      secondaryMatched,
-      slicerMatched,
-      rectoMatched,
-      processArrivalMatched,
-      commandingUnitMatched,
-
-      alarmTwoIncident
+      isRecording,
+      endRecording
     } = this.state;
     let handleCallback = this.handleDispatchLoopComplete;
     if (currentVideo === 'alphaLoop') {
       handleCallback = this.handleAlphaLoopComplete;
     }
-    let processSpeechChildProps = {};
-    if (alarms) {
-      processSpeechChildProps = {
-        initialReportComplete: initialReportComplete,
-        threeSixtyComplete: threeSixtyComplete,
-        arrivalsComplete: arrivalsComplete,
-        startArrival: startArrival,
-        assignmentsComplete: assignmentsComplete,
-        faceToFaceRequestComplete: faceToFaceRequestComplete,
-        faceToFaceComplete: faceToFaceComplete,
-        commandingUnitComplete: commandingUnitComplete,
-        smokeReportComplete: smokeReportComplete,
-
-        firstAlarm: firstAlarm,
-        chief: chief,
-        alarms: alarms,
-        dispatchCenter: alarms.dispatchCenter,
-        transcript: transcript,
-        incidentCommander: incidentCommander,
-        secondAlarm: secondAlarm,
-        parSpeech: parSpeech,
-        parSpeechIndex: parSpeechIndex,
-        callingUnits: callingUnits,
-        step4Index: step4Index,
-        assignmentCheck: assignmentCheck,
-        groups: groups,
-        handleSpeak: this.handleSpeak,
-        handleProcessSpeechComplete: this.handleProcessSpeechComplete,
-        handleEvaluationComplete: this.handleEvaluationComplete,
-        handleStep4Assignment: this.handleStep4Assignment,
-        incidentWithinIncident: this.incidentWithinIncident,
-        step: step,
-        wait: wait,
-        alarmTwoIncident: alarmTwoIncident,
-
-        //Evaluation Variables
-        initialMatched: { initialMatched },
-        secondaryMatched: { secondaryMatched },
-        processArrivalMatched: { processArrivalMatched },
-        slicerMatched: { slicerMatched },
-        rectoMatched: { rectoMatched },
-        commandingUnitMatched: { commandingUnitMatched }
-      };
-    }
-
     return (
       !isLoadingEvolution && (
         <div>
           {speakPhrases.length > 0 && (
-            <Speak
+            <TextToSpeech
               phrases={speakPhrases}
-              voice={speakVoice}
+              voiceId={speakVoice}
               timeout={speakTimeout}
-              handleSpeechComplete={this.handleSpeechComplete}
+            />
+          )}
+          <SpeechToText
+            isRecording={isRecording}
+            endRecording={endRecording}
+            handleSpeechToTextComplete={this.handleSpeechToTextComplete}
+          />
+          {transcript !== '' && <TextToInterpret transcript={transcript} />}
+          {(transcript !== '' || step === 3) && !isSpeaking && (
+            <ProcessSpeech
+              firstAlarm={firstAlarm}
+              dispatchCenter={alarms.dispatchCenter}
               step={step}
-              assignmentCheck={assignmentCheck}
-              speakCallback={this.speakCallback}
-            />
-          )}
-          {(transcript !== '' || step >= 1) && !isSpeaking && (
-            <ProcessSpeech childProps={processSpeechChildProps} />
-          )}
-          {/* {isEvaluation &&  (
-            <Evaluation
-              initialReportComplete={initialReportComplete}
-              threeSixtyComplete={threeSixtyComplete}
-              arrivalsComplete={arrivalsComplete}
-              initialMatched={initialMatched}
-              secondaryMatched={secondaryMatched}
-              slicerMatched={slicerMatched}
-              rectoMatched={rectoMatched}
-              handleEvaluationComplete={this.handleEvaluationComplete}
               transcript={transcript}
-              isEvaluation={isEvaluation}
-              groups={groups}
+              handleStepUpdate={this.handleStepUpdate}
+              handleSpeak={this.handleSpeak}
+              handleTranscriptReset={this.handleTranscriptReset}
             />
-          )} */}
+          )}
           {videos.map(video => (
             <video
               ref={this[video.id]}

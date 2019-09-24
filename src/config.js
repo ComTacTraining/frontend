@@ -30,5 +30,9 @@ export default {
     REGION: 'us-west-2',
     PROXY: false,
     TYPE: 'ALL'
+  },
+  sockets: {
+    accessId: 'AKIA5MDQGYL25TE5YTS6',
+    secretKey: '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'
   }
 };

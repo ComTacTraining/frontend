@@ -51,7 +51,7 @@ Amplify.configure({
           LanguageCode: config.polly.LANGUAGE_CODE
         }
       },
-      transciption: {
+      transcription: {
         region: config.transcribe.REGION,
         proxy: config.transcribe.PROXY,
         defaults: {
