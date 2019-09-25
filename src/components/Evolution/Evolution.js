@@ -131,7 +131,8 @@ export default class Evolution extends Component {
       secondaryMatched,
       slicerMatched,
       rectoMatched,
-      commandingUnitMatched
+      commandingUnitMatched,
+      processArrivalMatched
     } = this.state;
 
     groupNames.forEach((element, index) => {
@@ -176,9 +177,13 @@ export default class Evolution extends Component {
 
     for (i = 0; i <= 1; i++) {
       commandingUnitMatched[i] = {};
-      commandingUnitMatched.matched = 0;
+      commandingUnitMatched[i].matched = 0;
       commandingUnitMatched[i].matchKeyword = '';
     }
+
+    processArrivalMatched[0] = {};
+    processArrivalMatched[0].matched = 0;
+    processArrivalMatched[0].matchKeyword = '';
     /////////////////EVALUATION VARIABLES/////////////////
 
     this.setState({
@@ -579,7 +584,12 @@ export default class Evolution extends Component {
       this.handleSpeak(phrase);
       const newStep = step + 1;
       this.setState({ step: newStep, faceToFaceComplete: true });
-    }, 5000);
+      console.log(this.state.initialMatched);
+      console.log(this.state.secondaryMatched);
+      console.log(this.state.processArrivalMatched);
+      console.log(this.state.slicerMatched);
+      console.log(this.state.rectoMatched);
+    }, 2000);
   }
 
   handleListenComplete = (transcript) => {

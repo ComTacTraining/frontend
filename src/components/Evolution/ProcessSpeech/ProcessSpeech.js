@@ -1061,7 +1061,6 @@ export default class ProcessSpeech extends Component {
           console.log('I am in par function to call response');
           //EVALUATION//
           let { processArrivalMatched, transcript } = this.props.childProps;
-          processArrivalMatched = processArrivalMatched.processArrivalMatchd;
           processArrivalMatched[0] = {};
           processArrivalMatched[0].matched = 1;
           processArrivalMatched[0].matchKeyword = transcript;
