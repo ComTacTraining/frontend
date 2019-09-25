@@ -57,7 +57,7 @@ export default class ProcessSpeech extends Component {
       console.log('SmokeReport()');
       this.smokeReport();
     } else if (!initialReportComplete) {
-      console.log('initialReport');
+      console.log('initialReport()');
       this.processInitialReport();
     } else if (!threeSixtyComplete) {
       console.log('secondaryReport()');
@@ -830,14 +830,11 @@ export default class ProcessSpeech extends Component {
         wait: 0
       };
       this.props.childProps.handleProcessSpeechComplete(updates);
-      //this.props.childProps.handleStep4Assignment();
-      setTimeout(()=>{
-        this.props.childProps.handleSpeak(
-          this.props.childProps.transcript,
-          callingUnits[step4Index].voice,
-          5000
-        );
-      }, 1500)
+      this.props.childProps.handleSpeak(
+        this.state.userSpeechChanged,
+        callingUnits[step4Index].voice,
+        5000
+      );
     }
   }
 
@@ -919,8 +916,9 @@ export default class ProcessSpeech extends Component {
         );
       }, 1000);
     } else {
-      //0: Fire Attack     1: Exposure Group    2: Vent Group   3: Rick Group     4: Simple Response
-      //var phrase;
+      console.log('=============Group Id is : ' + id + '=============');
+      //0: Fire Attack  1: Exposure Group    2: Vent Group   3: Rick Group     4: Simple Response
+      let phrase;
       if (id === 0)
         phrase =
           'The building is withstanding the insult, we are advancing and we do not need any additional resources at this time.';
@@ -939,8 +937,10 @@ export default class ProcessSpeech extends Component {
         transcript: '',
         wait: 1
       };
+      
       this.props.childProps.handleProcessSpeechComplete(updates);
       //this.props.childProps.handleStep4Assignment();
+      console.log(phrase);
       this.props.childProps.handleSpeak(
         phrase,
         callingUnits[step4Index].voice,
@@ -1091,7 +1091,7 @@ export default class ProcessSpeech extends Component {
     let { slicerMatched, rectoMatched } = this.props;
     console.dir(groups);
     if (groups[0].assigned === 1) {
-      
+
       slicerMatched[3].matched = 1;
       slicerMatched[3].matchKeyword = 'Fire Attack';
       slicerMatched[4].matched = 1;
