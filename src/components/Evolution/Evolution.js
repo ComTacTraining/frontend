@@ -29,7 +29,7 @@ export default class Evolution extends Component {
     speakPhrases: [],
     speakVoice: 'Kendra',
     speakTimeout: 0,
-    step: 2,
+    step: 0,
     transcript: '',
     recognition: null,
     speechRecognitionResult: '',
@@ -37,7 +37,7 @@ export default class Evolution extends Component {
     canTalk: true,
     videosLoaded: 0,
     preloadPercentage: 0,
-    initialReportComplete: true,
+    initialReportComplete: false,
     threeSixtyComplete: false,
     startArrival: false,
     arrivalsComplete: false,
@@ -45,7 +45,7 @@ export default class Evolution extends Component {
     faceToFaceRequestComplete: false,
     faceToFaceComplete: false,
     commandingUnitComplete: false,
-    smokeReportComplete: true,
+    smokeReportComplete: false,
     flag: true,
     assignmentCheck: 0,
     initialCheck: 0,
@@ -96,7 +96,7 @@ export default class Evolution extends Component {
         this.setState(
           { evolution: evolution, isLoadingEvolution: false },
           async () => {
-            // this.getVideos();
+            this.getVideos();
             await this.setupAlarms();
             await this.loadVariables();
             this.setupIncidentCommander();
@@ -361,13 +361,13 @@ export default class Evolution extends Component {
   handleEnded = next => event => {
     const { scrollText, smokeReportComplete, step } = this.state;
     if (scrollText.length === 0 && next === 'dispatchLoop') {
-      // setTimeout(() => {
-      //   if (!smokeReportComplete) {
-      //     var newStep = step + 1;
-      //     this.setState({ smokeReportComplete: true, step: newStep });
-      //   }
-      //   this.setDispatchText();
-      // }, 20000);
+      setTimeout(() => {
+        if (!smokeReportComplete) {
+          var newStep = step + 1;
+          this.setState({ smokeReportComplete: true, step: newStep });
+        }
+        this.setDispatchText();
+      }, 20000);
     }
     const video = this[next].current;
     this.stopTimer();
