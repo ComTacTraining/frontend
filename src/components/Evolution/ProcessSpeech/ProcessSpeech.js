@@ -35,15 +35,8 @@ export default class ProcessSpeech extends Component {
   };
 
   componentDidMount() {
-    console.log('PROCESS SPEECH');
+    console.log('ProcessSpeech()');
     this.processTranscript();
-  }
-
-  componentDidUpdate(prevProps) {
-    // if (prevProps.childProps.transcript !== this.props.childProps.transcript) {
-    //   console.log('Component Did Updaye');
-    //   this.processTranscript();
-    // }
   }
 
   processTranscript() {
@@ -64,13 +57,13 @@ export default class ProcessSpeech extends Component {
       console.log('SmokeReport()');
       this.smokeReport();
     } else if (!initialReportComplete) {
-      console.log('Initial Report');
+      console.log('initialReport');
       this.processInitialReport();
     } else if (!threeSixtyComplete) {
-      console.log('Secondary Report()');
+      console.log('secondaryReport()');
       this.processThreeSixtyAssessment();
     } else if (!arrivalsComplete) {
-      console.log('CALLING DECISION');
+      console.log('decisionOnSpeech()');
       this.decisionOnSpeech(transcript, step4Index);
     } else if (!commandingUnitComplete) {
       this.commandingUnitReport();
@@ -89,7 +82,6 @@ export default class ProcessSpeech extends Component {
 
   processInitialReport() {
     const { transcript, dispatchCenter } = this.props.childProps;
-    console.log(transcript);
     const phrase = `${dispatchCenter} copies ${transcript}`;
     this.props.childProps.handleSpeak(phrase);
     this.processInitialEvaluation(transcript);
@@ -298,7 +290,6 @@ export default class ProcessSpeech extends Component {
 
   processThreeSixtyAssessment() {
     const { transcript, dispatchCenter } = this.props.childProps;
-    console.log(transcript);
     const phrase = `${dispatchCenter} copies ${transcript}`;
     this.props.childProps.handleSpeak(phrase);
     this.processThreeSixtyEvaluation(transcript);
@@ -506,7 +497,6 @@ export default class ProcessSpeech extends Component {
   }
 
   async decisionOnSpeech(userSpeech, index) {
-    console.log(userSpeech);
     const {
       alarm2KeywordDictionary,
       assignKeywordDictionary,
@@ -830,7 +820,7 @@ export default class ProcessSpeech extends Component {
 
     // ====================== NOTHING ====================== //
     if (!checkUserSpeech) {
-      console.log('nothing detected');
+      console.log('Nothing Detected');
       await this.changeKeywords(this.props.childProps.transcript);
       const newStep4Index = step4Index + 1;
       const updates = {
@@ -872,7 +862,6 @@ export default class ProcessSpeech extends Component {
         wait: 1
       };
       this.props.childProps.handleProcessSpeechComplete(updates);
-      //this.props.childProps.handleStep4Assignment();
       this.props.childProps.handleSpeak(
         phrase,
         callingUnits[step4Index].voice,
@@ -885,7 +874,6 @@ export default class ProcessSpeech extends Component {
       phrase =
         callingUnits[step4Index].name + 'copies' + this.state.userSpeechChanged;
       //phrase = 'Assigned keyword detected';
-      console.log(this.state.userSpeechChanged);
       const newStep4Index = step4Index + 1;
       const updates = {
         step4Index: newStep4Index,
@@ -967,8 +955,8 @@ export default class ProcessSpeech extends Component {
       'you will': 'I will',
       'You are': 'I am',
       'you are': 'I am',
-      Your: 'my',
-      your: 'my',
+      'Your': 'my',
+      'your': 'my',
       'we have': 'there are',
       'We have': 'there are',
       'Let me know': 'Ok I will let you know',
@@ -993,7 +981,7 @@ export default class ProcessSpeech extends Component {
     return checkUserSpeech;
   }
 
-  groupAssignment(
+  async groupAssignment(
     checkUserSpeech,
     groups,
     groupId,
@@ -1073,10 +1061,7 @@ export default class ProcessSpeech extends Component {
           console.log('I am in par function to call response');
           //EVALUATION//
           let { processArrivalMatched, transcript } = this.props.childProps;
-          console.log(processArrivalMatched);
-          processArrivalMatched = processArrivalMatched.processArrivalMatched;
-          console.log(processArrivalMatched);
-
+          processArrivalMatched = processArrivalMatched.processArrivalMatchd;
           processArrivalMatched[0] = {};
           processArrivalMatched[0].matched = 1;
           processArrivalMatched[0].matchKeyword = transcript;
@@ -1102,12 +1087,11 @@ export default class ProcessSpeech extends Component {
   }
 
   arrivalEvaluation() {
-    console.log('approachUnitsEvaluation()');
     const { groups } = this.props;
     let { slicerMatched, rectoMatched } = this.props;
     console.dir(groups);
     if (groups[0].assigned === 1) {
-      console.log('Fire attack matched evaluation');
+      
       slicerMatched[3].matched = 1;
       slicerMatched[3].matchKeyword = 'Fire Attack';
       slicerMatched[4].matched = 1;

@@ -7,6 +7,7 @@ export default class TextToSpeech extends Component {
   };
 
   componentDidMount() {
+    console.log('TextToSpeech()');
     const { phrases } = this.props;
     let phrase = '';
     if (phrases instanceof Array) {
@@ -35,28 +36,21 @@ export default class TextToSpeech extends Component {
     })
       .then(result => {
         let AudioContext = window.AudioContext || window.webkitAudioContext;
-        console.log({ AudioContext });
         const audioCtx = new AudioContext();
         const source = audioCtx.createBufferSource();
-        audioCtx
-          .decodeAudioData(
-            result.audioStream,
-            buffer => {
-              console.log(buffer);
-              source.buffer = buffer;
-              source.connect(audioCtx.destination);
-              source.start(0);
-              setTimeout(() => {
-                this.props.handleSpeechComplete();
-              }, (buffer.duration + 1) * 1000);
-            },
-            err => console.log({ err })
-          )
-          .then(() => {
-            console.log('Complted');
-          });
+        audioCtx.decodeAudioData(
+          result.audioStream,
+          buffer => {
+            source.buffer = buffer;
+            source.connect(audioCtx.destination);
+            source.start(0);
+            setTimeout(() => {
+              this.props.handleSpeechComplete();
+            }, (buffer.duration + 1) * 1000);
+          },
+          err => console.log({ err })
+        );
       })
-      .then(() => {})
       .catch(err => console.log(err));
   }
 

@@ -364,9 +364,7 @@ export default class Evolution extends Component {
       setTimeout(() => {
         if (!smokeReportComplete) {
           var newStep = step + 1;
-          this.setState({ smokeReportComplete: true, step: newStep }, () => {
-            console.log(this.state.step);
-          });
+          this.setState({ smokeReportComplete: true, step: newStep });
         }
         this.setDispatchText();
       }, 20000);
@@ -437,7 +435,7 @@ export default class Evolution extends Component {
   }
 
   handleDispatchLoopComplete = () => {
-    console.log('Dispatch loop complete');
+    console.log('handleDispatchLoopComplete()');
     const dispatchLoop = this.dispatchLoop.current;
     const approach = this.approach.current;
     this.setState(
@@ -488,6 +486,7 @@ export default class Evolution extends Component {
   };
 
   handleSpeechComplete = () => {
+    console.log('handleSpeechComplete()');
     const {
       step,
       assignmentCheck,
@@ -520,7 +519,7 @@ export default class Evolution extends Component {
     }
 
     if (threeSixtyComplete && assignmentCheck && !arrivalsComplete && !wait) {
-      console.log('FOR DECISION');
+      // For Decision
       this.setState({ isSpeaking: false });
     } else if (
       startArrival &&
@@ -542,9 +541,7 @@ export default class Evolution extends Component {
   };
 
   incidentWithinIncident() {
-    console.log('speak is called');
     setTimeout(() => {
-      console.log('Inside speak');
       var phrase =
         'Command from (unit on the interior) we have an excessive amount of ammunition discharging Hall around us we are evacuating';
       this.handleSpeak(phrase);
@@ -561,7 +558,7 @@ export default class Evolution extends Component {
     } = this.state;
     if (assignmentCheck === 0) {
       const phrase = `${firstAlarm[step4Index]} staged and awaiting assignment.`;
-      this.setState({ speakPhrases: phrase });
+      //this.setState({ speakPhrases: phrase });
       setTimeout(() => {
         this.handleSpeak(phrase, callingUnits[step4Index].voice, 5000);
         this.setState({
@@ -586,7 +583,7 @@ export default class Evolution extends Component {
   }
 
   handleListenComplete = (transcript) => {
-    console.log('Handle Listen Complete');
+    console.log('handleListenComplete()');
     console.log(transcript);
     const {
       step,
@@ -628,7 +625,7 @@ export default class Evolution extends Component {
 
   handleProcessSpeechComplete = updates => {
     //const { alarmTwoIncident } = this.state;
-    console.log('handleProcessSpeech');
+    console.log('handleProcessSpeechComplete()');
     if ('faceToFaceComplete' in updates) {
       this.setEducationText();
     }
@@ -681,7 +678,6 @@ export default class Evolution extends Component {
   };
 
   handleSpeechToTextComplete = transcript => {
-    console.log(transcript);
     this.setState({
       isRecording: false,
       endRecording: false,

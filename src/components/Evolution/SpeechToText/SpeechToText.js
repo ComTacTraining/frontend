@@ -25,6 +25,7 @@ export default class SpeechToText extends Component {
       prevProps.isRecording !== this.props.isRecording ||
       prevProps.endRecording !== this.props.endRecording
     ) {
+      console.log('SpeechToText()')
       this.processRecording();
     }
   }
