@@ -46,17 +46,13 @@ export default class ProcessSpeech extends Component {
       threeSixtyComplete,
       arrivalsComplete,
       commandingUnitComplete,
-      smokeReportComplete,
       transcript,
       step4Index
     } = this.props.childProps;
     // if (this.includesAnyText(alarm2KeywordDictionary)) {
     //   this.processSecondAlarm();
     // } else
-    if (!smokeReportComplete) {
-      console.log('SmokeReport()');
-      this.smokeReport();
-    } else if (!initialReportComplete) {
+    if (!initialReportComplete) {
       console.log('initialReport()');
       this.processInitialReport();
     } else if (!threeSixtyComplete) {
@@ -68,16 +64,6 @@ export default class ProcessSpeech extends Component {
     } else if (!commandingUnitComplete) {
       this.commandingUnitReport();
     }
-  }
-
-  smokeReport() {
-    const { transcript } = this.props.childProps;
-    this.props.childProps.handleSpeak(transcript);
-    const updates = {
-      smokeReportComplete: true,
-      transcript: ''
-    };
-    this.props.childProps.handleProcessSpeechComplete(updates);
   }
 
   processInitialReport() {
@@ -409,7 +395,7 @@ export default class ProcessSpeech extends Component {
 
   commandingUnitReport() {
     const { transcript } = this.props.childProps;
-    this.props.childProps.handleSpeak(transcript);
+    // this.props.childProps.handleSpeak(transcript);
     this.commandingUnitEvaluation(transcript);
     const updates = {
       commandingUnitComplete: true,

@@ -29,14 +29,15 @@ export default class Evolution extends Component {
     speakPhrases: [],
     speakVoice: 'Kendra',
     speakTimeout: 0,
-    step: 0,
+    step: 1,
     transcript: '',
     recognition: null,
     speechRecognitionResult: '',
     isSpeaking: true,
-    canTalk: true,
+    canTalk: false,
     videosLoaded: 0,
     preloadPercentage: 0,
+    dispatchInfoComplete: false,
     initialReportComplete: false,
     threeSixtyComplete: false,
     startArrival: false,
@@ -45,7 +46,6 @@ export default class Evolution extends Component {
     faceToFaceRequestComplete: false,
     faceToFaceComplete: false,
     commandingUnitComplete: false,
-    smokeReportComplete: false,
     flag: true,
     assignmentCheck: 0,
     initialCheck: 0,
@@ -364,15 +364,10 @@ export default class Evolution extends Component {
   };
 
   handleEnded = next => event => {
-    const { scrollText, smokeReportComplete, step } = this.state;
+    console.log('HandleEnded()');
+    const { scrollText } = this.state;
     if (scrollText.length === 0 && next === 'dispatchLoop') {
-      setTimeout(() => {
-        if (!smokeReportComplete) {
-          var newStep = step + 1;
-          this.setState({ smokeReportComplete: true, step: newStep });
-        }
-        this.setDispatchText();
-      }, 20000);
+      this.setDispatchText();
     }
     const video = this[next].current;
     this.stopTimer();
@@ -448,7 +443,8 @@ export default class Evolution extends Component {
         currentVideo: 'approach',
         scrollText: [],
         speakPhrases: [],
-        canTalk: true
+        canTalk: true,
+        dispatchInfoComplete: true
       },
       () => {
         this.stopTimer();
@@ -459,9 +455,10 @@ export default class Evolution extends Component {
   };
 
   handleAlphaLoopComplete = () => {
+    console.log('handleAlphaLoopComplete()');
     const alphaLoop = this.alphaLoop.current;
     const credits = this.credits.current;
-    this.setState({ currentVideo: 'credits', scrollText: [] }, () => {
+    this.setState({ currentVideo: 'credits', scrollText: []}, () => {
       this.stopTimer();
       alphaLoop.pause();
       credits.play();
@@ -500,8 +497,9 @@ export default class Evolution extends Component {
       threeSixtyComplete,
       arrivalsComplete,
       step4Index,
-      firstAlarm
-      // commandingUnitComplete
+      firstAlarm,
+      dispatchInfoComplete,
+      commandingUnitComplete
     } = this.state;
 
     let newStep = step;
@@ -540,9 +538,9 @@ export default class Evolution extends Component {
       console.log('GOING TO CALL PROCESS ARRIVAL');
       this.processArrivals();
     }
-    this.setState({ speakPhrases: [], step: newStep, transcript: '' }, () => {
-      console.log('SpeakPhrases are ' + this.state.transcript);
-    });
+    this.setState({ speakPhrases: [], step: newStep, transcript: '' });
+    if(dispatchInfoComplete && !commandingUnitComplete)
+      this.setState({ canTalk: true });
   };
 
   incidentWithinIncident() {
@@ -677,7 +675,7 @@ export default class Evolution extends Component {
     if (event.code === 'Space' && canTalk) {
       event.preventDefault();
       if (!event.repeat) {
-        this.setState({ endRecording: true });
+        this.setState({ endRecording: true, canTalk: false });
       }
     }
   };
@@ -722,7 +720,6 @@ export default class Evolution extends Component {
       faceToFaceRequestComplete,
       faceToFaceComplete,
       commandingUnitComplete,
-      smokeReportComplete,
       parSpeech,
       parSpeechIndex,
       callingUnits,
@@ -757,7 +754,6 @@ export default class Evolution extends Component {
         faceToFaceRequestComplete: faceToFaceRequestComplete,
         faceToFaceComplete: faceToFaceComplete,
         commandingUnitComplete: commandingUnitComplete,
-        smokeReportComplete: smokeReportComplete,
 
         firstAlarm: firstAlarm,
         chief: chief,
