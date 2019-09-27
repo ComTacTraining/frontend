@@ -25,7 +25,7 @@ export default class SpeechToText extends Component {
       prevProps.isRecording !== this.props.isRecording ||
       prevProps.endRecording !== this.props.endRecording
     ) {
-      console.log('SpeechToText()')
+      console.log('SpeechToText()');
       this.processRecording();
     }
   }
@@ -230,7 +230,6 @@ export default class SpeechToText extends Component {
         let transcript = results[0].Alternatives[0].Transcript;
         // fix encoding for accented characters
         transcript = decodeURIComponent(escape(transcript));
-
         if (!results[0].IsPartial) {
           response = response + transcript;
           this.setState({ response: response });
@@ -248,7 +247,14 @@ export default class SpeechToText extends Component {
         Buffer.from(new Buffer([]))
       );
       let emptyBuffer = eventStreamMarshaller.marshall(emptyMessage);
-      socket.send(emptyBuffer);
+      try {
+        socket.send(emptyBuffer);
+      } catch (err) {
+        console.log('Inside catch');
+        setTimeout(() => {
+          socket.send(emptyBuffer);
+        }, 1000);
+      }
     }
     this.setState({ socket: socket, micStream: null });
   };

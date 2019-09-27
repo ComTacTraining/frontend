@@ -438,25 +438,6 @@ export default class ProcessSpeech extends Component {
     this.props.childProps.handleProcessSpeechComplete({ transcript: '' });
   }
 
-  processFaceToFaceRequest() {
-    const { chief } = this.props.childProps;
-    const phrase = `${chief} requesting face to face`;
-    this.props.childProps.handleSpeak(phrase);
-    const updates = {
-      faceToFaceRequestComplete: true,
-      transcript: ''
-    };
-    this.props.childProps.handleProcessSpeechComplete(updates);
-    // this.props.childProps.handleSpeak(phrase);
-  }
-
-  processFaceToFace() {
-    this.props.childProps.handleProcessSpeechComplete({
-      faceToFaceComplete: true,
-      transcript: ''
-    });
-  }
-
   includesText(text) {
     const { transcript } = this.props.childProps;
     return transcript.toUpperCase().includes(text.toUpperCase());
@@ -534,7 +515,6 @@ export default class ProcessSpeech extends Component {
         );
 
         setTimeout(() => {
-          //this.props.childProps.handleStep4Assignment();
           const updates = {
             assignmentCheck: 1,
             transcript: '',
@@ -865,7 +845,6 @@ export default class ProcessSpeech extends Component {
         wait: 0
       };
       this.props.childProps.handleProcessSpeechComplete(updates);
-      //this.props.childProps.handleStep4Assignment();
       this.props.childProps.handleSpeak(
         this.state.userSpeechChanged,
         callingUnits[step4Index].voice,
@@ -925,7 +904,6 @@ export default class ProcessSpeech extends Component {
       };
       
       this.props.childProps.handleProcessSpeechComplete(updates);
-      //this.props.childProps.handleStep4Assignment();
       console.log(phrase);
       this.props.childProps.handleSpeak(
         phrase,
