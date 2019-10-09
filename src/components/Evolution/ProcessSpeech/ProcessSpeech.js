@@ -72,6 +72,7 @@ export default class ProcessSpeech extends Component {
     this.props.childProps.handleSpeak(phrase);
     this.processInitialEvaluation(transcript);
     const updates = {
+      initialSpeech: transcript,
       initialReportComplete: true,
       transcript: ''
     };
@@ -280,6 +281,7 @@ export default class ProcessSpeech extends Component {
     this.props.childProps.handleSpeak(phrase);
     this.processThreeSixtyEvaluation(transcript);
     const updates = {
+      secondarySpeech: transcript,
       threeSixtyComplete: true,
       transcript: '',
       startArrival: true
@@ -476,8 +478,6 @@ export default class ProcessSpeech extends Component {
     const { secondAlarm, callingUnits } = this.props.childProps;
     let {
       groups,
-      parSpeech,
-      parSpeechIndex,
       step4Index
     } = this.props.childProps;
     console.dir(groups);
@@ -636,9 +636,6 @@ export default class ProcessSpeech extends Component {
         if (userSpeech.match(re)) {
           checkUserSpeech = 0;
           parDetected = 1;
-          //parKeyword = 1;
-          parSpeech[parSpeechIndex] = userSpeech;
-          parSpeechIndex++;
         }
       });
       if (parDetected) {
@@ -809,18 +806,15 @@ export default class ProcessSpeech extends Component {
     const {
       callingUnits,
       transcript,
-      step4Index,
-      parSpeech
+      step4Index
     } = this.props.childProps;
 
     if (parDetected) {
       var phrase = 'All personnel are present and accounted for';
-      var newParSpeech = parSpeech;
-      newParSpeech.push(transcript);
 
       const updates = {
         assignmentCheck: 1,
-        parSpeech: newParSpeech,
+        parSpeech: transcript,
         transcript: '',
         wait: 1
       };

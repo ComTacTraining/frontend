@@ -11,6 +11,7 @@ import { education } from './Education/Education';
 import SpeechToText from './SpeechToText/SpeechToText';
 import TextToSpeech from './TextToSpeech/TextToSpeech';
 // import TextToInterpret from './TextToInterpret/TextToInterpret';
+import Evaluation from './Evaluation/Evaluation';
 
 export default class Evolution extends Component {
   state = {
@@ -34,9 +35,11 @@ export default class Evolution extends Component {
     recognition: null,
     speechRecognitionResult: '',
     isSpeaking: true,
-    canTalk: false,
+    canTalk: true,
     videosLoaded: 0,
     preloadPercentage: 0,
+    initialSpeech: '',
+    secondarySpeech: '',
     //STEPS
     dispatchInfoComplete: false, //Step 1
     initialReportComplete: false, //Step 2
@@ -50,14 +53,14 @@ export default class Evolution extends Component {
     commandingUnitComplete: false, //Step 6 Complete
     educationRequest: false, //Step 7 Request
     educationComplete: false, //Step 7 Complete
+    evaluationComplete: false,
 
     flag: true,
     assignmentCheck: 0,
     initialCheck: 0,
     finalJsonOutput: [],
     finalJsonOutputIndex: 0,
-    parSpeech: [],
-    parSpeechIndex: 0,
+    parSpeech: '',
     groups: [],
     callingUnits: [],
     step4Index: 0,
@@ -73,7 +76,8 @@ export default class Evolution extends Component {
     alarmTwoIncident: false,
     incidentReportRequest: false,
     isRecording: false,
-    endRecording: false
+    endRecording: false,
+    evaluationPage: false
   };
 
   constructor(props) {
@@ -493,10 +497,6 @@ export default class Evolution extends Component {
     });
   };
 
-  handleStepUpdate = step => {
-    this.setState({ step: step });
-  };
-
   handleSpeak = (phrases, voice, timeout = 0) => {
     console.log('handleSpeak()');
     this.setState({
@@ -521,7 +521,8 @@ export default class Evolution extends Component {
       educationRequest,
       faceToFaceComplete,
       commandingUnitRequest,
-      educationComplete
+      educationComplete,
+      evaluationComplete
     } = this.state;
     let arrivalsComplete = this.state.arrivalsComplete;
 
@@ -585,6 +586,12 @@ export default class Evolution extends Component {
       this.setEducationText();
     }
 
+    // For Step 8 : Evaluation
+    if (educationComplete && !evaluationComplete) {
+      console.log('For Step 8 : Evaluation');
+      this.setState({ evaluationComplete: true, evaluationPage: true});
+    }
+
     this.setState({ speakPhrases: [], step: newStep, transcript: '' }, () => {
       console.log('=========STEP ' + this.state.step + ' ==========');
     });
@@ -626,11 +633,6 @@ export default class Evolution extends Component {
       const phrase = `${chief} requesting face to face`;
       this.handleSpeak(phrase);
       this.setState({ faceToFaceComplete: true });
-      console.log(this.state.initialMatched);
-      console.log(this.state.secondaryMatched);
-      console.log(this.state.processArrivalMatched);
-      console.log(this.state.slicerMatched);
-      console.log(this.state.rectoMatched);
     }, 1500);
   }
 
@@ -747,7 +749,6 @@ export default class Evolution extends Component {
       faceToFaceComplete,
       commandingUnitComplete,
       parSpeech,
-      parSpeechIndex,
       callingUnits,
       step4Index,
       assignmentCheck,
@@ -763,7 +764,12 @@ export default class Evolution extends Component {
 
       alarmTwoIncident,
       isRecording,
-      endRecording
+      endRecording,
+
+      evaluationPage,
+      initialSpeech,
+      secondarySpeech,
+
     } = this.state;
     let handleCallback = this.handleDispatchLoopComplete;
     if (currentVideo === 'alphaLoop') {
@@ -789,7 +795,6 @@ export default class Evolution extends Component {
         incidentCommander: incidentCommander,
         secondAlarm: secondAlarm,
         parSpeech: parSpeech,
-        parSpeechIndex: parSpeechIndex,
         callingUnits: callingUnits,
         step4Index: step4Index,
         assignmentCheck: assignmentCheck,
@@ -808,12 +813,28 @@ export default class Evolution extends Component {
         processArrivalMatched: { processArrivalMatched },
         slicerMatched: { slicerMatched },
         rectoMatched: { rectoMatched },
-        commandingUnitMatched: { commandingUnitMatched }
+        commandingUnitMatched: { commandingUnitMatched },
+        initialSpeech: { initialSpeech },
+        secondarySpeech: { secondarySpeech },
       };
     }
     return (
       !isLoadingEvolution && (
         <div>
+          {evaluationPage && (
+            <Evaluation 
+              initialSpeech ={initialSpeech}
+              secondarySpeech = {secondarySpeech}
+              initialMatched = { initialMatched }
+              secondaryMatched = { secondaryMatched }
+              processArrivalMatched = { processArrivalMatched }
+              slicerMatched = { slicerMatched }
+              rectoMatched = { rectoMatched }
+              commandingUnitMatched = {commandingUnitMatched}
+              parSpeech = {parSpeech}
+            />
+          )}
+          
           {speakPhrases.length > 0 && (
             <TextToSpeech
               phrases={speakPhrases}
@@ -869,6 +890,7 @@ export default class Evolution extends Component {
               className='videoCanvas'
             />
           </div>
+          
         </div>
       )
     );

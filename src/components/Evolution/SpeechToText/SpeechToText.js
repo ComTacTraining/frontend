@@ -4,7 +4,7 @@ import v4 from './aws-signature-v4';
 import { EventStreamMarshaller } from '@aws-sdk/eventstream-marshaller';
 import { fromUtf8, toUtf8 } from '@aws-sdk/util-utf8-node';
 import crypto from 'crypto';
-import config from '../../../config';
+require('dotenv').config();
 
 const eventStreamMarshaller = new EventStreamMarshaller(toUtf8, fromUtf8);
 
@@ -100,8 +100,8 @@ export default class SpeechToText extends Component {
         .update('', 'utf8')
         .digest('hex'),
       {
-        key: config.sockets.accessId,
-        secret: config.sockets.secretKey,
+        key: process.env.REACT_APP_ACCESS_ID,
+        secret: process.env.REACT_APP_SECRET_KEY,
         protocol: 'wss',
         expires: 15,
         region: 'us-west-2',
