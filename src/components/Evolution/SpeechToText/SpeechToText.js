@@ -100,8 +100,8 @@ export default class SpeechToText extends Component {
         .update('', 'utf8')
         .digest('hex'),
       {
-        key: process.env.REACT_APP_ACCESS_ID,
-        secret: process.env.REACT_APP_SECRET_KEY,
+        key: process.env.AWS_ACCESS_KEY_ID,
+        secret: process.env.AWS_SECRET_ACCESS_KEY,
         protocol: 'wss',
         expires: 15,
         region: 'us-west-2',
