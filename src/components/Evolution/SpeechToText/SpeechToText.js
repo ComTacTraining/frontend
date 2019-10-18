@@ -42,6 +42,7 @@ export default class SpeechToText extends Component {
 
   async startRecording() {
     // first we get the microphone input from the browser (as a promise)...
+    console.log(process.env.REACT_APP_ACCESS_ID);
     this.setState({ response: '' });
     window.navigator.mediaDevices
       .getUserMedia({
@@ -100,8 +101,8 @@ export default class SpeechToText extends Component {
         .update('', 'utf8')
         .digest('hex'),
       {
-        key: process.env.AWS_ACCESS_KEY_ID,
-        secret: process.env.AWS_SECRET_ACCESS_KEY,
+        key: process.env.REACT_APP_ACCESS_ID,
+        secret: process.env.REACT_APP_SECRET_KEY,
         protocol: 'wss',
         expires: 15,
         region: 'us-west-2',
