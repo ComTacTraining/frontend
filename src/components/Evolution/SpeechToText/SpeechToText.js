@@ -42,7 +42,6 @@ export default class SpeechToText extends Component {
 
   async startRecording() {
     // first we get the microphone input from the browser (as a promise)...
-    console.log(process.env.REACT_APP_ACCESS_ID);
     this.setState({ response: '' });
     window.navigator.mediaDevices
       .getUserMedia({
