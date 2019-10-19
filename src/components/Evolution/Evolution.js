@@ -125,6 +125,7 @@ export default class Evolution extends Component {
   }
 
   async loadVariables() {
+    //Before starting video
     const groupNames = [
       'Fire Attack',
       'Exposure Group',
