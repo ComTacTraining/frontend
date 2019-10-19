@@ -35,7 +35,7 @@ export default class Evolution extends Component {
     recognition: null,
     speechRecognitionResult: '',
     isSpeaking: true,
-    canTalk: true,
+    canTalk: false,
     videosLoaded: 0,
     preloadPercentage: 0,
     initialSpeech: '',
@@ -125,7 +125,6 @@ export default class Evolution extends Component {
   }
 
   async loadVariables() {
-    //Before starting video
     const groupNames = [
       'Fire Attack',
       'Exposure Group',
