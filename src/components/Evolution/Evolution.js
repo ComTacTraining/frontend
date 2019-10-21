@@ -121,7 +121,9 @@ export default class Evolution extends Component {
   }
 
   componentWillUnmount() {
-    this.stopTimer();
+    const { evaluationPage } = this.state;
+    if (!evaluationPage)
+      this.stopTimer();
   }
 
   async loadVariables() {
@@ -269,6 +271,7 @@ export default class Evolution extends Component {
   }
 
   getVideos = async () => {
+    // console.log('getVideos()');
     const { evolution } = this.state;
     const bucket = 'https://s3-us-west-2.amazonaws.com/ctt-video/';
     const fileType = '.mp4';
@@ -320,6 +323,7 @@ export default class Evolution extends Component {
   };
 
   preloadVideos() {
+    // console.log('preloadVideos()');
     const { videos } = this.state;
     videos.forEach(video => {
       this.preloadVideo(video);
@@ -327,6 +331,7 @@ export default class Evolution extends Component {
   }
 
   preloadVideo(video) {
+    // console.log('preloadVideo()');
     const vidRef = this[video.id].current;
     fetch(video.src, { mode: 'cors' })
       .then(response => response.blob())
@@ -338,6 +343,7 @@ export default class Evolution extends Component {
   }
 
   updateVideosLoaded() {
+    // console.log('updateVideosLoaded()');
     const { videosLoaded, videos } = this.state;
     const newVideosLoaded = videosLoaded + 1;
     const preloadPercentage = Math.floor(
@@ -350,17 +356,23 @@ export default class Evolution extends Component {
   }
 
   stopTimer() {
+    // console.log('stopTimer()');
     const { timerId } = this.state;
     window.clearInterval(timerId);
   }
 
   drawImage(video) {
-    const canvas = this.videoCanvas.current;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    // console.log('drawImage()');
+    const { evaluationPage } = this.state;
+    if(!evaluationPage){
+      const canvas = this.videoCanvas.current;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    }
   }
 
   loadVideo(video) {
+    // console.log('loadVideo()');
     const timerId = window.setInterval(() => {
       this.drawImage(video);
     }, this.fps);
@@ -368,11 +380,12 @@ export default class Evolution extends Component {
   }
 
   handlePlay = event => {
+    // console.log('handlePlay()');
     this.loadVideo(event.target);
   };
 
   handleEnded = next => event => {
-    console.log('HandleEnded()');
+    // console.log('HandleEnded()');
     const { scrollText } = this.state;
     if (scrollText.length === 0 && next === 'dispatchLoop') {
       this.setDispatchText();
@@ -384,6 +397,7 @@ export default class Evolution extends Component {
   };
 
   handleLoadedData = id => event => {
+    // console.log('handleLoadedData()');
     if (id === 'intro') {
       const intro = this.intro.current;
       this.drawImage(intro);
@@ -391,6 +405,7 @@ export default class Evolution extends Component {
   };
 
   handlePlayClicked = () => {
+    // console.log('handlePlayClicked()');
     const canvas = this.canvasContainer.current;
     if (canvas.requestFullScreen) {
       canvas.requestFullScreen();
@@ -853,7 +868,7 @@ export default class Evolution extends Component {
           {(transcript !== '' || step >= 1) && !isSpeaking && (
             <ProcessSpeech childProps={processSpeechChildProps} />
           )}
-          {videos.map(video => (
+          {!evaluationPage && videos.map(video => (
             <video
               ref={this[video.id]}
               key={video.id}
@@ -863,6 +878,7 @@ export default class Evolution extends Component {
               hidden
             />
           ))}
+          {!evaluationPage && (
           <div className='canvas' ref={this.canvasContainer}>
             {!isPlaying && preloadPercentage === 100 && (
               <img
@@ -891,7 +907,7 @@ export default class Evolution extends Component {
               className='videoCanvas'
             />
           </div>
-   
+          )}
           
         </div>
       )
