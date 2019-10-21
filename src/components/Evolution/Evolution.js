@@ -637,7 +637,7 @@ export default class Evolution extends Component {
   }
 
   handleListenComplete = transcript => {
-    transcript = transcript.split('.').join(" .");
+    transcript = transcript.split('.').join(". ");
     console.log('handleListenComplete()');
     console.log('--TRANSCRIPT--' + transcript);
     const {
