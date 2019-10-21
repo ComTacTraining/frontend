@@ -267,7 +267,7 @@ export default class SpeechToText extends Component {
     const { response } = this.state;
     return (
       <div className='SpeechToText'>
-        <pre>{response}</pre>
+        <p>{response}</p>
       </div>
     );
   }

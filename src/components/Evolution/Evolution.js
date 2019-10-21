@@ -637,6 +637,7 @@ export default class Evolution extends Component {
   }
 
   handleListenComplete = transcript => {
+    transcript = transcript.split('.').join(" .");
     console.log('handleListenComplete()');
     console.log('--TRANSCRIPT--' + transcript);
     const {
@@ -890,6 +891,7 @@ export default class Evolution extends Component {
               className='videoCanvas'
             />
           </div>
+   
           
         </div>
       )
