@@ -463,21 +463,20 @@ export default class Evolution extends Component {
     if (!educationRequest) {
       console.log('1st Chunk');
       console.log(this.state.speakPhrases);
-      console.log(educationPhrase.substring(0, 200));
       setTimeout(() => {
         this.setState({
           educationRequest: true,
           scrollText: educationPhrase,
-          speakPhrases: educationPhrase.substring(0, 200)
+          speakPhrases: educationPhrase.substring(0, 269)
         }); //0, 2934
       }, 1500);
     } else {
       setTimeout(() => {
         this.setState({
           educationComplete: true,
-          speakPhrases: educationPhrase.substring(201, 400)
+          speakPhrases: educationPhrase.substring(270, 423)
         }); //2935, 5590
-      }, 1000);
+      }, 500);
     }
   }
 
